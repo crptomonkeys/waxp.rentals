@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Nano.Net" Version="1.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\WaxRentals.Banano\WaxRentals.Banano.csproj" />
     <ProjectReference Include="..\WaxRentals.Waxp\WaxRentals.Waxp.csproj" />
   </ItemGroup>

@@ -5,11 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nano.Net" Version="1.4.2" />
+    <Folder Include="Monitor\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Monitor\" />
+    <PackageReference Include="Nano.Net" Version="1.4.2" />
   </ItemGroup>
 
 </Project>

@@ -6,15 +6,16 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{35DB5FCD-A3E4-4043-BB9C-578169103AA3}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
+		..\Notes.txt = ..\Notes.txt
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VanityAddressGenerator", "VanityAddressGenerator\VanityAddressGenerator.csproj", "{2A0C7705-C25C-49E0-9A6B-A337F5ADB8E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaxRentalsWeb", "WaxRentalsWeb\WaxRentalsWeb.csproj", "{F8949387-B6F9-43E5-9B8A-FEB78CAFC36D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentalsWeb", "WaxRentalsWeb\WaxRentalsWeb.csproj", "{F8949387-B6F9-43E5-9B8A-FEB78CAFC36D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaxRentals.Banano", "WaxRentals.Banano\WaxRentals.Banano.csproj", "{AB3F361E-AD08-445F-9073-66A238D66CE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Banano", "WaxRentals.Banano\WaxRentals.Banano.csproj", "{AB3F361E-AD08-445F-9073-66A238D66CE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaxRentals.Waxp", "WaxRentals.Waxp\WaxRentals.Waxp.csproj", "{D276F38E-A664-4B0A-8206-B45660AF8D7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Waxp", "WaxRentals.Waxp\WaxRentals.Waxp.csproj", "{D276F38E-A664-4B0A-8206-B45660AF8D7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
