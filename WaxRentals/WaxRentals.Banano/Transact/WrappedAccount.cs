@@ -36,16 +36,16 @@ namespace WaxRentals.Banano.Transact
             await _node.ProcessAsync(send);
         }
 
-        public async Task CheckRepresentative()
-        {
-            var account = await BuildAccount();
-            if (!string.Equals(account.Representative, Protocol.Representative, StringComparison.OrdinalIgnoreCase))
-            {
-                var work = await _work.WorkGenerateAsync(account.Frontier);
-                var change = Block.CreateChangeBlock(account, Protocol.Representative, work.Work);
-                await _node.ProcessAsync(change);
-            }
-        }
+        //public async Task CheckRepresentative()
+        //{
+        //    var account = await BuildAccount();
+        //    if (!string.Equals(account.Representative, Protocol.Representative, StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        var work = await _work.WorkGenerateAsync(account.Frontier);
+        //        var change = Block.CreateChangeBlock(account, Protocol.Representative, work.Work);
+        //        await _node.ProcessAsync(change);
+        //    }
+        //}
 
         public async Task<BigDecimal> Receive()
         {

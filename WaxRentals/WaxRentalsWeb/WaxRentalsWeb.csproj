@@ -5,11 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Eos.Api" Version="1.18.12.19" />
+    <PackageReference Include="Eos.Cryptography" Version="1.18.12.19" />
     <PackageReference Include="Nano.Net" Version="1.4.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\WaxRentals.Banano\WaxRentals.Banano.csproj" />
+    <ProjectReference Include="..\WaxRentals.Monitoring\WaxRentals.Monitoring.csproj" />
     <ProjectReference Include="..\WaxRentals.Waxp\WaxRentals.Waxp.csproj" />
   </ItemGroup>
 

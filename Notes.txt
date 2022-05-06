@@ -1,1 +1,6 @@
 - before unstaking, check for pending trx
+- local storage to keep trx for easy access
+
+
+
+nano-work-server -g 0:0
