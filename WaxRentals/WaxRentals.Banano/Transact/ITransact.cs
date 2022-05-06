@@ -6,7 +6,9 @@ namespace WaxRentals.Banano.Transact
     public interface ITransact
     {
 
-        Task Send(string target, decimal banano);
+        public string Address { get; }
+
+        Task Send(string target, BigDecimal banano);
         Task<BigDecimal> Receive();
 
     }

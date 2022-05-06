@@ -7,10 +7,11 @@
   <ItemGroup>
     <PackageReference Include="Eos.Api" Version="1.18.12.19" />
     <PackageReference Include="Eos.Cryptography" Version="1.18.12.19" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Monitor\" />
+    <Folder Include="Monitoring\" />
   </ItemGroup>
 
 </Project>

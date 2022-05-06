@@ -1,5 +1,5 @@
 - before unstaking, check for pending trx
-- local storage to keep trx for easy access
+- browser local storage to keep trx for easy access to earlier trx for users
 
 
 

@@ -11,46 +11,32 @@ namespace WaxRentals.Banano.Transact
     public class WrappedAccount : ITransact
     {
 
-        private BananoSeed _seed;
-        private uint _index;
-        private RpcClient _node;
-        private RpcClient _work;
+        public string Address { get { return _account.Address; } }
 
-        public WrappedAccount(BananoSeed seed, uint index, RpcClient node, RpcClient work)
+        private Account _account;
+        private RpcClients _rpc;
+
+        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc)
         {
-            _seed = seed;
-            _index = index;
-            _node = node;
-            _work = work;
+            _account = new Account(seed.Seed, index, Protocol.Prefix);
+            _rpc = rpc;
         }
 
-        public async Task Send(string target, decimal banano)
+        public async Task Send(string target, BigDecimal banano)
         {
-            var account = await BuildAccount();
-            var work = await GenerateWork(account);
+            await _rpc.Node.UpdateAccountAsync(_account);
+            var work = await GenerateWork(_account);
             var send = Block.CreateSendBlock(
-                account,
+                _account,
                 target,
                 Amount.FromNano(BananoToNano(banano).ToString()),
                 work);
-            await _node.ProcessAsync(send);
+            await _rpc.Node.ProcessAsync(send);
         }
-
-        //public async Task CheckRepresentative()
-        //{
-        //    var account = await BuildAccount();
-        //    if (!string.Equals(account.Representative, Protocol.Representative, StringComparison.OrdinalIgnoreCase))
-        //    {
-        //        var work = await _work.WorkGenerateAsync(account.Frontier);
-        //        var change = Block.CreateChangeBlock(account, Protocol.Representative, work.Work);
-        //        await _node.ProcessAsync(change);
-        //    }
-        //}
 
         public async Task<BigDecimal> Receive()
         {
-            var account = new Account(_seed.Seed, _index, Protocol.Prefix);
-            var pending = await _node.PendingBlocksAsync(account.Address, int.MaxValue);
+            var pending = await _rpc.Node.PendingBlocksAsync(_account.Address, int.MaxValue);
 
             BigDecimal result = 0;
             if (pending?.PendingBlocks != null)
@@ -59,11 +45,11 @@ namespace WaxRentals.Banano.Transact
                 {
                     try
                     {
-                        await _node.UpdateAccountAsync(account);
-                        var work = await GenerateWork(account);
-                        var receive = Block.CreateReceiveBlock(account, block.Value, work);
-                        await _node.ProcessAsync(receive);
-                        result += NanoToBanano(BigDecimal.Parse(block.Value.Amount));
+                        await _rpc.Node.UpdateAccountAsync(_account);
+                        var work = await GenerateWork(_account);
+                        var receive = Block.CreateReceiveBlock(_account, block.Value, work);
+                        await _rpc.Node.ProcessAsync(receive);
+                        result += BigDecimal.Parse(block.Value.Amount);
                     }
                     catch (Exception ex)
                     {
@@ -74,30 +60,18 @@ namespace WaxRentals.Banano.Transact
             return result;
         }
 
-        private async Task<Account> BuildAccount()
-        {
-            var account = new Account(_seed.Seed, _index, Protocol.Prefix);
-            await _node.UpdateAccountAsync(account);
-            return account;
-        }
-
         private async Task<string> GenerateWork(Account account)
         {
-            var work = await _work.WorkGenerateAsync(
+            var work = await _rpc.WorkServer.WorkGenerateAsync(
                 account.Opened ? account.Frontier : account.PublicKey.BytesToHex()
             );
             return work?.Work;
         }
 
-        private decimal BananoToNano(decimal banano)
+        private BigDecimal BananoToNano(BigDecimal banano)
         {
-            return banano / 10;
+            return banano * 0.1;
         }
         
-        private BigDecimal NanoToBanano(BigDecimal nano)
-        {
-            return nano * 10;
-        }
-
     }
 }

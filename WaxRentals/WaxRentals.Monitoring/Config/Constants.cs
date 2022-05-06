@@ -2,7 +2,7 @@
 
 namespace WaxRentals.Monitoring.Config
 {
-    internal static class Constants
+    public static class Constants
     {
 
         public static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;

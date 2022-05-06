@@ -11,11 +11,10 @@ using Microsoft.Extensions.Logging;
 using Nano.Net;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Banano.Config;
+using WaxRentals.Monitoring.Logging;
 using WaxRentals.Monitoring.Prices;
 using WaxRentals.Waxp.Config;
 using WaxRentals.Waxp.Transact;
-//using WaxRentals.Banano.Transact;
-using Banano = WaxRentals.Banano.Config.Constants;
 using Waxp = WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentalsWeb.Pages
@@ -24,25 +23,13 @@ namespace WaxRentalsWeb.Pages
     {
         private readonly ILogger<IndexModel> _logger;
 
-        public IndexModel(ILogger<IndexModel> logger, PriceMonitor prices)
+        public IndexModel(ILogger<IndexModel> logger, GlobalMonitor monitor) // Just making sure that the global monitor is running.
         {
             _logger = logger;
         }
 
         public async Task OnGet()
         {
-            //var seed = JObject.Parse(
-            //    System.IO.File.ReadAllText(Locations.Seed)
-            //).ToObject<BananoSeed>();
-
-            //var node = new RpcClient(Locations.Node);
-            //var work = new RpcClient(Locations.WorkServer);
-
-            //var account = new WrappedAccount(seed, 0, node, work);
-            //var amount = await account.Receive();
-            //await account.CheckRepresentative();
-            //await account.Send(Protocol.Address, 1);
-
             //var key = JObject.Parse(
             //    System.IO.File.ReadAllText(Waxp.Locations.Key)
             //).ToObject<WaxKey>();

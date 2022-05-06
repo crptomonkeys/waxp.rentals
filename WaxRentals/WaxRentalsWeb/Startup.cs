@@ -38,7 +38,7 @@ namespace WaxRentalsWeb
             {
                 app.UseExceptionHandler("/Error");
             }
-
+            
             app.UseStaticFiles();
 
             app.UseRouting();

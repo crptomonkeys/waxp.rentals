@@ -3,8 +3,28 @@ using System.Timers;
 
 namespace WaxRentals.Monitoring
 {
-    public abstract class Monitor : Updatable, IDisposable
+    public abstract class Monitor : IDisposable
     {
+
+        #region " Event "
+
+        public event EventHandler Updated;
+
+        protected void RaiseEvent()
+        {
+            try
+            {
+                Updated?.Invoke(this, EventArgs.Empty);
+            }
+            catch (Exception ex)
+            {
+                // Log errors.
+            }
+        }
+
+        #endregion
+
+        #region " Timer "
 
         private readonly Timer _timer;
 
@@ -23,7 +43,7 @@ namespace WaxRentals.Monitoring
             }
         }
 
-        private void Elapsed()
+        protected virtual void Elapsed()
         {
             if (Tick())
             {
@@ -32,6 +52,54 @@ namespace WaxRentals.Monitoring
         }
 
         protected abstract bool Tick();
+
+        #endregion
+
+    }
+
+    public abstract class Monitor<T> : Monitor
+    {
+
+        #region " Event "
+
+        protected Monitor(TimeSpan interval) : base(interval) { }
+
+        public new event EventHandler<T> Updated;
+
+        protected void RaiseEvent(T args)
+        {
+            try
+            {
+                Updated?.Invoke(this, args);
+                base.RaiseEvent();
+            }
+            catch (Exception ex)
+            {
+                // Log errors.
+            }
+        }
+
+        #endregion
+
+        #region " Timer "
+
+        protected override void Elapsed()
+        {
+            if (Tick(out T args))
+            {
+                RaiseEvent(args);
+            }
+        }
+
+        protected abstract bool Tick(out T args);
+
+        protected override bool Tick()
+        {
+            // This should never be called.
+            return false;
+        }
+
+        #endregion
 
     }
 }
