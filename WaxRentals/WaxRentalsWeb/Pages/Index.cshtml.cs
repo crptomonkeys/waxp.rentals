@@ -30,14 +30,15 @@ namespace WaxRentalsWeb.Pages
 
         public async Task OnGet()
         {
-            //var key = JObject.Parse(
-            //    System.IO.File.ReadAllText(Waxp.Locations.Key)
-            //).ToObject<WaxKey>();
-            //var active = new PrivateKey(key.Private);
-            //var history = new NodeApiClient("https://history-wax-mainnet.wecan.dev");
-            //var transact = new NodeApiClient("https://wax.eu.eosamsterdam.net");
-            //var account = new WrappedAccount("rentwaxp4ban", active, history, transact);
-            //var result = await account.Stake("rentwaxp4ban", 0.02M, 0.01M);
+            var key = JObject.Parse(
+                System.IO.File.ReadAllText(Waxp.Locations.Key)
+            ).ToObject<WaxKey>();
+            var active = new PrivateKey(key.Private);
+            var history = new NodeApiClient("https://history-wax-mainnet.wecan.dev");
+            var transact = new NodeApiClient("https://wax.eu.eosamsterdam.net");
+            var account = new WrappedAccount("rentwaxp4ban", active, history, transact);
+            //var result = await account.Stake(".anmw.c.wam", 1, 0);
+            //var result = await account.Unstake(".anmw.c.wam", 1, 0);
         }
     }
 }
