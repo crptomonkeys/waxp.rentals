@@ -30,6 +30,10 @@ namespace WaxRentals.Waxp.Config
                                     // Add to queue to process.
                                     //Tracker.Track
                                 }
+                                else
+                                {
+                                    // Track but don't credit
+                                }
                             }
                         };
                         _monitor.Initialize();
