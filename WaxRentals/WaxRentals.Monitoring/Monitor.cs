@@ -22,6 +22,11 @@ namespace WaxRentals.Monitoring
             }
         }
 
+        public void Initialize()
+        {
+            Elapsed();
+        }
+
         #endregion
 
         #region " Timer "
@@ -66,11 +71,11 @@ namespace WaxRentals.Monitoring
 
         public new event EventHandler<T> Updated;
 
-        protected void RaiseEvent(T args)
+        protected void RaiseEvent(T result)
         {
             try
             {
-                Updated?.Invoke(this, args);
+                Updated?.Invoke(this, result);
                 base.RaiseEvent();
             }
             catch (Exception ex)
@@ -91,7 +96,7 @@ namespace WaxRentals.Monitoring
             }
         }
 
-        protected abstract bool Tick(out T args);
+        protected abstract bool Tick(out T result);
 
         protected override bool Tick()
         {

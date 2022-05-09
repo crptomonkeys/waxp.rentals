@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Nano.Net;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Banano.Transact;
+using WaxRentals.Monitoring;
 using static WaxRentals.Banano.Config.Constants;
 
 namespace WaxRentals.Banano.Config
@@ -27,7 +28,7 @@ namespace WaxRentals.Banano.Config
             );
 
             services.AddSingleton<StorageAccount>();
-            services.AddSingleton<GlobalMonitor>();
+            services.AddSingleton<IGlobalMonitor, GlobalMonitor>();
         }
 
     }

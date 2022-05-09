@@ -25,11 +25,18 @@ namespace WaxRentals.Banano.Monitoring
             received = received / Math.Pow(10, Protocol.Decimals);
             if (received > 0)
             {
-                if (_storage != null)
+                try
                 {
-                    _account.Send(_storage.Address, received);
+                    if (_storage != null)
+                    {
+                        _account.Send(_storage.Address, received);
+                    }
                 }
-                return true;
+                catch (Exception ex)
+                {
+                    // log and schedule for re-send
+                    return true;
+                }
             }
             return false;
         }

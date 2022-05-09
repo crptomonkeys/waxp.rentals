@@ -1,13 +1,14 @@
 ﻿using System;
 using WaxRentals.Banano.Monitoring;
 using WaxRentals.Banano.Transact;
+using WaxRentals.Monitoring;
 using WaxRentals.Monitoring.Logging;
 using WaxRentals.Monitoring.Prices;
 using static WaxRentals.Monitoring.Config.Constants;
 
 namespace WaxRentals.Banano.Config
 {
-    public class GlobalMonitor
+    internal class GlobalMonitor : IGlobalMonitor
     {
         
         private static AccountMonitor _monitor;

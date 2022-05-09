@@ -1,93 +1,98 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Eos.Api;
 using Eos.Cryptography;
 using Eos.Models;
 
 namespace WaxRentals.Waxp.Transact
 {
-    public class WrappedAccount
+    internal class WrappedAccount : ITransact
     {
 
         private readonly string _account;
         private readonly PrivateKey _active;
-        private readonly NodeApiClient _history;
-        private readonly NodeApiClient _transact;
+        private readonly ClientFactory _client;
 
-        public WrappedAccount(string account, PrivateKey active, NodeApiClient history, NodeApiClient transact)
+        public WrappedAccount(string account, PrivateKey active, ClientFactory client)
         {
             _account = account;
             _active = active;
-            _history = history;
-            _transact = transact;
+            _client = client;
         }
 
         public async Task<bool> Stake(string account, decimal cpu, decimal net)
         {
-            var transaction = await _transact.CreateTransaction
-            (
-                new List<IAction>
-                {
-                    new StakeAction
+            Transaction transaction = null;
+            var success = await _client.ProcessApi(
+                async client => transaction = await client.CreateTransaction(
+                    new List<IAction>
                     {
-                        Authorization = new List<Authorization>
+                        new StakeAction
                         {
-                            new Authorization
+                            Authorization = new List<Authorization>
                             {
-                                Actor = new Name(_account),
-                                Permission = new Name("active")
+                                new Authorization
+                                {
+                                    Actor = new Name(_account),
+                                    Permission = new Name("active")
+                                }
+                            },
+                            Data = new StakeData
+                            {
+                                Cpu = new LongCurrency($"{cpu} WAX"),
+                                Net = new LongCurrency($"{net} WAX"),
+                                From = new Name(_account),
+                                Receiver = new Name(account),
+                                Transfer = false
                             }
-                        },
-                        Data = new StakeData
-                        {
-                            Cpu = new LongCurrency($"{cpu} WAX"),
-                            Net = new LongCurrency($"{net} WAX"),
-                            From = new Name(_account),
-                            Receiver = new Name(account),
-                            Transfer = false
                         }
                     }
-                }
+                )
             );
-            return await Process(transaction);
+            return success && await Process(transaction);
         }
 
         public async Task<bool> Unstake(string account, decimal cpu, decimal net)
         {
-            var transaction = await _transact.CreateTransaction
-            (
-                new List<IAction>
-                {
-                    new UnstakeAction
+            Transaction transaction = null;
+            var success = await _client.ProcessApi(
+                async client => transaction = await client.CreateTransaction
+                (
+                    new List<IAction>
                     {
-                        Authorization = new List<Authorization>
+                        new UnstakeAction
                         {
-                            new Authorization
+                            Authorization = new List<Authorization>
                             {
-                                Actor = new Name(_account),
-                                Permission = new Name("active")
+                                new Authorization
+                                {
+                                    Actor = new Name(_account),
+                                    Permission = new Name("active")
+                                }
+                            },
+                            Data = new UnstakeData
+                            {
+                                Cpu = new LongCurrency($"{cpu} WAX"),
+                                Net = new LongCurrency($"{net} WAX"),
+                                From = new Name(_account),
+                                Receiver = new Name(account),
+                                Transfer = false
                             }
-                        },
-                        Data = new UnstakeData
-                        {
-                            Cpu = new LongCurrency($"{cpu} WAX"),
-                            Net = new LongCurrency($"{net} WAX"),
-                            From = new Name(_account),
-                            Receiver = new Name(account),
-                            Transfer = false
                         }
                     }
-                }
+                )
             );
-            return await Process(transaction);
+            return success && await Process(transaction);
         }
 
         private async Task<bool> Process(Transaction transaction)
         {
-            // Catch and log exceptions!
-            var signed = await _transact.SignTransaction(transaction, _active);
-            await _transact.PushTransaction(signed);
-            return true;
+            return await _client.ProcessApi(
+                async client =>
+                {
+                    var signed = await client.SignTransaction(transaction, _active);
+                    await client.PushTransaction(signed);
+                }
+            );
         }
 
         private class LongCurrency : Currency
