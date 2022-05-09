@@ -1,4 +1,7 @@
-﻿namespace WaxRentals.Banano.Config
+﻿using Nano.Net;
+using Nano.Net.Numbers;
+
+namespace WaxRentals.Banano.Config
 {
     public static class Constants
     {
@@ -8,6 +11,7 @@
             public const string Prefix = "ban";
             public const string Address = "ban_1waxf5j83w7eqqz3kph7u843wh3p5ddf1n48rh4i9m41zhk9nnquzwbnz9pb";
             public const int Decimals = 29;
+            public static readonly BigDecimal MinimumTransaction = Amount.NanoToRaw(0.1); // 1 BAN
         }
 
         public static class Locations

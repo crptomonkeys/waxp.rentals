@@ -10,35 +10,18 @@ namespace WaxRentals.Banano.Monitoring
     {
 
         private readonly ITransact _account;
-        private readonly ITransact _storage;
 
-        public AccountMonitor(TimeSpan interval, ITransact account, ITransact storage = null)
+        public AccountMonitor(TimeSpan interval, ITransact account)
             : base(interval)
         {
             _account = account;
-            _storage = storage;
         }
 
         protected override bool Tick(out BigDecimal received)
         {
             received = _account.Receive().GetAwaiter().GetResult();
             received = received / Math.Pow(10, Protocol.Decimals);
-            if (received > 0)
-            {
-                try
-                {
-                    if (_storage != null)
-                    {
-                        _account.Send(_storage.Address, received);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // log and schedule for re-send
-                    return true;
-                }
-            }
-            return false;
+            return received > 0;
         }
 
     }

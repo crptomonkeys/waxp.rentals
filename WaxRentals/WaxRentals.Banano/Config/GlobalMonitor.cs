@@ -25,6 +25,7 @@ namespace WaxRentals.Banano.Config
                         _monitor = new AccountMonitor(TimeSpan.FromSeconds(10), storage);
                         _monitor.Updated += (sender, received) =>
                         {
+                            // Add to queue to process (1. send to storage, 2. credit caller)
                             var converted = decimal.Parse(received.ToString()); // If we just do (decimal)received, we can only get whole numbers.
                             Tracker.Track("Received BAN", converted, Coins.Banano, earned: converted * prices.Banano);
                         };

@@ -1,5 +1,7 @@
-﻿using WaxRentals.Monitoring;
+﻿using System.Text.RegularExpressions;
+using WaxRentals.Monitoring;
 using WaxRentals.Waxp.Monitoring;
+using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Waxp.Config
 {
@@ -20,7 +22,14 @@ namespace WaxRentals.Waxp.Config
                         _monitor = monitor;
                         _monitor.Updated += (sender, transactions) =>
                         {
-
+                            foreach (var (amount, memo) in transactions)
+                            {
+                                if (amount >= Protocol.MinimumTransaction &&
+                                    Regex.IsMatch(memo ?? "", Protocol.BananoAddressRegex, RegexOptions.IgnoreCase))
+                                {
+                                    // Add to queue to process.
+                                }
+                            }
                         };
                         _monitor.Initialize();
                     }

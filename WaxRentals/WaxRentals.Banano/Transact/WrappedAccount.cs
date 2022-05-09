@@ -45,11 +45,15 @@ namespace WaxRentals.Banano.Transact
                 {
                     try
                     {
-                        await _rpc.Node.UpdateAccountAsync(_account);
-                        var work = await GenerateWork(_account);
-                        var receive = Block.CreateReceiveBlock(_account, block.Value, work);
-                        await _rpc.Node.ProcessAsync(receive);
-                        result += BigDecimal.Parse(block.Value.Amount);
+                        var amount = BigDecimal.Parse(block.Value.Amount);
+                        if (amount >= Protocol.MinimumTransaction) // Filter out blocks smaller than the minimum.
+                        {
+                            await _rpc.Node.UpdateAccountAsync(_account);
+                            var work = await GenerateWork(_account);
+                            var receive = Block.CreateReceiveBlock(_account, block.Value, work);
+                            await _rpc.Node.ProcessAsync(receive);
+                            result += amount;
+                        }
                     }
                     catch (Exception ex)
                     {

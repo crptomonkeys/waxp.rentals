@@ -12,6 +12,10 @@
             public const string HistoryEndpoints = "$..history_traditional_https[*][1]";
 
             public const string TransferActions = "$.simple_actions[?(@.action=='transfer' && @.data.to=='" + Account + "')].data";
+
+            public const decimal MinimumTransaction = 1;
+
+            public const string BananoAddressRegex = "^ban_[13]{1}[13456789abcdefghijkmnopqrstuwxyz]{59}$";
         }
 
         public static class Locations

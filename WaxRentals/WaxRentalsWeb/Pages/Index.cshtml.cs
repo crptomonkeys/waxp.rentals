@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using WaxRentals.Banano.Config;
-using WaxRentals.Waxp.Transact;
+using WaxRentals.Banano.Transact;
 
 namespace WaxRentalsWeb.Pages
 {
