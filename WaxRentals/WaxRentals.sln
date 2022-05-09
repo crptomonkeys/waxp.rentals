@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32413.511
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{35DB5FCD-A3E4-4043-BB9C-578169103AA3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 -- Solution Items", "1 -- Solution Items", "{35DB5FCD-A3E4-4043-BB9C-578169103AA3}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
 		..\Notes.txt = ..\Notes.txt
@@ -18,6 +18,22 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Waxp", "WaxRentals.Waxp\WaxRentals.Waxp.csproj", "{D276F38E-A664-4B0A-8206-B45660AF8D7E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaxRentals.Monitoring", "WaxRentals.Monitoring\WaxRentals.Monitoring.csproj", "{C7178A50-349B-494C-9434-7F01730EB42A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaxRentals.Data", "WaxRentals.Data\WaxRentals.Data.csproj", "{54DCECA9-2695-4416-A9ED-6BB419963255}"
+EndProject
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WaxRentals.Database", "WaxRentals.Database\WaxRentals.Database.sqlproj", "{FB0F0576-6DD7-4391-A45E-975E5F542F18}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 -- Data", "4 -- Data", "{7EAA7E06-4B3C-4147-A926-A45FE6DB771C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 -- Web", "2 -- Web", "{9A71D8E9-28F8-48FE-A7FD-64E05B59FF7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaxRentals.Processing", "WaxRentals.Processing\WaxRentals.Processing.csproj", "{F401AC16-DD40-4F1E-B187-0B57D267230B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 -- Protocols", "3 -- Protocols", "{85587003-2A08-4C06-A343-5D712A5E4DB3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 -- Tools", "5 -- Tools", "{1DE5BCA2-FA15-4D36-90B4-A819E8065F05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FillDatabaseAddresses", "FillDatabaseAddresses\FillDatabaseAddresses.csproj", "{FCAA2091-91BE-4F88-ADB6-10A273CA1F81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,9 +61,38 @@ Global
 		{C7178A50-349B-494C-9434-7F01730EB42A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C7178A50-349B-494C-9434-7F01730EB42A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C7178A50-349B-494C-9434-7F01730EB42A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54DCECA9-2695-4416-A9ED-6BB419963255}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54DCECA9-2695-4416-A9ED-6BB419963255}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54DCECA9-2695-4416-A9ED-6BB419963255}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54DCECA9-2695-4416-A9ED-6BB419963255}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB0F0576-6DD7-4391-A45E-975E5F542F18}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB0F0576-6DD7-4391-A45E-975E5F542F18}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB0F0576-6DD7-4391-A45E-975E5F542F18}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FB0F0576-6DD7-4391-A45E-975E5F542F18}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB0F0576-6DD7-4391-A45E-975E5F542F18}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB0F0576-6DD7-4391-A45E-975E5F542F18}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{F401AC16-DD40-4F1E-B187-0B57D267230B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F401AC16-DD40-4F1E-B187-0B57D267230B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F401AC16-DD40-4F1E-B187-0B57D267230B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F401AC16-DD40-4F1E-B187-0B57D267230B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCAA2091-91BE-4F88-ADB6-10A273CA1F81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCAA2091-91BE-4F88-ADB6-10A273CA1F81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCAA2091-91BE-4F88-ADB6-10A273CA1F81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCAA2091-91BE-4F88-ADB6-10A273CA1F81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2A0C7705-C25C-49E0-9A6B-A337F5ADB8E8} = {1DE5BCA2-FA15-4D36-90B4-A819E8065F05}
+		{F8949387-B6F9-43E5-9B8A-FEB78CAFC36D} = {9A71D8E9-28F8-48FE-A7FD-64E05B59FF7D}
+		{AB3F361E-AD08-445F-9073-66A238D66CE5} = {85587003-2A08-4C06-A343-5D712A5E4DB3}
+		{D276F38E-A664-4B0A-8206-B45660AF8D7E} = {85587003-2A08-4C06-A343-5D712A5E4DB3}
+		{C7178A50-349B-494C-9434-7F01730EB42A} = {85587003-2A08-4C06-A343-5D712A5E4DB3}
+		{54DCECA9-2695-4416-A9ED-6BB419963255} = {7EAA7E06-4B3C-4147-A926-A45FE6DB771C}
+		{FB0F0576-6DD7-4391-A45E-975E5F542F18} = {7EAA7E06-4B3C-4147-A926-A45FE6DB771C}
+		{F401AC16-DD40-4F1E-B187-0B57D267230B} = {9A71D8E9-28F8-48FE-A7FD-64E05B59FF7D}
+		{FCAA2091-91BE-4F88-ADB6-10A273CA1F81} = {1DE5BCA2-FA15-4D36-90B4-A819E8065F05}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {67FEF539-CB46-41B5-89E4-7399F417FC18}

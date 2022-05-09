@@ -28,6 +28,7 @@ namespace WaxRentals.Waxp.Config
                                     Regex.IsMatch(memo ?? "", Protocol.BananoAddressRegex, RegexOptions.IgnoreCase))
                                 {
                                     // Add to queue to process.
+                                    //Tracker.Track
                                 }
                             }
                         };

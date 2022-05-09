@@ -3,4 +3,4 @@
 
 
 
-nano-work-server -g 0:0
+nano-work-server -g 0:0 -l [::]:7077
