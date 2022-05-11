@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using WaxRentals.Data.Entities;
 
-namespace WaxRentals.Data.Access
+namespace WaxRentals.Data.Manager
 {
     public interface IProcess
     {

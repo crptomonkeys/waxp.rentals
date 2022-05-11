@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using WaxRentals.Data.Access;
+using WaxRentals.Data.Manager;
 using WaxRentals.Data.Context;
 
 namespace WaxRentals.Data.Config
