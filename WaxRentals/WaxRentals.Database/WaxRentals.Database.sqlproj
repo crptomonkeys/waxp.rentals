@@ -61,6 +61,9 @@
     <Folder Include="Scripts" />
     <Folder Include="Scripts\PostDeploy" />
     <Folder Include="dbo\Stored Procedures" />
+    <Folder Include="audit" />
+    <Folder Include="audit\Tables" />
+    <Folder Include="Security" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Account.sql" />
@@ -70,6 +73,8 @@
     <Build Include="dbo\Tables\Payment.sql" />
     <Build Include="dbo\Stored Procedures\PullNextCredit.sql" />
     <Build Include="dbo\Stored Procedures\PullNextPayment.sql" />
+    <Build Include="audit\Tables\Account.sql" />
+    <Build Include="Security\audit.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeploy.sql" />

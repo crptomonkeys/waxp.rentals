@@ -12,8 +12,8 @@ namespace WaxRentals.Data.Entities
 		public DateTime Inserted { get; set; }
 
 		public string WaxAccount { get; set; }
-		public uint CPU { get; set; }
-		public uint NET { get; set; }
+		public decimal CPU { get; set; }
+		public decimal NET { get; set; }
 		public DateTime? PaidThrough { get; set; }
 
 	}

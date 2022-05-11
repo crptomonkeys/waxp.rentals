@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Access\" />
     <Folder Include="Config\" />
   </ItemGroup>
 
