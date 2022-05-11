@@ -32,7 +32,7 @@ namespace WaxRentals.Waxp.Config
                                 }
                                 else
                                 {
-                                    // Track but don't credit
+                                    // Track but don't credit -- include banano address if available but go straight to status 3
                                 }
                             }
                         };
