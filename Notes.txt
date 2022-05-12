@@ -1,4 +1,3 @@
-- before unstaking, check for pending trx
 - browser local storage to keep trx for easy access to earlier trx for users
 
 

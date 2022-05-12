@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
+using static WaxRentals.Banano.Config.Constants;
 using static WaxRentals.Processing.Constants;
 using WaxAccount = WaxRentals.Waxp.Transact.ITransact;
 
@@ -11,11 +13,13 @@ namespace WaxRentals.Processing.Processors
     {
 
         private WaxAccount Wax { get; }
+        private IBananoAccountFactory Banano { get; }
 
-        public CreditProcessor(IProcess data, ILog log, WaxAccount wax)
+        public CreditProcessor(IProcess data, ILog log, WaxAccount wax, IBananoAccountFactory banano)
             : base(data, log)
         {
             Wax = wax;
+            Banano = banano;
         }
 
         protected override Func<Task<Credit>> Get => Data.PullNextCredit;
@@ -40,6 +44,9 @@ namespace WaxRentals.Processing.Processors
                     await Data.ProcessCredit(credit.CreditId, DateTime.UtcNow.AddDays(days));
                 }
             }
+
+            // Send banano to storage.
+            await Banano.BuildAccount((uint)account.AccountId).Send(Protocol.Address, credit.Banano);
         }
 
     }

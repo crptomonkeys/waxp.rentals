@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Nano.Net;
 using Nano.Net.Extensions;
@@ -16,14 +17,18 @@ namespace WaxRentals.Banano.Transact
 
         public string Address { get { return _account.Address; } }
 
-        private Account _account;
-        private RpcClients _rpc;
-        private ILog _log;
+        private readonly Account _account;
+        private readonly uint _index;
+        private readonly RpcClients _rpc;
+        private readonly IInsert _data;
+        private readonly ILog _log;
 
-        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, ILog log)
+        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, IInsert data, ILog log)
         {
             _account = new Account(seed.Seed, index, Protocol.Prefix);
+            _index = index;
             _rpc = rpc;
+            _data = data;
             _log = log;
         }
 
@@ -40,11 +45,6 @@ namespace WaxRentals.Banano.Transact
                 work);
             var response = await _rpc.Node.ProcessAsync(send);
             return response.Hash;
-        }
-
-        private BigDecimal BananoToNano(BigDecimal banano)
-        {
-            return banano * 0.1;
         }
 
         #endregion
@@ -95,8 +95,16 @@ namespace WaxRentals.Banano.Transact
                     await _rpc.Node.UpdateAccountAsync(_account);
                     var work = await GenerateWork(_account);
                     var receive = Block.CreateReceiveBlock(_account, block, work);
-                    await _rpc.Node.ProcessAsync(receive);
-                    result += BigDecimal.Parse(block.Amount);
+                    var response = await _rpc.Node.ProcessAsync(receive);
+                    
+                    var amount = BigInteger.Parse(block.Amount);
+                    result += amount;
+
+                    if (_index > 0) // No credit for the storage account.
+                    {
+                        // Apply credit for each block so we can track each transaction.
+                        await _data.ApplyCredit((int)_index, RawToDecimal(amount), response.Hash);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -119,6 +127,17 @@ namespace WaxRentals.Banano.Transact
         }
 
         #endregion
+
+        private BigDecimal BananoToNano(BigDecimal banano)
+        {
+            return banano * 0.1;
+        }
+
+        private decimal RawToDecimal(BigInteger raw)
+        {
+            var banano = BananoToNano(Amount.RawToNano(raw));
+            return (decimal)banano;
+        }
 
     }
 }
