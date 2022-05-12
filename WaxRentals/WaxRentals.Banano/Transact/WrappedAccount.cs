@@ -6,6 +6,7 @@ using Nano.Net;
 using Nano.Net.Extensions;
 using Nano.Net.Numbers;
 using WaxRentals.Banano.Config;
+using WaxRentals.Data.Manager;
 using static WaxRentals.Banano.Config.Constants;
 
 namespace WaxRentals.Banano.Transact
@@ -17,11 +18,13 @@ namespace WaxRentals.Banano.Transact
 
         private Account _account;
         private RpcClients _rpc;
+        private ILog _log;
 
-        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc)
+        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, ILog log)
         {
             _account = new Account(seed.Seed, index, Protocol.Prefix);
             _rpc = rpc;
+            _log = log;
         }
 
         #region " Send "
@@ -73,7 +76,7 @@ namespace WaxRentals.Banano.Transact
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex);
+                        await _log.Error(ex, block);
                     }
                 }
             }
@@ -97,7 +100,7 @@ namespace WaxRentals.Banano.Transact
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    await _log.Error(ex, block);
                 }
             }
             return result;

@@ -81,7 +81,7 @@ namespace WaxRentals.Processing.Processors
             }
             catch (Exception ex)
             {
-                await Log.Error(target, ex);
+                await Log.Error(ex, target);
             }
         }
 

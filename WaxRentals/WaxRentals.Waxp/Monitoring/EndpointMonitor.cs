@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Newtonsoft.Json.Linq;
+using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring;
 using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
@@ -13,7 +14,13 @@ namespace WaxRentals.Waxp.Monitoring
     internal class EndpointMonitor : Monitor<Endpoints>
     {
 
-        public EndpointMonitor(TimeSpan interval) : base(interval) { }
+        private ILog Log { get; }
+
+        public EndpointMonitor(TimeSpan interval, ILog log)
+            : base(interval)
+        {
+            Log = log;
+        }
         
         protected override bool Tick(out Endpoints result)
         {
@@ -33,7 +40,7 @@ namespace WaxRentals.Waxp.Monitoring
             }
             catch (Exception ex)
             {
-                // log
+                Log.Error(ex);
                 return false;
             }
         }

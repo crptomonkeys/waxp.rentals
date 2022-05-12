@@ -127,25 +127,27 @@ namespace WaxRentals.Data.Manager
 
         #region " ILog "
 
-        public async Task Error(object context, Exception exception)
+        public async Task Error(Exception exception, object context = null)
         {
             try
             {
                 var log = new Error
                 {
-                    Context = JObject.FromObject(context).ToString(),
-
                     Message = exception.Message,
                     StackTrace = exception.StackTrace,
                     TargetSite = exception.TargetSite?.Name,
                     InnerExceptions = exception.InnerException?.ToString()
                 };
+                if (context != null)
+                {
+                    log.Context = JObject.FromObject(context).ToString();
+                }
+
                 Context.Errors.Add(log);
                 await Context.SaveChangesAsync();
             }
             catch (Exception ex)
             {
-                // test if this actually works
                 Console.WriteLine(ex);
             }
         }

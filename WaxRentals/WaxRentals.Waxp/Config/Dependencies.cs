@@ -3,6 +3,7 @@ using System.IO;
 using Eos.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
+using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring;
 using WaxRentals.Waxp.Monitoring;
 using WaxRentals.Waxp.Transact;
@@ -25,7 +26,12 @@ namespace WaxRentals.Waxp.Config
                 new PrivateKey(provider.GetRequiredService<WaxKey>().Private)
             );
 
-            services.AddSingleton(provider => new EndpointMonitor(TimeSpan.FromHours(1)));
+            services.AddSingleton(provider =>
+                new EndpointMonitor(
+                    TimeSpan.FromHours(1),
+                    provider.GetRequiredService<ILog>()
+                )
+            );
 
             services.AddSingleton<ClientFactory>();
 

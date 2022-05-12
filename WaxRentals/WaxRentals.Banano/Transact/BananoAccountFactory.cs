@@ -1,4 +1,5 @@
 ﻿using WaxRentals.Banano.Config;
+using WaxRentals.Data.Manager;
 
 namespace WaxRentals.Banano.Transact
 {
@@ -7,16 +8,18 @@ namespace WaxRentals.Banano.Transact
 
         private readonly BananoSeed _seed;
         private readonly RpcClients _rpc;
+        private readonly ILog _log;
 
-        public BananoAccountFactory(BananoSeed seed, RpcClients rpc)
+        public BananoAccountFactory(BananoSeed seed, RpcClients rpc, ILog log)
         {
             _seed = seed;
             _rpc = rpc;
+            _log = log;
         }
 
         public ITransact BuildAccount(uint index)
         {
-            return new WrappedAccount(_seed, index, _rpc);
+            return new WrappedAccount(_seed, index, _rpc, _log);
         }
 
     }
