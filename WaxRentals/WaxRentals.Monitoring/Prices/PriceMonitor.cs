@@ -8,7 +8,7 @@ using static WaxRentals.Monitoring.Config.Constants;
 
 namespace WaxRentals.Monitoring.Prices
 {
-    public class PriceMonitor : Monitor
+    internal class PriceMonitor : Monitor, IPriceMonitor
     {
 
         private readonly string _url;

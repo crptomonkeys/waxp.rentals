@@ -1,5 +1,6 @@
 ﻿using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
+using WaxRentals.Data.Config;
 using WaxRentals.Data.Entities;
 
 namespace WaxRentals.Data.Context
@@ -13,6 +14,8 @@ namespace WaxRentals.Data.Context
         public DbSet<Payment> Payments { get; set; }
 
         #region " Setup "
+
+        public WaxRentalsContext(WaxDb db) : base(db.ConnectionString) { }
 
         static WaxRentalsContext()
         {

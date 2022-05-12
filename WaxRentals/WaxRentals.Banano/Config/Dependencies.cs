@@ -28,6 +28,10 @@ namespace WaxRentals.Banano.Config
             );
 
             services.AddSingleton<StorageAccount>();
+            services.AddSingleton<ITransact, StorageAccount>(provider =>
+                provider.GetRequiredService<StorageAccount>()
+            );
+            services.AddSingleton<IBananoAccountFactory, BananoAccountFactory>();
             services.AddSingleton<IGlobalMonitor, GlobalMonitor>();
         }
 

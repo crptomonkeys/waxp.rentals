@@ -84,6 +84,22 @@ namespace WaxRentals.Data.Manager
             return Task.FromResult(account);
         }
 
+        public Task<bool> HasPendingCredits(int accountId)
+        {
+            var any = Context.Credits.Any(credit => credit.AccountId == accountId);
+            return Task.FromResult(any);
+        }
+
+        public async Task ApplyFreeCredit(int accountId, TimeSpan free)
+        {
+            var account = Context.Accounts.Single(account => account.AccountId == accountId);
+            if (account.PaidThrough < DateTime.UtcNow)
+            {
+                account.PaidThrough = DateTime.UtcNow.Add(free);
+                await Context.SaveChangesAsync();
+            }
+        }
+
         public async Task ProcessCredit(int creditId, DateTime paidThrough)
         {
             var credit = Context.Credits.Single(credit => credit.CreditId == creditId && credit.Status == Status.Pending);

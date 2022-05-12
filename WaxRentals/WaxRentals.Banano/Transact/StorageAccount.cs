@@ -2,7 +2,7 @@
 
 namespace WaxRentals.Banano.Transact
 {
-    public class StorageAccount : WrappedAccount
+    internal class StorageAccount : WrappedAccount
     {
 
         public StorageAccount(BananoSeed seed, RpcClients rpc) : base (seed, 0, rpc) { }

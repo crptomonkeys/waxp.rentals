@@ -8,7 +8,8 @@ namespace WaxRentals.Banano.Transact
 
         public string Address { get; }
 
-        Task Send(string target, BigDecimal banano);
+        Task<bool> HasPendingBlocks();
+        Task<string> Send(string target, BigDecimal banano);
         Task<BigDecimal> Receive();
 
     }

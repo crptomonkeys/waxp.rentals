@@ -14,7 +14,7 @@ namespace WaxRentals.Banano.Config
         private static AccountMonitor _monitor;
         private static readonly object _deadbolt = new();
 
-        public GlobalMonitor(StorageAccount storage, PriceMonitor prices)
+        public GlobalMonitor(StorageAccount storage, IPriceMonitor prices)
         {
             if (_monitor == null)
             {

@@ -14,8 +14,12 @@ namespace WaxRentals.Data.Entities
 		public decimal Banano { get; set; }
 		public string BananoTransaction { get; set; }
 		
-		[Column("StatusId")]
-		public Status Status { get; set; }
+		[NotMapped]
+		public Status Status {
+			get { return (Status)StatusId; }
+			set { StatusId = (int)value; }
+		}
+		public int StatusId { get; set; }
 
 		public int AccountId { get; set; }
 		public virtual Account Account { get; set; }

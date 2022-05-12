@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Nano.Net;
 using Nano.Net.Extensions;
@@ -8,7 +10,7 @@ using static WaxRentals.Banano.Config.Constants;
 
 namespace WaxRentals.Banano.Transact
 {
-    public class WrappedAccount : ITransact
+    internal class WrappedAccount : ITransact
     {
 
         public string Address { get { return _account.Address; } }
@@ -22,7 +24,9 @@ namespace WaxRentals.Banano.Transact
             _rpc = rpc;
         }
 
-        public async Task Send(string target, BigDecimal banano)
+        #region " Send "
+
+        public async Task<string> Send(string target, BigDecimal banano)
         {
             await _rpc.Node.UpdateAccountAsync(_account);
             var work = await GenerateWork(_account);
@@ -31,14 +35,30 @@ namespace WaxRentals.Banano.Transact
                 target,
                 Amount.FromNano(BananoToNano(banano).ToString()),
                 work);
-            await _rpc.Node.ProcessAsync(send);
+            var response = await _rpc.Node.ProcessAsync(send);
+            return response.Hash;
         }
 
-        public async Task<BigDecimal> Receive()
+        private BigDecimal BananoToNano(BigDecimal banano)
         {
-            var pending = await _rpc.Node.PendingBlocksAsync(_account.Address, int.MaxValue);
+            return banano * 0.1;
+        }
 
-            BigDecimal result = 0;
+        #endregion
+
+        #region " Receive "
+
+        public async Task<bool> HasPendingBlocks()
+        {
+            var blocks = await PullReceivableBlocks();
+            return blocks.Any();
+        }
+
+        public async Task<IEnumerable<ReceivableBlock>> PullReceivableBlocks()
+        {
+            var result = new List<ReceivableBlock>();
+
+            var pending = await _rpc.Node.PendingBlocksAsync(_account.Address, int.MaxValue);
             if (pending?.PendingBlocks != null)
             {
                 foreach (var block in pending.PendingBlocks)
@@ -48,11 +68,7 @@ namespace WaxRentals.Banano.Transact
                         var amount = BigDecimal.Parse(block.Value.Amount);
                         if (amount >= Protocol.MinimumTransaction) // Filter out blocks smaller than the minimum.
                         {
-                            await _rpc.Node.UpdateAccountAsync(_account);
-                            var work = await GenerateWork(_account);
-                            var receive = Block.CreateReceiveBlock(_account, block.Value, work);
-                            await _rpc.Node.ProcessAsync(receive);
-                            result += amount;
+                            result.Add(block.Value);
                         }
                     }
                     catch (Exception ex)
@@ -61,8 +77,35 @@ namespace WaxRentals.Banano.Transact
                     }
                 }
             }
+
             return result;
         }
+
+        public async Task<BigDecimal> Receive()
+        {
+            var blocks = await PullReceivableBlocks();
+            BigDecimal result = 0;
+            foreach (var block in blocks)
+            {
+                try
+                {
+                    await _rpc.Node.UpdateAccountAsync(_account);
+                    var work = await GenerateWork(_account);
+                    var receive = Block.CreateReceiveBlock(_account, block, work);
+                    await _rpc.Node.ProcessAsync(receive);
+                    result += BigDecimal.Parse(block.Amount);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            }
+            return result;
+        }
+
+        #endregion
+
+        #region " Work "
 
         private async Task<string> GenerateWork(Account account)
         {
@@ -72,10 +115,7 @@ namespace WaxRentals.Banano.Transact
             return work?.Work;
         }
 
-        private BigDecimal BananoToNano(BigDecimal banano)
-        {
-            return banano * 0.1;
-        }
-        
+        #endregion
+
     }
 }
