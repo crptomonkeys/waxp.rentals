@@ -1,6 +1,11 @@
 ﻿using System.Text.RegularExpressions;
+using WaxRentals.Data.Entities;
+using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring;
+using WaxRentals.Monitoring.Logging;
+using WaxRentals.Monitoring.Prices;
 using WaxRentals.Waxp.Monitoring;
+using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Waxp.Config
@@ -11,7 +16,7 @@ namespace WaxRentals.Waxp.Config
         private static AccountMonitor _monitor;
         private static readonly object _deadbolt = new();
 
-        public GlobalMonitor(AccountMonitor monitor)
+        public GlobalMonitor(AccountMonitor monitor, IInsert data, IPriceMonitor prices)
         {
             if (_monitor == null)
             {
@@ -20,26 +25,31 @@ namespace WaxRentals.Waxp.Config
                     if (_monitor == null)
                     {
                         _monitor = monitor;
-                        _monitor.Updated += (sender, transactions) =>
+                        _monitor.Updated += async (sender, transfers) =>
                         {
-                            foreach (var (amount, memo) in transactions)
+                            foreach (var transfer in transfers)
                             {
-                                if (amount >= Protocol.MinimumTransaction &&
-                                    Regex.IsMatch(memo ?? "", Protocol.BananoAddressRegex, RegexOptions.IgnoreCase))
-                                {
-                                    // Add to queue to process.
-                                    //Tracker.Track
-                                }
-                                else
-                                {
-                                    // Track but don't credit -- include banano address if available but go straight to status 3
-                                }
+                                var address = IsBananoAddress(transfer.Memo) ? transfer.Memo: null;
+                                var skip = transfer.Amount >= Protocol.MinimumTransaction && address != null;
+                                var banano = transfer.Amount * (prices.Wax / prices.Banano);
+                                await data.ApplyPayment(transfer.From, transfer.Amount, transfer.Hash, address, banano, skip ? Status.Processed : Status.New);
+                                Tracker.Track(
+                                    "Received WAX",
+                                    transfer.Amount,
+                                    Coins.Wax,
+                                    earned: transfer.Amount * prices.Wax,
+                                    spent: skip ? null : banano * prices.Banano);
                             }
                         };
                         _monitor.Initialize();
                     }
                 }
             }
+        }
+
+        private bool IsBananoAddress(string memo)
+        {
+            return Regex.IsMatch(memo ?? "", Protocol.BananoAddressRegex, RegexOptions.IgnoreCase);
         }
 
     }

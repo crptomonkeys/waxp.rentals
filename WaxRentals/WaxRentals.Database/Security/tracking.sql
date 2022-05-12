@@ -1,0 +1,2 @@
+﻿CREATE SCHEMA [tracking]
+  AUTHORIZATION [dbo];

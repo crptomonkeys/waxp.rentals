@@ -47,7 +47,8 @@ namespace WaxRentals.Waxp.Config
                 new AccountMonitor(
                     TimeSpan.FromSeconds(30),
                     Protocol.Account,
-                    provider.GetRequiredService<ClientFactory>()
+                    provider.GetRequiredService<ClientFactory>(),
+                    provider.GetRequiredService<ITrackWax>()
                 )
             );
 

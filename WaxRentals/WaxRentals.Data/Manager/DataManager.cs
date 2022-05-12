@@ -7,7 +7,7 @@ using WaxRentals.Data.Entities;
 
 namespace WaxRentals.Data.Manager
 {
-    internal class DataManager : IInsert, IProcess, ILog
+    internal class DataManager : IInsert, IProcess, ITrackWax, ILog
     {
 
         private WaxRentalsContext Context { get; }
@@ -121,6 +121,24 @@ namespace WaxRentals.Data.Manager
             var account = Context.Accounts.Single(account => account.AccountId == accountId);
             account.PaidThrough = null;
             await Context.SaveChangesAsync();
+        }
+
+        #endregion
+
+        #region " ITrackWax "
+
+        public DateTime? GetLastHistoryCheck()
+        {
+            return Context.WaxHistory
+                          .OrderByDescending(history => history.LastRun)
+                          .FirstOrDefault()
+                         ?.LastRun;
+        }
+
+        public void SetLastHistoryCheck(DateTime last)
+        {
+            Context.WaxHistory.Add(new WaxHistory { LastRun = last });
+            Context.SaveChanges();
         }
 
         #endregion

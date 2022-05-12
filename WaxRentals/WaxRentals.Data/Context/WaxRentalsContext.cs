@@ -13,6 +13,8 @@ namespace WaxRentals.Data.Context
         public DbSet<Credit> Credits { get; set; }
         public DbSet<Payment> Payments { get; set; }
 
+        public DbSet<WaxHistory> WaxHistory { get; set; }
+
         public DbSet<Error> Errors { get; set; }
 
         #region " Setup "

@@ -66,6 +66,8 @@
     <Folder Include="Security" />
     <Folder Include="logs" />
     <Folder Include="logs\Tables" />
+    <Folder Include="tracking" />
+    <Folder Include="tracking\Tables" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Account.sql" />
@@ -79,6 +81,8 @@
     <Build Include="Security\audit.sql" />
     <Build Include="Security\logs.sql" />
     <Build Include="logs\Tables\Error.sql" />
+    <Build Include="Security\tracking.sql" />
+    <Build Include="tracking\Tables\WaxHistory.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeploy.sql" />
