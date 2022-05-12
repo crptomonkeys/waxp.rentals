@@ -1,11 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Timers;
+using WaxRentals.Data.Manager;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal abstract class Processor
+    internal abstract class Processor<T>
+        where T : class
     {
+
+        protected IProcess Data { get; }
+        protected ILog Log { get; }
+
+        protected Processor(IProcess data, ILog log)
+        {
+            Data = data;
+            Log = log;
+        }
+        
+        #region " Processing "
 
         private Timer _timer;
 
@@ -52,7 +65,30 @@ namespace WaxRentals.Processing.Processors
             }
         }
 
-        protected abstract Task Run();
+        private async Task Run()
+        {
+            T target = default;
+            try
+            {
+                // Process one at a time.
+                // Revisit if this ends up being too slow.
+                target = await Get();
+                while (target != null)
+                {
+                    await Process(target);
+                    target = await Get();
+                }
+            }
+            catch (Exception ex)
+            {
+                await Log.Error(target, ex);
+            }
+        }
+
+        protected abstract Func<Task<T>> Get { get; }
+        protected abstract Task Process(T target);
+
+        #endregion
 
     }
 }

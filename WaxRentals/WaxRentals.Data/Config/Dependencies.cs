@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using WaxRentals.Data.Manager;
-using WaxRentals.Data.Context;
-using static WaxRentals.Data.Config.Constants;
+﻿using System.IO;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
-using System.IO;
+using WaxRentals.Data.Context;
+using WaxRentals.Data.Manager;
+using static WaxRentals.Data.Config.Constants;
 
 namespace WaxRentals.Data.Config
 {
@@ -21,6 +21,7 @@ namespace WaxRentals.Data.Config
             services.AddTransient<WaxRentalsContext>();
             services.AddTransient<IInsert, DataManager>();
             services.AddTransient<IProcess, DataManager>();
+            services.AddTransient<ILog, DataManager>();
         }
 
     }

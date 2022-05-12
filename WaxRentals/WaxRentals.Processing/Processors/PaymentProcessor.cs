@@ -1,38 +1,27 @@
-﻿using System.Threading.Tasks;
-using WaxRentals.Banano.Transact;
+﻿using System;
+using System.Threading.Tasks;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
+using BananoAccount = WaxRentals.Banano.Transact.ITransact;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class PaymentProcessor : Processor
+    internal class PaymentProcessor : Processor<Payment>
     {
 
-        private readonly IProcess _data;
-        private readonly ITransact _banano;
+        private BananoAccount Banano { get; }
 
-        public PaymentProcessor(IProcess data, ITransact banano)
+        public PaymentProcessor(IProcess data, ILog log, BananoAccount banano)
+            : base(data, log)
         {
-            _data = data;
-            _banano = banano;
+            Banano = banano;
         }
 
-        protected override async Task Run()
+        protected override Func<Task<Payment>> Get => Data.PullNextPayment;
+        protected override async Task Process(Payment payment)
         {
-            // Process payments one at a time.
-            // Revisit if this ends up being too slow.
-            var payment = await _data.PullNextPayment();
-            while (payment != null)
-            {
-                await Process(payment);
-                payment = await _data.PullNextPayment();
-            }
-        }
-
-        private async Task Process(Payment payment)
-        {
-            var hash = await _banano.Send(payment.BananoAddress, payment.Banano);
-            await _data.ProcessPayment(payment.PaymentId, hash);
+            var hash = await Banano.Send(payment.BananoAddress, payment.Banano);
+            await Data.ProcessPayment(payment.PaymentId, hash);
         }
 
     }

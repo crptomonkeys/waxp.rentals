@@ -2,36 +2,24 @@
 using System.Threading.Tasks;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
-using WaxRentals.Waxp.Transact;
 using static WaxRentals.Processing.Constants;
+using WaxAccount = WaxRentals.Waxp.Transact.ITransact;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class CreditProcessor : Processor
+    internal class CreditProcessor : Processor<Credit>
     {
 
-        private readonly IProcess _data;
-        private readonly ITransact _wax;
+        private WaxAccount Wax { get; }
 
-        public CreditProcessor(IProcess data, ITransact wax)
+        public CreditProcessor(IProcess data, ILog log, WaxAccount wax)
+            : base(data, log)
         {
-            _data = data;
-            _wax = wax;
+            Wax = wax;
         }
 
-        protected override async Task Run()
-        {
-            // Process credits one at a time.
-            // Revisit if this ends up being too slow.
-            var credit = await _data.PullNextCredit();
-            while (credit != null)
-            {
-                await Process(credit);
-                credit = await _data.PullNextCredit();
-            }
-        }
-
-        private async Task Process(Credit credit)
+        protected override Func<Task<Credit>> Get => Data.PullNextCredit;
+        protected override async Task Process(Credit credit)
         {
             var account = credit.Account;
 
@@ -41,15 +29,15 @@ namespace WaxRentals.Processing.Processors
 
             if (account.PaidThrough.HasValue)
             {
-                await _data.ProcessCredit(credit.CreditId, account.PaidThrough.Value.AddDays(days));
+                await Data.ProcessCredit(credit.CreditId, account.PaidThrough.Value.AddDays(days));
             }
             else
             {
                 // We're opening the account, so we have to stake the CPU and NET.
-                var success = await _wax.Stake(account.WaxAccount, account.CPU, account.NET);
+                var success = await Wax.Stake(account.WaxAccount, account.CPU, account.NET);
                 if (success)
                 {
-                    await _data.ProcessCredit(credit.CreditId, DateTime.UtcNow.AddDays(days));
+                    await Data.ProcessCredit(credit.CreditId, DateTime.UtcNow.AddDays(days));
                 }
             }
         }

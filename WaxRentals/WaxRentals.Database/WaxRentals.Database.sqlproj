@@ -64,6 +64,8 @@
     <Folder Include="audit" />
     <Folder Include="audit\Tables" />
     <Folder Include="Security" />
+    <Folder Include="logs" />
+    <Folder Include="logs\Tables" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Account.sql" />
@@ -75,6 +77,8 @@
     <Build Include="dbo\Stored Procedures\PullNextPayment.sql" />
     <Build Include="audit\Tables\Account.sql" />
     <Build Include="Security\audit.sql" />
+    <Build Include="Security\logs.sql" />
+    <Build Include="logs\Tables\Error.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeploy.sql" />

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Context;
 using WaxRentals.Data.Entities;
 
 namespace WaxRentals.Data.Manager
 {
-    internal class DataManager : IInsert, IProcess
+    internal class DataManager : IInsert, IProcess, ILog
     {
 
         private WaxRentalsContext Context { get; }
@@ -120,6 +121,33 @@ namespace WaxRentals.Data.Manager
             var account = Context.Accounts.Single(account => account.AccountId == accountId);
             account.PaidThrough = null;
             await Context.SaveChangesAsync();
+        }
+
+        #endregion
+
+        #region " ILog "
+
+        public async Task Error(object context, Exception exception)
+        {
+            try
+            {
+                var log = new Error
+                {
+                    Context = JObject.FromObject(context).ToString(),
+
+                    Message = exception.Message,
+                    StackTrace = exception.StackTrace,
+                    TargetSite = exception.TargetSite?.Name,
+                    InnerExceptions = exception.InnerException?.ToString()
+                };
+                Context.Errors.Add(log);
+                await Context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // test if this actually works
+                Console.WriteLine(ex);
+            }
         }
 
         #endregion
