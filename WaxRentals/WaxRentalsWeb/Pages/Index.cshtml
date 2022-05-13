@@ -7,7 +7,7 @@
 <!--[if IE 8]><html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!-->
 <html class="no-js">
- <!--<![endif]-->
+<!--<![endif]-->
 <head>
   <meta charset="utf-8">
   <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
@@ -42,7 +42,7 @@
 
   <div class="bg-overlay"></div>
 
-  <div class="container-fluid">
+  <div class="container-fluid" id="vue-app">
     <div class="row">
 
       <div class="col-md-4 col-sm-12">
@@ -86,9 +86,9 @@
                 <div class="toggle-content text-center spacing">
                   <h3>Rent WAX</h3>
                   <p>
-                    <strong>Stake CPU and NET to your WAX account for 1 BAN per WAX per day.</strong>
-                    <br><br>Currently Staked: <strong>1,500</strong> WAX | Available: <strong>200</strong> WAX
-                    <br>Available within 72 hours: <strong>550</strong> WAX
+                    <strong>Stake CPU and NET to your WAX account for {{ state.WaxRentPriceInBanano }} BAN per WAX per day.</strong>
+                    <br><br>Currently Staked: <strong>{{ state.WaxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.WaxBalanceAvailable }}</strong> WAX
+                    <br>Available within 72 hours: <strong>{{ state.WaxBalanceUnstaking }}</strong> WAX
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -98,13 +98,13 @@
                   <div class="row">
                     <form action="#" method="post">
                       <fieldset class="col-md-4">
-                        <input type="text" name="account" id="account" placeholder="WAX Account">
+                        <input type="text" name="account" id="account" placeholder="WAX Account" required>
                       </fieldset>
                       <fieldset class="col-md-4">
-                        <input type="number" name="cpu" id="cpu" min="0" max="100" step="1" placeholder="CPU">
+                        <input type="number" name="cpu" id="cpu" min="0" max="100" step="1" placeholder="CPU" required>
                       </fieldset>
                       <fieldset class="col-md-4">
-                        <input type="number" name="net" id="net" min="0" max="100" step="1" placeholder="NET">
+                        <input type="number" name="net" id="net" min="0" max="100" step="1" placeholder="NET" required>
                       </fieldset>
                       <fieldset class="col-md-12">
                         <input class="button" type="submit" name="open" id="open" value="Start Staking">
@@ -352,34 +352,67 @@
   <script src="js/jquery.easing-1.3.js"></script>
   <script src="js/bootstrap.js"></script>
   <script src="js/plugins.js"></script>
+  @*<script src="js/vendor/signalr.min.js"></script>*@
+  <script src="js/vendor/vue.min.js"></script>
+  <script src="js/vendor/axios.min.js"></script>
   <script src="js/main.js"></script>
   <script src="js/site.js"></script>
+  <script src="js/formatting.js"></script>
   <script type="text/javascript">
 
-			jQuery(function ($) {
+    jQuery(function ($) {
 
-                $.supersized({
+      $.supersized({
 
-                    // Functionality
-                    slide_interval: 3000, // Length between transitions
-                    transition: 1, // 0-None, 1-Fade, 2-Slide Top, 3-Slide Right, 4-Slide Bottom, 5-Slide Left, 6-Carousel Right, 7-Carousel Left
-                    transition_speed: 700, // Speed of transition
+        // Functionality
+        slide_interval: 3000, // Length between transitions
+        transition: 1, // 0-None, 1-Fade, 2-Slide Top, 3-Slide Right, 4-Slide Bottom, 5-Slide Left, 6-Carousel Right, 7-Carousel Left
+        transition_speed: 700, // Speed of transition
 
-                    // Components
-                    slide_links: 'blank', // Individual links for each slide (Options: false, 'num', 'name', 'blank')
-                    slides: [ // Slideshow Images
-                        {
-                            image: 'images/backgrounds/monkeys-4661232_1920.jpg'
-                        }, {
-                            image: 'images/backgrounds/monkeys-4999618_1920.jpg'
-                        }, {
-                            image: 'images/backgrounds/long-tailed-macaque-4501435_1920.jpg'
-                        }
-                    ]
+        // Components
+        slide_links: 'blank', // Individual links for each slide (Options: false, 'num', 'name', 'blank')
+        slides: [ // Slideshow Images
+          {
+            image: 'images/backgrounds/monkeys-4661232_1920.jpg'
+          }, {
+            image: 'images/backgrounds/monkeys-4999618_1920.jpg'
+          }, {
+            image: 'images/backgrounds/long-tailed-macaque-4501435_1920.jpg'
+          }
+        ]
 
-                });
-            });
+      });
+    });
 
+
+    // ================
+    //    VUE
+    // ================
+
+    //var app = new Vue({
+    //  el: '#vue-app',
+    //  data() {
+    //    return {
+    //      state: { }
+    //    }
+    //  }
+    //});
+
+    // ================
+    //    NOTIFICATIONS
+    // ================
+    /*
+    const _connection = new signalR.HubConnectionBuilder()
+      .withUrl('/notifications')
+      .withAutomaticReconnect()
+      .build();
+
+    _connection.start().catch(function (err) {
+      return console.error(err.toString());
+    });
+
+    _connection.on("AppStateChanged", state => app.state = state);
+    */
   </script>
 
 </body>

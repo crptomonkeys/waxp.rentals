@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Timers;
+using WaxRentals.Data.Manager;
 
 namespace WaxRentals.Monitoring
 {
@@ -9,6 +10,7 @@ namespace WaxRentals.Monitoring
         #region " Event "
 
         public event EventHandler Updated;
+        protected ILog Log { get; }
 
         protected void RaiseEvent()
         {
@@ -18,7 +20,7 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                // Log errors.
+                Log.Error(ex);
             }
         }
 
@@ -33,8 +35,10 @@ namespace WaxRentals.Monitoring
 
         private readonly Timer _timer;
 
-        protected Monitor(TimeSpan interval)
+        protected Monitor(TimeSpan interval, ILog log)
         {
+            Log = log;
+
             _timer = new Timer(interval.TotalMilliseconds);
             _timer.Elapsed += (_, _) => Elapsed();
             _timer.Start();
@@ -67,7 +71,7 @@ namespace WaxRentals.Monitoring
 
         #region " Event "
 
-        protected Monitor(TimeSpan interval) : base(interval) { }
+        protected Monitor(TimeSpan interval, ILog log) : base(interval, log) { }
 
         public new event EventHandler<T> Updated;
 
@@ -80,7 +84,7 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                // Log errors.
+                Log.Error(ex);
             }
         }
 

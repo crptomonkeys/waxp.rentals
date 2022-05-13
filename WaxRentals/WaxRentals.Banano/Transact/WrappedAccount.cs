@@ -116,6 +116,21 @@ namespace WaxRentals.Banano.Transact
 
         #endregion
 
+        #region " Balance "
+
+        public async Task<BigDecimal> GetBalance()
+        {
+            var info = await _rpc.Node.AccountInfoAsync(
+                Address,
+                confirmed: true,
+                representative: false,
+                pending: false,
+                weight: false);
+            return BigDecimal.Parse(info.Balance);
+        }
+
+        #endregion
+
         #region " Work "
 
         private async Task<string> GenerateWork(Account account)

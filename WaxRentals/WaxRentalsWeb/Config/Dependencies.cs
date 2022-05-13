@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using WaxRentalsWeb.Data;
 using BananoDependencies = WaxRentals.Banano.Config.Dependencies;
 using DataDependencies = WaxRentals.Data.Config.Dependencies;
 using MonitoringDependencies = WaxRentals.Monitoring.Config.Dependencies;
@@ -15,6 +16,9 @@ namespace WaxRentalsWeb.Config
             MonitoringDependencies.AddDependencies(services);
             BananoDependencies.AddDependencies(services);
             WaxDependencies.AddDependencies(services);
+
+            services.AddSingleton<DataCache>();
+            services.AddSingleton<IDataCache>(provider => provider.GetRequiredService<DataCache>());
         }
 
     }

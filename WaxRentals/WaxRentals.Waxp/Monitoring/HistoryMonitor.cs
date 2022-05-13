@@ -9,15 +9,15 @@ using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Waxp.Monitoring
 {
-    internal class AccountMonitor : Monitor<IEnumerable<Transfer>>
+    internal class HistoryMonitor : Monitor<IEnumerable<Transfer>>
     {
 
         private readonly string _account;
         private readonly ClientFactory _client;
         private ITrackWax _wax;
 
-        public AccountMonitor(TimeSpan interval, string account, ClientFactory client, ITrackWax wax)
-            : base(interval)
+        public HistoryMonitor(TimeSpan interval, ILog log, string account, ClientFactory client, ITrackWax wax)
+            : base(interval, log)
         {
             _account = account;
             _client = client;

@@ -7,7 +7,6 @@ namespace WaxRentals.Processing
 
         public static class Calculations
         {
-            public const decimal BananoPerWaxPerDay = 1;
             public static readonly TimeSpan FreeCredit = TimeSpan.FromMinutes(1);
         }
 

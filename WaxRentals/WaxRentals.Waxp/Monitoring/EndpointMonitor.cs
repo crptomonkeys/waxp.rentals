@@ -14,13 +14,7 @@ namespace WaxRentals.Waxp.Monitoring
     internal class EndpointMonitor : Monitor<Endpoints>
     {
 
-        private ILog Log { get; }
-
-        public EndpointMonitor(TimeSpan interval, ILog log)
-            : base(interval)
-        {
-            Log = log;
-        }
+        public EndpointMonitor(TimeSpan interval, ILog log) : base(interval, log) { }
         
         protected override bool Tick(out Endpoints result)
         {

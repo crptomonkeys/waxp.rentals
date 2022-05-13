@@ -11,6 +11,7 @@ namespace WaxRentals.Banano.Transact
         Task<bool> HasPendingBlocks();
         Task<string> Send(string target, BigDecimal banano);
         Task<BigDecimal> Receive();
+        Task<BigDecimal> GetBalance();
 
     }
 }

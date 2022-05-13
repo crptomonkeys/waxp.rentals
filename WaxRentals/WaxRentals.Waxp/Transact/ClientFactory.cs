@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Eos.Api;
+using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Extensions;
 using WaxRentals.Waxp.Monitoring;
 using static WaxRentals.Monitoring.Config.Constants;
@@ -20,8 +21,10 @@ namespace WaxRentals.Waxp.Transact
         private readonly IDictionary<string, Status> _history = new Dictionary<string, Status>();
         private readonly Random _random = new Random();
 
-        public ClientFactory(EndpointMonitor monitor)
+        public ClientFactory(EndpointMonitor monitor, ILog log)
         {
+            Log = log;
+
             monitor.Updated += Monitor_Updated;
             monitor.Initialize();
         }
@@ -109,6 +112,8 @@ namespace WaxRentals.Waxp.Transact
 
         #region " Requests "
 
+        private ILog Log { get; }
+
         public async Task<bool> ProcessApi(Func<NodeApiClient, Task> action)
         {
             var (endpoint, status) = GetEndpoint(_api);
@@ -121,7 +126,7 @@ namespace WaxRentals.Waxp.Transact
             catch (Exception ex) when (!(ex is ApiException))
             {
                 status.Fail();
-                // log
+                await Log.Error(ex);
                 return false;
             }
         }
@@ -138,7 +143,7 @@ namespace WaxRentals.Waxp.Transact
             catch (Exception ex)
             {
                 status.Fail();
-                // log
+                Log.Error(ex);
                 return false;
             }
         }

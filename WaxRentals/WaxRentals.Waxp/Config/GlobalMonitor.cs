@@ -13,10 +13,10 @@ namespace WaxRentals.Waxp.Config
     internal class GlobalMonitor : IGlobalMonitor
     {
         
-        private static AccountMonitor _monitor;
+        private static HistoryMonitor _monitor;
         private static readonly object _deadbolt = new();
 
-        public GlobalMonitor(AccountMonitor monitor, IInsert data, IPriceMonitor prices)
+        public GlobalMonitor(HistoryMonitor monitor, IInsert data, IPriceMonitor prices)
         {
             if (_monitor == null)
             {

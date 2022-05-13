@@ -1,6 +1,7 @@
 ﻿using System;
 using WaxRentals.Banano.Monitoring;
 using WaxRentals.Banano.Transact;
+using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring;
 using WaxRentals.Monitoring.Logging;
 using WaxRentals.Monitoring.Prices;
@@ -11,10 +12,10 @@ namespace WaxRentals.Banano.Config
     internal class GlobalMonitor : IGlobalMonitor
     {
         
-        private static AccountMonitor _monitor;
+        private static ReceiveMonitor _monitor;
         private static readonly object _deadbolt = new();
 
-        public GlobalMonitor(StorageAccount storage, IPriceMonitor prices)
+        public GlobalMonitor(StorageAccount storage, IPriceMonitor prices, ILog log)
         {
             if (_monitor == null)
             {
@@ -22,7 +23,7 @@ namespace WaxRentals.Banano.Config
                 {
                     if (_monitor == null)
                     {
-                        _monitor = new AccountMonitor(TimeSpan.FromSeconds(10), storage);
+                        _monitor = new ReceiveMonitor(TimeSpan.FromSeconds(10), log, storage);
                         _monitor.Updated += (sender, received) =>
                         {
                             var converted = decimal.Parse(received.ToString()); // If we just do (decimal)received, we can only get whole numbers.

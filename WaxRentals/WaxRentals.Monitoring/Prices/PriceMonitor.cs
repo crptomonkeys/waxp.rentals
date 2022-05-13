@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using Newtonsoft.Json;
+using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Extensions;
 using static WaxRentals.Monitoring.Config.Constants;
 
@@ -20,8 +21,8 @@ namespace WaxRentals.Monitoring.Prices
         public decimal Banano { get { return _bananoLock.SafeRead(() => _banano); } }
         public decimal Wax { get { return _waxLock.SafeRead(() => _wax); } }
 
-        public PriceMonitor(TimeSpan interval, string url)
-            : base(interval)
+        public PriceMonitor(TimeSpan interval, ILog log, string url)
+            : base(interval, log)
         {
             _url = url;
             Tick();

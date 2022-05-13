@@ -4,7 +4,7 @@ using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 using static WaxRentals.Banano.Config.Constants;
-using static WaxRentals.Processing.Constants;
+using static WaxRentals.Data.Config.Constants;
 using WaxAccount = WaxRentals.Waxp.Transact.ITransact;
 
 namespace WaxRentals.Processing.Processors
