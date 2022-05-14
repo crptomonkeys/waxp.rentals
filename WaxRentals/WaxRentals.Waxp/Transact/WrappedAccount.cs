@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Eos.Cryptography;
 using Eos.Models;
+using Newtonsoft.Json;
 
 namespace WaxRentals.Waxp.Transact
 {
@@ -84,6 +85,35 @@ namespace WaxRentals.Waxp.Transact
             return success && await Process(transaction);
         }
 
+        public async Task<bool> CompleteRefund()
+        {
+            Transaction transaction = null;
+            var success = await _client.ProcessApi(
+                async client => transaction = await client.CreateTransaction
+                (
+                    new List<IAction>
+                    {
+                        new RefundAction
+                        {
+                            Authorization = new List<Authorization>
+                            {
+                                new Authorization
+                                {
+                                    Actor = new Name(_account),
+                                    Permission = new Name("active")
+                                }
+                            },
+                            Data = new RefundData
+                            {
+                                Owner = new Name(_account)
+                            }
+                        }
+                    }
+                )
+            );
+            return success && await Process(transaction);
+        }
+
         private async Task<bool> Process(Transaction transaction)
         {
             return await _client.ProcessApi(
@@ -103,6 +133,18 @@ namespace WaxRentals.Waxp.Transact
                 return $"{Amount:0.00000000} {Ticker}";
             }
         }
-        
+
+        private class RefundData
+        {
+            [JsonProperty("owner")]
+            public Name Owner { get; set; }
+        }
+
+        private class RefundAction : Action<RefundData>
+        {
+            public override Name Account => "eosio";
+            public override Name Name => "refund";
+        }
+
     }
 }

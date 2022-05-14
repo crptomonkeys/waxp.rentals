@@ -34,8 +34,11 @@ namespace WaxRentals.Processing.Processors
             }
             else
             {
-                await Wax.Unstake(account.WaxAccount, account.CPU, account.NET);
-                await Data.ProcessAccountClosing(account.AccountId);
+                var success = await Wax.Unstake(account.WaxAccount, account.CPU, account.NET);
+                if (success)
+                {
+                    await Data.ProcessAccountClosing(account.AccountId);
+                }
             }
         }
 

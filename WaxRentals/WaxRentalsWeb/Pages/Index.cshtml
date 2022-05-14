@@ -88,7 +88,7 @@
                   <p>
                     <strong>Stake CPU and NET to your WAX account for {{ state.WaxRentPriceInBanano }} BAN per WAX per day.</strong>
                     <br><br>Currently Staked: <strong>{{ state.WaxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.WaxBalanceAvailable }}</strong> WAX
-                    <br>Available within 72 hours: <strong>{{ state.WaxBalanceUnstaking }}</strong> WAX
+                    <br>Available Tomorrow: <strong>{{ state.WaxBalanceUnstaking }}</strong> WAX
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -101,10 +101,10 @@
                         <input type="text" name="account" id="account" placeholder="WAX Account" required>
                       </fieldset>
                       <fieldset class="col-md-4">
-                        <input type="number" name="cpu" id="cpu" min="0" max="100" step="1" placeholder="CPU" required>
+                        <input type="number" name="cpu" id="cpu" min="0" :max="state.WaxMaximumRent" step="1" placeholder="CPU" required>
                       </fieldset>
                       <fieldset class="col-md-4">
-                        <input type="number" name="net" id="net" min="0" max="100" step="1" placeholder="NET" required>
+                        <input type="number" name="net" id="net" min="0" :max="state.WaxMaximumRent" step="1" placeholder="NET" required>
                       </fieldset>
                       <fieldset class="col-md-12">
                         <input class="button" type="submit" name="open" id="open" value="Start Staking">

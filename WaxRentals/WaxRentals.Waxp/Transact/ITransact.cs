@@ -7,6 +7,7 @@ namespace WaxRentals.Waxp.Transact
 
         Task<bool> Stake(string account, decimal cpu, decimal net);
         Task<bool> Unstake(string account, decimal cpu, decimal net);
+        Task<bool> CompleteRefund();
 
     }
 }
