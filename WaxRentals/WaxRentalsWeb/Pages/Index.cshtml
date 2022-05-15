@@ -64,7 +64,6 @@
               <li><a class="show-2" href="#">Get Banano</a></li>
               <li><a class="show-3" href="#">My Rentals</a></li>
               <li><a class="show-4" href="#">Explore</a></li>
-              <!--<li><a rel="nofollow" href="http://www.facebook.com/templatemo" target="_parent">External Link</a></li>-->
             </ul> <!-- /.menu -->
             <a href="#" class="toggle-menu"><i class="fa fa-bars"></i></a>
           </div> <!-- /.menu-wrapper -->
@@ -87,8 +86,8 @@
                   <h3>Rent WAX</h3>
                   <p>
                     <strong>Stake CPU and NET to your WAX account for {{ state.WaxRentPriceInBanano }} BAN per WAX per day.</strong>
-                    <br><br>Currently Staked: <strong>{{ state.WaxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.WaxBalanceAvailable }}</strong> WAX
-                    <br>Available Tomorrow: <strong>{{ state.WaxBalanceUnstaking }}</strong> WAX
+                    <br><br>Currently staked: <strong>{{ state.WaxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.WaxBalanceAvailable }}</strong> WAX
+                    <br>Available tomorrow: <strong>{{ state.WaxBalanceUnstaking }}</strong> WAX
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -97,14 +96,17 @@
                 <div class="contact-form">
                   <div class="row">
                     <form action="#" method="post">
-                      <fieldset class="col-md-4">
-                        <input type="text" name="account" id="account" placeholder="WAX Account" required>
+                      <fieldset class="col-md-3">
+                        <input type="text" name="account" id="account" minlength="1" maxlength="12" placeholder="WAX Account" required>
                       </fieldset>
-                      <fieldset class="col-md-4">
-                        <input type="number" name="cpu" id="cpu" min="0" :max="state.WaxMaximumRent" step="1" placeholder="CPU" required>
+                      <fieldset class="col-md-3">
+                        <input type="number" name="cpu" id="cpu" min="0" :max="state.WaxMaximumRent" step="1" placeholder="# CPU" required>
                       </fieldset>
-                      <fieldset class="col-md-4">
-                        <input type="number" name="net" id="net" min="0" :max="state.WaxMaximumRent" step="1" placeholder="NET" required>
+                      <fieldset class="col-md-3">
+                        <input type="number" name="net" id="net" min="0" :max="state.WaxMaximumRent" step="1" placeholder="# NET" required>
+                      </fieldset>
+                      <fieldset class="col-md-3">
+                        <input type="number" name="days" id="days" min="1" step="1" placeholder="# Days" required>
                       </fieldset>
                       <fieldset class="col-md-12">
                         <input class="button" type="submit" name="open" id="open" value="Start Staking">

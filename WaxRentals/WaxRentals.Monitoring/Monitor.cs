@@ -54,9 +54,16 @@ namespace WaxRentals.Monitoring
 
         protected virtual void Elapsed()
         {
-            if (Tick())
+            try
             {
-                RaiseEvent();
+                if (Tick())
+                {
+                    RaiseEvent();
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex);
             }
         }
 
@@ -94,9 +101,16 @@ namespace WaxRentals.Monitoring
 
         protected override void Elapsed()
         {
-            if (Tick(out T args))
+            try
             {
-                RaiseEvent(args);
+                if (Tick(out T args))
+                {
+                    RaiseEvent(args);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex);
             }
         }
 

@@ -57,10 +57,11 @@ namespace WaxRentals.Data.Manager
 
         public Task<IEnumerable<Rental>> PullNewRentals()
         {
+            // If the rental hasn't been funded within 24 hours, assume it's abandoned.
+            // If it needs to be reactivated, change the Inserted date in the database.
+            var abandoned = DateTime.UtcNow.AddDays(-1);
             IEnumerable<Rental> rentals = Context.Rentals.Where(
-                // If the rental hasn't been funded within 24 hours, assume it's abandoned.
-                // If it needs to be reactivated, change the Inserted date in the database.
-                rental => rental.Status == Status.New && rental.Inserted > DateTime.UtcNow.AddDays(-1)
+                rental => rental.StatusId == (int)Status.New && rental.Inserted > abandoned
             ).ToList();
             return Task.FromResult(rentals);
         }
@@ -68,7 +69,7 @@ namespace WaxRentals.Data.Manager
 
         public async Task ProcessRentalPayment(int rentalId)
         {
-            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.Status == Status.Pending);
+            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
             rental.Paid = DateTime.UtcNow;
             rental.Status = Status.Pending;
             await Context.SaveChangesAsync();
@@ -76,7 +77,7 @@ namespace WaxRentals.Data.Manager
 
         public async Task ProcessRentalStaking(int rentalId, string source, string transaction)
         {
-            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.Status == Status.Pending);
+            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
             rental.SourceWaxAccount = source;
             rental.StakeWaxTransaction = transaction;
             rental.Status = Status.Processed;
@@ -86,13 +87,13 @@ namespace WaxRentals.Data.Manager
 
         public Task<Rental> PullNextClosingRental()
         {
-            var rental = Context.Rentals.FirstOrDefault(rental => rental.Status == Status.Processed && rental.PaidThrough < DateTime.UtcNow);
+            var rental = Context.Rentals.FirstOrDefault(rental => rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
             return Task.FromResult(rental);
         }
 
         public async Task ProcessRentalClosing(int rentalId, string transaction)
         {
-            var rental = Context.Rentals.FirstOrDefault(rental => rental.Status == Status.Processed && rental.PaidThrough < DateTime.UtcNow);
+            var rental = Context.Rentals.FirstOrDefault(rental => rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
             rental.UnstakeWaxTransaction = transaction;
             rental.Status = Status.Closed;
             await Context.SaveChangesAsync();
@@ -108,7 +109,7 @@ namespace WaxRentals.Data.Manager
 
         public async Task ProcessPurchase(int purchaseId, string transaction)
         {
-            var purchase = Context.Purchases.Single(purchase => purchase.PurchaseId == purchaseId && purchase.Status == Status.Pending);
+            var purchase = Context.Purchases.Single(purchase => purchase.PurchaseId == purchaseId && purchase.StatusId == (int)Status.Pending);
             purchase.BananoTransaction = transaction;
             purchase.Status = Status.Processed;
             await Context.SaveChangesAsync();

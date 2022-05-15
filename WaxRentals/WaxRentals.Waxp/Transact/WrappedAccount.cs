@@ -30,11 +30,9 @@ namespace WaxRentals.Waxp.Transact
                     Permission = new Name("active")
                 }
             };
-
-            CreateAccount("rentwax4ban1").GetAwaiter().GetResult();
-            BuyRam(account, 3000).GetAwaiter().GetResult();
-            Unstake(account, 1, 0).GetAwaiter().GetResult();
         }
+
+        #region " ITransact "
 
         public async Task<(bool, string)> Stake(string account, decimal cpu, decimal net)
         {
@@ -102,6 +100,10 @@ namespace WaxRentals.Waxp.Transact
             );
         }
 
+        #endregion
+
+        #region " Not Used "
+
         private async Task<(bool, string)> BuyRam(string account, int bytes)
         {
             return await Process(
@@ -118,7 +120,7 @@ namespace WaxRentals.Waxp.Transact
             );
         }
 
-        private async Task<(bool, string)> CreateAccount(string account)
+        private async Task<(bool, string)> CreateAccount(string account, int ram, decimal cpu, decimal net)
         {
             return await Process(
                 new NewAccountAction
@@ -145,9 +147,35 @@ namespace WaxRentals.Waxp.Transact
                             Threshold = 1
                         }
                     }
-                }
+                },
+                new BuyRamAction
+                {
+                    Authorization = _authorization,
+                    Data = new BuyRamData
+                    {
+                        Bytes = ram,
+                        Payer = new Name(Account),
+                        Receiver = new Name(account)
+                    }
+                },
+                 new StakeAction
+                 {
+                     Authorization = _authorization,
+                     Data = new StakeData
+                     {
+                         Cpu = new LongCurrency($"{cpu} WAX"),
+                         Net = new LongCurrency($"{net} WAX"),
+                         From = new Name(Account),
+                         Receiver = new Name(account),
+                         Transfer = true
+                     }
+                 }
             );
         }
+
+        #endregion
+
+        #region " Process "
 
         private async Task<(bool, string)> Process(params IAction[] actions)
         {
@@ -178,6 +206,10 @@ namespace WaxRentals.Waxp.Transact
             return (success, hash);
         }
 
+        #endregion
+
+        #region " Derived Classes "
+
         private class LongCurrency : Currency
         {
             public LongCurrency(string value) : base(value) { }
@@ -198,6 +230,8 @@ namespace WaxRentals.Waxp.Transact
             public override Name Account => "eosio";
             public override Name Name => "refund";
         }
+
+        #endregion
 
     }
 }

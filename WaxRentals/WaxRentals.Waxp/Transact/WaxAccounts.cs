@@ -21,11 +21,13 @@ namespace WaxRentals.Waxp.Transact
         public ITransact Tomorrow { get { return Transact[(DaysPassed + 1) % Transact.Length]; } }
 
         private ITransact[] Transact { get; }
+
+        private static readonly DateTime _startDate = new DateTime(2022, 05, 15, 0, 0, 0, DateTimeKind.Utc);
         private int DaysPassed
         {
             get
             {
-                var timespan = DateTime.UtcNow - new DateTime(2022, 05, 15, 0, 0, 0, DateTimeKind.Utc);
+                var timespan = DateTime.UtcNow - _startDate;
                 return Convert.ToInt32(timespan.TotalDays);
             }
         }
