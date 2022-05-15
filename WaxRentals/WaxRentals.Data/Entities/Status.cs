@@ -4,6 +4,7 @@
     {
         New       = 1,
         Pending   = 2,
-        Processed = 3
+        Processed = 3,
+        Closed    = 4
     }
 }

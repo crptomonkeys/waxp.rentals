@@ -8,10 +8,9 @@ namespace WaxRentals.Data.Context
     internal class WaxRentalsContext : DbContext
     {
 
-        public DbSet<Account> Accounts { get; set; }
         public DbSet<Address> Addresses { get; set; }
-        public DbSet<Credit> Credits { get; set; }
-        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Purchase> Purchases { get; set; }
+        public DbSet<Rental> Rentals { get; set; }
 
         public DbSet<WaxHistory> WaxHistory { get; set; }
 

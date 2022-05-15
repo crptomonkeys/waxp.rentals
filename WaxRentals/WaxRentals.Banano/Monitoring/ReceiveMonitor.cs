@@ -20,7 +20,7 @@ namespace WaxRentals.Banano.Monitoring
 
         protected override bool Tick(out BigDecimal received)
         {
-            received = _account.Receive().GetAwaiter().GetResult();
+            received = _account.Receive(verifyOnly: false).GetAwaiter().GetResult();
             received = received / Math.Pow(10, Protocol.Decimals);
             return received > 0;
         }

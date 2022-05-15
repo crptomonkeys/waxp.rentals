@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using WaxRentals.Data.Entities;
 
@@ -7,17 +7,15 @@ namespace WaxRentals.Data.Manager
     public interface IProcess
     {
 
-        Task<Credit> PullNextCredit();
-        Task<Payment> PullNextPayment();
-        Task<Account> PullNextClosingAccount();
+        Task<IEnumerable<Rental>> PullNewRentals();
+        Task ProcessRentalPayment(int rentalId);
+        Task ProcessRentalStaking(int rentalId, string source, string transaction);
 
-        Task<bool> HasPendingCredits(int accountId);
+        Task<Rental> PullNextClosingRental();
+        Task ProcessRentalClosing(int rentalId, string transaction);
 
-        Task ApplyFreeCredit(int accountId, TimeSpan free);
-
-        Task ProcessCredit(int creditId, DateTime paidThrough);
-        Task ProcessPayment(int paymentId, string bananoTransaction);
-        Task ProcessAccountClosing(int accountId);
+        Task<Purchase> PullNextPurchase();
+        Task ProcessPurchase(int purchaseId, string transaction);
 
     }
 }

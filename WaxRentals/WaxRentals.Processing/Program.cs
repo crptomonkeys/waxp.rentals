@@ -13,13 +13,13 @@ namespace WaxRentals.Processing
         {
             var provider = BuildServiceProvider();
 
-            var credit = provider.GetRequiredService<CreditProcessor>();
+            var credit = provider.GetRequiredService<RentalProcessor>();
             credit.Start(TimeSpan.FromSeconds(10)); // Be responsive on credits.
             
-            var payment = provider.GetRequiredService<PaymentProcessor>();
+            var payment = provider.GetRequiredService<PurchaseProcessor>();
             payment.Start(TimeSpan.FromSeconds(10)); // Be responsive on credits.
 
-            var closing = provider.GetRequiredService<AccountClosingProcessor>();
+            var closing = provider.GetRequiredService<RentalClosingProcessor>();
             closing.Start(TimeSpan.FromMinutes(5)); // Be generous on debits.
             
             Console.WriteLine("Processors running.  Hit any key to exit.");
@@ -32,9 +32,9 @@ namespace WaxRentals.Processing
             DataDependencies.AddDependencies(services);
             BananoDependencies.AddDependencies(services);
             WaxDependencies.AddDependencies(services);
-            services.AddSingleton<CreditProcessor>();
-            services.AddSingleton<PaymentProcessor>();
-            services.AddSingleton<AccountClosingProcessor>();
+            services.AddSingleton<RentalProcessor>();
+            services.AddSingleton<PurchaseProcessor>();
+            services.AddSingleton<RentalClosingProcessor>();
             return services.BuildServiceProvider();
         }
     }

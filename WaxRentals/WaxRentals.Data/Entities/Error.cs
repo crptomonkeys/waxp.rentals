@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaxRentals.Data.Entities
 {
+	[Table("Error", Schema = "logs")]
     public class Error
 	{
 

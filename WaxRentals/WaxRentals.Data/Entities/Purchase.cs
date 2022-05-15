@@ -3,26 +3,28 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaxRentals.Data.Entities
 {
-    public class Credit
+    public class Purchase
     {
 
-		public int CreditId { get; set; }
+		public int PurchaseId { get; set; }
 
 		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 		public DateTime Inserted { get; set; }
 
+		public decimal Wax { get; set; }
+		public string WaxTransaction { get; set; }
+
+		public string PaymentBananoAddress { get; set; }
 		public decimal Banano { get; set; }
 		public string BananoTransaction { get; set; }
-		
+
 		[NotMapped]
-		public Status Status {
+		public Status Status
+		{
 			get { return (Status)StatusId; }
 			set { StatusId = (int)value; }
 		}
 		public int StatusId { get; set; }
-
-		public int AccountId { get; set; }
-		public virtual Account Account { get; set; }
 
 	}
 }

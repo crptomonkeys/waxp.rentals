@@ -51,13 +51,40 @@ namespace WaxRentals.Banano.Transact
 
         #region " Receive "
 
-        public async Task<bool> HasPendingBlocks()
+        public async Task<BigDecimal> Receive(bool verifyOnly)
         {
             var blocks = await PullReceivableBlocks();
-            return blocks.Any();
+            BigDecimal result = 0;
+            foreach (var block in blocks)
+            {
+                try
+                {
+                    if (!verifyOnly)
+                    {
+                        await _rpc.Node.UpdateAccountAsync(_account);
+                        var work = await GenerateWork(_account);
+                        var receive = Block.CreateReceiveBlock(_account, block, work);
+                        var response = await _rpc.Node.ProcessAsync(receive);
+                    }
+                    
+                    var amount = BigInteger.Parse(block.Amount);
+                    result += amount;
+                }
+                catch (Exception ex)
+                {
+                    await _log.Error(ex, block);
+                }
+            }
+
+            if (!verifyOnly && _index > 0 && result > 0)
+            {
+                await Send(Protocol.Address, result / Math.Pow(10, Protocol.Decimals));
+            }
+
+            return result;
         }
 
-        public async Task<IEnumerable<ReceivableBlock>> PullReceivableBlocks()
+        private async Task<IEnumerable<ReceivableBlock>> PullReceivableBlocks()
         {
             var result = new List<ReceivableBlock>();
 
@@ -81,36 +108,6 @@ namespace WaxRentals.Banano.Transact
                 }
             }
 
-            return result;
-        }
-
-        public async Task<BigDecimal> Receive()
-        {
-            var blocks = await PullReceivableBlocks();
-            BigDecimal result = 0;
-            foreach (var block in blocks)
-            {
-                try
-                {
-                    await _rpc.Node.UpdateAccountAsync(_account);
-                    var work = await GenerateWork(_account);
-                    var receive = Block.CreateReceiveBlock(_account, block, work);
-                    var response = await _rpc.Node.ProcessAsync(receive);
-                    
-                    var amount = BigInteger.Parse(block.Amount);
-                    result += amount;
-
-                    if (_index > 0) // No credit for the storage account.
-                    {
-                        // Apply credit for each block so we can track each transaction.
-                        await _data.ApplyCredit((int)_index, RawToDecimal(amount), response.Hash);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await _log.Error(ex, block);
-                }
-            }
             return result;
         }
 

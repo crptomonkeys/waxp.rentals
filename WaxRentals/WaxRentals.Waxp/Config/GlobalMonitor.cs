@@ -32,7 +32,7 @@ namespace WaxRentals.Waxp.Config
                                 var address = IsBananoAddress(transfer.Memo) ? transfer.Memo: null;
                                 var skip = transfer.Amount >= Protocol.MinimumTransaction && address != null;
                                 var banano = transfer.Amount * (prices.Wax / prices.Banano);
-                                await data.ApplyPayment(transfer.From, transfer.Amount, transfer.Hash, address, banano, skip ? Status.Processed : Status.New);
+                                await data.OpenPurchase(transfer.Amount, transfer.Hash, address, banano, skip ? Status.Processed : Status.New);
                                 Tracker.Track(
                                     "Received WAX",
                                     transfer.Amount,

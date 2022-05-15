@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Eos.Cryptography;
 using Eos.Models;
@@ -9,120 +10,172 @@ namespace WaxRentals.Waxp.Transact
     internal class WrappedAccount : ITransact
     {
 
-        private readonly string _account;
+        public string Account { get; }
+
         private readonly PrivateKey _active;
         private readonly ClientFactory _client;
+        private readonly List<Authorization> _authorization;
 
         public WrappedAccount(string account, PrivateKey active, ClientFactory client)
         {
-            _account = account;
+            Account = account;
             _active = active;
             _client = client;
+
+            _authorization = new List<Authorization>
+            {
+                new Authorization
+                {
+                    Actor = new Name(Account),
+                    Permission = new Name("active")
+                }
+            };
+
+            CreateAccount("rentwax4ban1").GetAwaiter().GetResult();
+            BuyRam(account, 3000).GetAwaiter().GetResult();
+            Unstake(account, 1, 0).GetAwaiter().GetResult();
         }
 
-        public async Task<bool> Stake(string account, decimal cpu, decimal net)
+        public async Task<(bool, string)> Stake(string account, decimal cpu, decimal net)
         {
-            Transaction transaction = null;
-            var success = await _client.ProcessApi(
-                async client => transaction = await client.CreateTransaction(
-                    new List<IAction>
+            return await Process(
+                new StakeAction
+                {
+                    Authorization = _authorization,
+                    Data = new StakeData
                     {
-                        new StakeAction
+                        Cpu = new LongCurrency($"{cpu} WAX"),
+                        Net = new LongCurrency($"{net} WAX"),
+                        From = new Name(Account),
+                        Receiver = new Name(account),
+                        Transfer = false
+                    }
+                }
+            );
+        }
+
+        public async Task<(bool, string)> Unstake(string account, decimal cpu, decimal net)
+        {
+            return await Process(
+                new UnstakeAction
+                {
+                    Authorization = _authorization,
+                    Data = new UnstakeData
+                    {
+                        Cpu = new LongCurrency($"{cpu} WAX"),
+                        Net = new LongCurrency($"{net} WAX"),
+                        From = new Name(Account),
+                        Receiver = new Name(account),
+                        Transfer = false
+                    }
+                }
+            );
+        }
+
+        public async Task<(bool, string)> ClaimRefund()
+        {
+            return await Process(
+                new RefundAction
+                {
+                    Authorization = _authorization,
+                    Data = new RefundData
+                    {
+                        Owner = new Name(Account)
+                    }
+                }
+            );
+        }
+
+        public async Task<(bool, string)> Send(string account, decimal wax)
+        {
+            return await Process(
+                new TransferAction
+                {
+                    Authorization = _authorization,
+                    Data = new TransferData
+                    {
+                        From = new Name(Account),
+                        To = new Name(account),
+                        Quantity = new LongCurrency($"{wax} WAX")
+                    }
+                }
+            );
+        }
+
+        private async Task<(bool, string)> BuyRam(string account, int bytes)
+        {
+            return await Process(
+                new BuyRamAction
+                {
+                    Authorization = _authorization,
+                    Data = new BuyRamData
+                    {
+                        Bytes = bytes,
+                        Payer = new Name(Account),
+                        Receiver = new Name(account)
+                    }
+                }
+            );
+        }
+
+        private async Task<(bool, string)> CreateAccount(string account)
+        {
+            return await Process(
+                new NewAccountAction
+                {
+                    Authorization = _authorization,
+                    Data = new NewAccountData
+                    {
+                        Creator = new Name(Account),
+                        Name = new Name(account),
+                        Owner = new Authority
                         {
-                            Authorization = new List<Authorization>
+                            Keys = new List<AuthorityKey>
                             {
-                                new Authorization
-                                {
-                                    Actor = new Name(_account),
-                                    Permission = new Name("active")
-                                }
+                                new AuthorityKey { Key = new PublicKey("EOS8U61Z9FkfdY4xGxZNLijnKCMtN4TLxdUQ2vLzdv95r2KofQo2j"), Weight = 1 }
                             },
-                            Data = new StakeData
+                            Threshold = 1
+                        },
+                        Active = new Authority
+                        {
+                            Keys = new List<AuthorityKey>
                             {
-                                Cpu = new LongCurrency($"{cpu} WAX"),
-                                Net = new LongCurrency($"{net} WAX"),
-                                From = new Name(_account),
-                                Receiver = new Name(account),
-                                Transfer = false
-                            }
+                                new AuthorityKey { Key = new PublicKey("EOS8mXEzdgHHdbmt4qFvFJv7T1ZHFQCSNVcQC7BwHJMK5TK6qCWqz"), Weight = 1 }
+                            },
+                            Threshold = 1
                         }
                     }
-                )
+                }
             );
-            return success && await Process(transaction);
         }
 
-        public async Task<bool> Unstake(string account, decimal cpu, decimal net)
+        private async Task<(bool, string)> Process(params IAction[] actions)
         {
             Transaction transaction = null;
-            var success = await _client.ProcessApi(
-                async client => transaction = await client.CreateTransaction
-                (
-                    new List<IAction>
-                    {
-                        new UnstakeAction
-                        {
-                            Authorization = new List<Authorization>
-                            {
-                                new Authorization
-                                {
-                                    Actor = new Name(_account),
-                                    Permission = new Name("active")
-                                }
-                            },
-                            Data = new UnstakeData
-                            {
-                                Cpu = new LongCurrency($"{cpu} WAX"),
-                                Net = new LongCurrency($"{net} WAX"),
-                                From = new Name(_account),
-                                Receiver = new Name(account),
-                                Transfer = false
-                            }
-                        }
-                    }
-                )
+            var success = await _client.ProcessApi(async client =>
+                transaction = await client.CreateTransaction(actions.ToList())
             );
-            return success && await Process(transaction);
+            if (success)
+            {
+                return await Process(transaction);
+            }
+            else
+            {
+                return (false, null);
+            }
         }
 
-        public async Task<bool> CompleteRefund()
+        private async Task<(bool, string)> Process(Transaction transaction)
         {
-            Transaction transaction = null;
+            string hash = default;
             var success = await _client.ProcessApi(
-                async client => transaction = await client.CreateTransaction
-                (
-                    new List<IAction>
-                    {
-                        new RefundAction
-                        {
-                            Authorization = new List<Authorization>
-                            {
-                                new Authorization
-                                {
-                                    Actor = new Name(_account),
-                                    Permission = new Name("active")
-                                }
-                            },
-                            Data = new RefundData
-                            {
-                                Owner = new Name(_account)
-                            }
-                        }
-                    }
-                )
-            );
-            return success && await Process(transaction);
-        }
-
-        private async Task<bool> Process(Transaction transaction)
-        {
-            return await _client.ProcessApi(
                 async client =>
                 {
                     var signed = await client.SignTransaction(transaction, _active);
-                    await client.PushTransaction(signed);
+                    hash = await client.PushTransaction(signed);
                 }
             );
+            return (success, hash);
         }
 
         private class LongCurrency : Currency

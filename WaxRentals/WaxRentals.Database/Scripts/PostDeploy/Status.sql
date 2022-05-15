@@ -2,7 +2,8 @@
 INSERT INTO  #Status VALUES
 (1, 'New'      ),
 (2, 'Pending'  ),
-(3, 'Processed');
+(3, 'Processed'),
+(4, 'Closed'   );
 
 MERGE dbo.Status
 USING #Status src

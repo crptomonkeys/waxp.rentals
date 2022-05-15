@@ -5,9 +5,12 @@ namespace WaxRentals.Waxp.Transact
     public interface ITransact
     {
 
-        Task<bool> Stake(string account, decimal cpu, decimal net);
-        Task<bool> Unstake(string account, decimal cpu, decimal net);
-        Task<bool> CompleteRefund();
+        public string Account { get; }
+
+        Task<(bool, string)> Stake(string account, decimal cpu, decimal net);
+        Task<(bool, string)> Unstake(string account, decimal cpu, decimal net);
+        Task<(bool, string)> ClaimRefund();
+        Task<(bool, string)> Send(string account, decimal wax);
 
     }
 }

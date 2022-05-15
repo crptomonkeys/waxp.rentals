@@ -35,14 +35,6 @@ namespace WaxRentals.Waxp.Config
 
             services.AddSingleton<ClientFactory>();
 
-            services.AddSingleton<ITransact>(provider =>
-                new WrappedAccount(
-                    Protocol.Account,
-                    provider.GetRequiredService<PrivateKey>(),
-                    provider.GetRequiredService<ClientFactory>()
-                )
-            );
-
             services.AddSingleton(provider =>
                 new HistoryMonitor(
                     TimeSpan.FromSeconds(30),
@@ -53,6 +45,7 @@ namespace WaxRentals.Waxp.Config
                 )
             );
 
+            services.AddSingleton<IWaxAccounts, WaxAccounts>();
             services.AddSingleton<IGlobalMonitor, GlobalMonitor>();
         }
 

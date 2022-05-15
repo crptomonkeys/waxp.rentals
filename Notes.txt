@@ -1,5 +1,21 @@
 - browser local storage to keep trx for easy access to earlier trx for users
 
 
+get_account:
+ -     "core_liquid_balance": "65.90000000 WAX",
+ - 
 
-nano-work-server -g 0:0 -l [::]:7077
+
+
+rotate through 4 accounts (rentwax4ban1/2/3/4)
+when Tomorrow is about to become Today,
+ send all wax from Today to Tomorrow
+ claim returned wax for Tomorrow
+when receiving wax, send it to Today
+track all five accounts
+only need to show "available tomorrow"
+
+find a way to track payments for received wax if they get paid out *after* the receipt because the memo was wrong
+
+qr codes:
+ https://dev.to/mhamzap10/how-to-generate-qr-code-in-c-full-tutorial-4hng

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -19,41 +20,30 @@ namespace WaxRentals.Data.Manager
 
         #region " IInsert "
 
-        public async Task<Address> OpenAccount(string waxAccount, decimal cpu, decimal net)
+        public async Task<int> OpenRental(string account, int days, decimal cpu, decimal net, decimal banano)
         {
-            var account = new Account
-            {
-                WaxAccount = waxAccount,
-                CPU = cpu,
-                NET = net
-            };
-            account = Context.Accounts.Add(account);
-            await Context.SaveChangesAsync();
-            return Context.Addresses.Single(addr => addr.AddressId == account.AccountId);
-        }
-
-        public async Task ApplyCredit(int accountId, decimal banano, string bananoTransaction)
-        {
-            Context.Credits.Add(
-                new Credit
+            var rental = Context.Rentals.Add(
+                new Rental
                 {
-                    AccountId = accountId,
-                    Banano = banano,
-                    BananoTransaction = bananoTransaction
+                    TargetWaxAccount = account,
+                    RentalDays = days,
+                    CPU = cpu,
+                    NET = net,
+                    Banano = banano
                 }
             );
             await Context.SaveChangesAsync();
+            return rental.RentalId;
         }
 
-        public async Task ApplyPayment(string waxAccount, decimal wax, string waxTransaction, string bananoAddress, decimal banano, Status status)
+        public async Task OpenPurchase(decimal wax, string transaction, string bananoAddress, decimal banano, Status status)
         {
-            Context.Payments.Add(
-                new Payment
+            Context.Purchases.Add(
+                new Purchase
                 {
-                    WaxAccount = waxAccount,
                     Wax = wax,
-                    WaxTransaction = waxTransaction,
-                    BananoAddress = bananoAddress,
+                    WaxTransaction = transaction,
+                    PaymentBananoAddress = bananoAddress,
                     Banano = banano,
                     Status = status
                 }
@@ -65,61 +55,62 @@ namespace WaxRentals.Data.Manager
 
         #region " IProcess "
 
-        public async Task<Credit> PullNextCredit()
+        public Task<IEnumerable<Rental>> PullNewRentals()
         {
-            return await Context.Database
-                                .SqlQuery<Credit>("[dbo].[PullNextCredit]")
-                                .SingleOrDefaultAsync();
+            IEnumerable<Rental> rentals = Context.Rentals.Where(
+                // If the rental hasn't been funded within 24 hours, assume it's abandoned.
+                // If it needs to be reactivated, change the Inserted date in the database.
+                rental => rental.Status == Status.New && rental.Inserted > DateTime.UtcNow.AddDays(-1)
+            ).ToList();
+            return Task.FromResult(rentals);
         }
 
-        public async Task<Payment> PullNextPayment()
-        {
-            return await Context.Database
-                                .SqlQuery<Payment>("[dbo].[PullNextPayment]")
-                                .SingleOrDefaultAsync();
-        }
 
-        public Task<Account> PullNextClosingAccount()
+        public async Task ProcessRentalPayment(int rentalId)
         {
-            var account = Context.Accounts.FirstOrDefault(account => account.PaidThrough < DateTime.UtcNow);
-            return Task.FromResult(account);
-        }
-
-        public Task<bool> HasPendingCredits(int accountId)
-        {
-            var any = Context.Credits.Any(credit => credit.AccountId == accountId);
-            return Task.FromResult(any);
-        }
-
-        public async Task ApplyFreeCredit(int accountId, TimeSpan free)
-        {
-            var account = Context.Accounts.Single(account => account.AccountId == accountId);
-            if (account.PaidThrough < DateTime.UtcNow)
-            {
-                account.PaidThrough = DateTime.UtcNow.Add(free);
-                await Context.SaveChangesAsync();
-            }
-        }
-
-        public async Task ProcessCredit(int creditId, DateTime paidThrough)
-        {
-            var credit = Context.Credits.Single(credit => credit.CreditId == creditId && credit.Status == Status.Pending);
-            credit.Account.PaidThrough = paidThrough;
-            credit.Status = Status.Processed;
+            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.Status == Status.Pending);
+            rental.Paid = DateTime.UtcNow;
+            rental.Status = Status.Pending;
             await Context.SaveChangesAsync();
         }
 
-        public async Task ProcessPayment(int paymentId, string bananoTransaction)
+        public async Task ProcessRentalStaking(int rentalId, string source, string transaction)
         {
-            var payment = Context.Payments.Single(payment => payment.PaymentId == paymentId && payment.Status == Status.Pending);
-            payment.BananoTransaction = bananoTransaction;
+            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.Status == Status.Pending);
+            rental.SourceWaxAccount = source;
+            rental.StakeWaxTransaction = transaction;
+            rental.Status = Status.Processed;
             await Context.SaveChangesAsync();
         }
 
-        public async Task ProcessAccountClosing(int accountId)
+
+        public Task<Rental> PullNextClosingRental()
         {
-            var account = Context.Accounts.Single(account => account.AccountId == accountId);
-            account.PaidThrough = null;
+            var rental = Context.Rentals.FirstOrDefault(rental => rental.Status == Status.Processed && rental.PaidThrough < DateTime.UtcNow);
+            return Task.FromResult(rental);
+        }
+
+        public async Task ProcessRentalClosing(int rentalId, string transaction)
+        {
+            var rental = Context.Rentals.FirstOrDefault(rental => rental.Status == Status.Processed && rental.PaidThrough < DateTime.UtcNow);
+            rental.UnstakeWaxTransaction = transaction;
+            rental.Status = Status.Closed;
+            await Context.SaveChangesAsync();
+        }
+
+
+        public async Task<Purchase> PullNextPurchase()
+        {
+            return await Context.Database
+                                .SqlQuery<Purchase>("[dbo].[PullNextPurchase]")
+                                .SingleOrDefaultAsync();
+        }
+
+        public async Task ProcessPurchase(int purchaseId, string transaction)
+        {
+            var purchase = Context.Purchases.Single(purchase => purchase.PurchaseId == purchaseId && purchase.Status == Status.Pending);
+            purchase.BananoTransaction = transaction;
+            purchase.Status = Status.Processed;
             await Context.SaveChangesAsync();
         }
 

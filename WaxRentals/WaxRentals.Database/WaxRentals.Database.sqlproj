@@ -61,8 +61,6 @@
     <Folder Include="Scripts" />
     <Folder Include="Scripts\PostDeploy" />
     <Folder Include="dbo\Stored Procedures" />
-    <Folder Include="audit" />
-    <Folder Include="audit\Tables" />
     <Folder Include="Security" />
     <Folder Include="logs" />
     <Folder Include="logs\Tables" />
@@ -70,19 +68,16 @@
     <Folder Include="tracking\Tables" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="dbo\Tables\Account.sql" />
-    <Build Include="dbo\Tables\Credit.sql" />
     <Build Include="dbo\Tables\Status.sql" />
     <Build Include="dbo\Tables\Address.sql" />
-    <Build Include="dbo\Tables\Payment.sql" />
-    <Build Include="dbo\Stored Procedures\PullNextCredit.sql" />
-    <Build Include="dbo\Stored Procedures\PullNextPayment.sql" />
-    <Build Include="audit\Tables\Account.sql" />
+    <Build Include="dbo\Tables\Purchase.sql" />
+    <Build Include="dbo\Stored Procedures\PullNextPurchase.sql" />
     <Build Include="Security\audit.sql" />
     <Build Include="Security\logs.sql" />
     <Build Include="logs\Tables\Error.sql" />
     <Build Include="Security\tracking.sql" />
     <Build Include="tracking\Tables\WaxHistory.sql" />
+    <Build Include="dbo\Tables\Rental.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeploy.sql" />
