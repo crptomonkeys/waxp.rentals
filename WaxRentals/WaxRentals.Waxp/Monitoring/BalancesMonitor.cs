@@ -35,8 +35,7 @@ namespace WaxRentals.Waxp.Monitoring
 
         private async Task<AccountBalances> GetBalances()
         {
-            var tasks = _wax.GetAllAccounts()
-                            .ToDictionary(account => account, account => account.GetBalances());
+            var tasks = _wax.Transact.ToDictionary(account => account, account => account.GetBalances());
             await Task.WhenAll(tasks.Values);
 
             var balances = new AccountBalances();

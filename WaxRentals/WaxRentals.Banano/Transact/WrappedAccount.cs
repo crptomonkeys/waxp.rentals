@@ -72,7 +72,7 @@ namespace WaxRentals.Banano.Transact
                 }
                 catch (Exception ex)
                 {
-                    await _log.Error(ex, block);
+                    await _log.Error(ex, context: block);
                 }
             }
 
@@ -103,7 +103,7 @@ namespace WaxRentals.Banano.Transact
                     }
                     catch (Exception ex)
                     {
-                        await _log.Error(ex, block);
+                        await _log.Error(ex, context: block);
                     }
                 }
             }

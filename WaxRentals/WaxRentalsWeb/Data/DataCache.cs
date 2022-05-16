@@ -46,6 +46,10 @@ namespace WaxRentalsWeb.Data
                 AppState.WaxBalanceUnstaking.Value = Math.Round(balances.Unstaking, 4);
                 RaiseEvent();
             };
+
+            _prices.Initialize();
+            _banano.Initialize();
+            _wax.Initialize();
         }
 
         private void RaiseEvent()

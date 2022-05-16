@@ -17,12 +17,20 @@
             public const decimal MinimumTransaction = 1;
 
             public const string BananoAddressRegex = "^ban_[13]{1}[13456789abcdefghijkmnopqrstuwxyz]{59}$";
+
+            public const int Decimals = 8;
+            public static readonly string[] StakedWaxFormats = new string[]
+            {
+                "$.delegated_to[?(@.account_name!='{0}')].cpu_weight",
+                "$.delegated_to[?(@.account_name!='{0}')].net_weight"
+            };
         }
 
         public static class Locations
         {
             public const string Key = "/run/secrets/wax.key";
             public const string Endpoints = "https://validate.eosnation.io/wax/reports/endpoints.json";
+            public const string StakedEndpointFormat = "https://lightapi.eosamsterdam.net/api/accinfo/wax/{0}";
         }
 
     }

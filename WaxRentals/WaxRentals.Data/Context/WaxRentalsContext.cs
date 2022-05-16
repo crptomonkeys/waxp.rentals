@@ -15,6 +15,7 @@ namespace WaxRentals.Data.Context
         public DbSet<WaxHistory> WaxHistory { get; set; }
 
         public DbSet<Error> Errors { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         #region " Setup "
 

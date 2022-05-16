@@ -1,9 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eos.Cryptography;
 using Eos.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using WaxRentals.Data.Manager;
+using static WaxRentals.Waxp.Config.Constants;
+using WebClient = System.Net.WebClient;
 
 namespace WaxRentals.Waxp.Transact
 {
@@ -14,13 +19,15 @@ namespace WaxRentals.Waxp.Transact
 
         private readonly PrivateKey _active;
         private readonly ClientFactory _client;
+        private readonly ILog _log;
         private readonly List<Authorization> _authorization;
 
-        public WrappedAccount(string account, PrivateKey active, ClientFactory client)
+        public WrappedAccount(string account, PrivateKey active, ClientFactory client, ILog log)
         {
             Account = account;
             _active = active;
             _client = client;
+            _log = log;
 
             _authorization = new List<Authorization>
             {
@@ -34,6 +41,8 @@ namespace WaxRentals.Waxp.Transact
 
         #region " IWaxAccount "
 
+        #region " Balances "
+
         public async Task<AccountBalances> GetBalances()
         {
             var balances = new AccountBalances();
@@ -46,10 +55,41 @@ namespace WaxRentals.Waxp.Transact
                 balances.Available = liquid;
                 balances.Unstaking = cpuRefund + netRefund;
             });
+            var jsonTask = GetValueFromJson(
+                string.Format(Locations.StakedEndpointFormat, Account),
+                Protocol.StakedWaxFormats.Select(format => string.Format(format, Account)),
+                Protocol.Decimals
+            );
 
-            await Task.WhenAll(apiTask);
+            await Task.WhenAll(apiTask, jsonTask);
+            balances.Staked = await jsonTask;
             return balances;
         }
+
+        private async Task<decimal> GetValueFromJson(string url, IEnumerable<string> selectors, int scale)
+        {
+            try
+            {
+                var json = JObject.Parse(await new WebClient().DownloadStringTaskAsync(new Uri(url)));
+                double result = 0;
+                foreach (var selector in selectors)
+                {
+                    var nodes = json.SelectTokens(selector);
+                    foreach (var node in nodes)
+                    {
+                        result += node.Value<double>() / Math.Pow(10, scale);
+                    }
+                }
+                return Convert.ToDecimal(result);
+            }
+            catch (Exception ex)
+            {
+                await _log.Error(ex);
+                return 0;
+            }
+        }
+
+        #endregion
 
         public async Task<(bool, string)> Stake(string account, decimal cpu, decimal net)
         {
@@ -107,6 +147,7 @@ namespace WaxRentals.Waxp.Transact
                 new TransferAction
                 {
                     Authorization = _authorization,
+                    Account = new Name("eosio.token"),
                     Data = new TransferData
                     {
                         From = new Name(Account),
@@ -242,7 +283,7 @@ namespace WaxRentals.Waxp.Transact
             public Name Owner { get; set; }
         }
 
-        private class RefundAction : Action<RefundData>
+        private class RefundAction : Eos.Models.Action<RefundData>
         {
             public override Name Account => "eosio";
             public override Name Name => "refund";

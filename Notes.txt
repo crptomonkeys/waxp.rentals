@@ -1,14 +1,10 @@
 
+- add spent tracking for banano when paying out a purchase
+
+
+
+
 - browser local storage to keep trx for easy access to earlier trx for users
-
-
-
-staked wax:
- - https://lightapi.eosamsterdam.net/api/accinfo/wax/.anmw.c.wam
-
-
-
-find a way to track payments for received wax if they get paid out *after* the receipt because the memo was wrong
-
+- deep links somehow
 qr codes:
  https://dev.to/mhamzap10/how-to-generate-qr-code-in-c-full-tutorial-4hng

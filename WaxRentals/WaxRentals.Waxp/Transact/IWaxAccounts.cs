@@ -9,8 +9,9 @@ namespace WaxRentals.Waxp.Transact
         IWaxAccount Today { get; }
         IWaxAccount Tomorrow { get; }
 
+        IWaxAccount[] Transact { get; }
+
         IWaxAccount GetAccount(string account);
-        IEnumerable<IWaxAccount> GetAllAccounts();
 
     }
 }

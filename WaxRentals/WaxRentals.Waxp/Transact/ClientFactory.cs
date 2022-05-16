@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Eos.Api;
+using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Extensions;
+using WaxRentals.Monitoring.Logging;
 using WaxRentals.Waxp.Monitoring;
 using static WaxRentals.Monitoring.Config.Constants;
 
@@ -119,14 +122,21 @@ namespace WaxRentals.Waxp.Transact
             var (endpoint, status) = GetEndpoint(_api);
             try
             {
-                await action(new NodeApiClient(endpoint));
+                await action(BuildApiClient(endpoint));
                 status.Succeed();
                 return true;
             }
-            catch (Exception ex) when (!(ex is ApiException))
+            catch (Exception ex)
             {
                 status.Fail();
-                await Log.Error(ex);
+                if (ex is ApiException er && er.Error != null)
+                {
+                    await Log.Error(er, error: JObject.FromObject(er.Error).ToString(), context: endpoint);
+                }
+                else
+                {
+                    await Log.Error(ex, context: endpoint);
+                }
                 return false;
             }
         }
@@ -136,16 +146,35 @@ namespace WaxRentals.Waxp.Transact
             var (endpoint, status) = GetEndpoint(_history);
             try
             {
-                action(new HttpClient() { BaseAddress = new Uri(endpoint) });
+                action(BuildHttpClient(endpoint));
                 status.Succeed();
                 return true;
             }
             catch (Exception ex)
             {
                 status.Fail();
-                Log.Error(ex);
+                Log.Error(ex, context: endpoint);
                 return false;
             }
+        }
+
+        private static readonly FieldInfo HttpClientField =
+            typeof(NodeApiClient).GetField("httpClient", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo HandlerField =
+            typeof(HttpMessageInvoker).GetField("_handler", BindingFlags.Instance | BindingFlags.NonPublic);
+        private NodeApiClient BuildApiClient(string endpoint)
+        {
+            var client = new NodeApiClient(endpoint);
+            var httpClient = (HttpMessageInvoker)HttpClientField.GetValue(client);
+            var handler = (HttpClientHandler)HandlerField.GetValue(httpClient);
+            HandlerField.SetValue(httpClient, new MessageHandler(handler, Log));
+            return client;
+        }
+
+        private HttpClient BuildHttpClient(string endpoint)
+        {
+            var handler = new MessageHandler(new HttpClientHandler(), Log);
+            return new HttpClient(handler) { BaseAddress = new Uri(endpoint) };
         }
 
         #endregion
