@@ -3,7 +3,7 @@
     public interface IBananoAccountFactory
     {
 
-        ITransact BuildAccount(uint index);
+        IBananoAccount BuildAccount(uint index);
 
     }
 }

@@ -3,7 +3,7 @@ using Nano.Net.Numbers;
 
 namespace WaxRentals.Banano.Transact
 {
-    public interface ITransact
+    public interface IBananoAccount
     {
 
         public string Address { get; }

@@ -12,7 +12,7 @@ using static WaxRentals.Banano.Config.Constants;
 
 namespace WaxRentals.Banano.Transact
 {
-    internal class WrappedAccount : ITransact
+    internal class WrappedAccount : IBananoAccount
     {
 
         public string Address { get { return _account.Address; } }

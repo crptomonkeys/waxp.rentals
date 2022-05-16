@@ -1,4 +1,4 @@
-﻿namespace WaxRentals.Waxp.Monitoring
+﻿namespace WaxRentals.Waxp.Transact
 {
     public class AccountBalances
     {

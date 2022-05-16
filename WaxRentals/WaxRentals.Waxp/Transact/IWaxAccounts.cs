@@ -1,13 +1,16 @@
-﻿namespace WaxRentals.Waxp.Transact
+﻿using System.Collections.Generic;
+
+namespace WaxRentals.Waxp.Transact
 {
     public interface IWaxAccounts
     {
 
-        ITransact Primary { get; }
-        ITransact Today { get; }
-        ITransact Tomorrow { get; }
+        IWaxAccount Primary { get; }
+        IWaxAccount Today { get; }
+        IWaxAccount Tomorrow { get; }
 
-        ITransact GetAccount(string account);
+        IWaxAccount GetAccount(string account);
+        IEnumerable<IWaxAccount> GetAllAccounts();
 
     }
 }

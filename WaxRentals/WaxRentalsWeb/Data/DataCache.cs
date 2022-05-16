@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using WaxRentals.Banano.Monitoring;
 using WaxRentals.Monitoring.Prices;
+using WaxRentals.Waxp.Monitoring;
+using static WaxRentals.Banano.Config.Constants;
 
 namespace WaxRentalsWeb.Data
 {
@@ -13,26 +15,35 @@ namespace WaxRentalsWeb.Data
 
         private readonly IPriceMonitor _prices;
         private readonly BalanceMonitor _banano;
+        private readonly BalancesMonitor _wax;
 
-        public DataCache(IPriceMonitor prices, BalanceMonitor banano)
+        public DataCache(IPriceMonitor prices, BalanceMonitor banano, BalancesMonitor wax)
         {
             _prices = prices;
             _banano = banano;
+            _wax = wax;
         }
 
         public void Initialize()
         {
             _prices.Updated += (_, _) =>
             {
-                AppState.BananoPrice.Value = _prices.Banano;
-                AppState.WaxPrice.Value = _prices.Wax;
+                AppState.BananoPrice.Value = Math.Round(_prices.Banano, 6);
+                AppState.WaxPrice.Value = Math.Round(_prices.Wax, 6);
                 RaiseEvent();
             };
 
             _banano.Updated += (_, balance) =>
             {
-                // If we just do (decimal)balance, we can only get whole numbers.
-                AppState.BananoBalance.Value = decimal.Parse(balance.ToString());
+                AppState.BananoBalance.Value = Math.Round((decimal)(balance / Math.Pow(10, Protocol.Decimals)), 4);
+                RaiseEvent();
+            };
+
+            _wax.Updated += (_, balances) =>
+            {
+                AppState.WaxBalanceAvailable.Value = Math.Round(balances.Available, 4);
+                AppState.WaxBalanceStaked.Value = Math.Round(balances.Staked, 4);
+                AppState.WaxBalanceUnstaking.Value = Math.Round(balances.Unstaking, 4);
                 RaiseEvent();
             };
         }

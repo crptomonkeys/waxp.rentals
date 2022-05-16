@@ -2,11 +2,12 @@
 
 namespace WaxRentals.Waxp.Transact
 {
-    public interface ITransact
+    public interface IWaxAccount
     {
 
         public string Account { get; }
 
+        Task<AccountBalances> GetBalances();
         Task<(bool, string)> Stake(string account, decimal cpu, decimal net);
         Task<(bool, string)> Unstake(string account, decimal cpu, decimal net);
         Task<(bool, string)> ClaimRefund();

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 using WaxRentals.Waxp.Transact;
-using BananoAccount = WaxRentals.Banano.Transact.ITransact;
+using BananoAccount = WaxRentals.Banano.Transact.IBananoAccount;
 
 namespace WaxRentals.Processing.Processors
 {

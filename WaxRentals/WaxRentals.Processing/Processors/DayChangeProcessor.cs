@@ -5,11 +5,11 @@ using WaxRentals.Waxp.Transact;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class DayChangeProcessor : Processor<ITransact>
+    internal class DayChangeProcessor : Processor<IWaxAccount>
     {
 
         private IWaxAccounts Wax { get; }
-        private ITransact Today { get; set; }
+        private IWaxAccount Today { get; set; }
 
         public DayChangeProcessor(IProcess data, ILog log, IWaxAccounts wax)
             : base(data, log)
@@ -17,8 +17,8 @@ namespace WaxRentals.Processing.Processors
             Wax = wax;
         }
 
-        protected override Func<Task<ITransact>> Get => () => Task.FromResult(Wax.Today);
-        protected override async Task Process(ITransact today)
+        protected override Func<Task<IWaxAccount>> Get => () => Task.FromResult(Wax.Today);
+        protected override async Task Process(IWaxAccount today)
         {
             if (Today == null)
             {
@@ -30,13 +30,12 @@ namespace WaxRentals.Processing.Processors
                 Today = today;
 
                 await today.ClaimRefund();
-                /*
-                var available = yesterday.??;
+                
+                var available = (await yesterday.GetBalances()).Available;
                 if (available > 0)
                 {
-                    await yesterday.Send(today.Account, );
+                    await yesterday.Send(today.Account, available);
                 }
-                */
             }
         }
 

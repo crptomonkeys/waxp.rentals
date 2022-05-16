@@ -34,12 +34,12 @@ namespace WaxRentals.Banano.Config
                 new BalanceMonitor(
                     TimeSpan.FromMinutes(2),
                     provider.GetRequiredService<ILog>(),
-                    provider.GetRequiredService<ITransact>()
+                    provider.GetRequiredService<IBananoAccount>()
                 )
             );
 
             services.AddSingleton<StorageAccount>();
-            services.AddSingleton<ITransact, StorageAccount>(provider =>
+            services.AddSingleton<IBananoAccount, StorageAccount>(provider =>
                 provider.GetRequiredService<StorageAccount>()
             );
             services.AddSingleton<IBananoAccountFactory, BananoAccountFactory>();

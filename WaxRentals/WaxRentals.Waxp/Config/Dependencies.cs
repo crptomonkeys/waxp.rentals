@@ -34,6 +34,15 @@ namespace WaxRentals.Waxp.Config
             );
 
             services.AddSingleton<ClientFactory>();
+            services.AddSingleton<IWaxAccounts, WaxAccounts>();
+
+            services.AddSingleton(provider =>
+                new BalancesMonitor(
+                    TimeSpan.FromMinutes(2),
+                    provider.GetRequiredService<ILog>(),
+                    provider.GetRequiredService<IWaxAccounts>()
+                )
+            );
 
             services.AddSingleton(provider =>
                 new HistoryMonitor(
@@ -45,7 +54,6 @@ namespace WaxRentals.Waxp.Config
                 )
             );
 
-            services.AddSingleton<IWaxAccounts, WaxAccounts>();
             services.AddSingleton<IGlobalMonitor, GlobalMonitor>();
         }
 

@@ -9,9 +9,9 @@ namespace WaxRentals.Banano.Monitoring
     public class BalanceMonitor : Monitor<BigDecimal>
     {
 
-        private readonly ITransact _account;
+        private readonly IBananoAccount _account;
 
-        public BalanceMonitor(TimeSpan interval, ILog log, ITransact account)
+        public BalanceMonitor(TimeSpan interval, ILog log, IBananoAccount account)
             : base(interval, log)
         {
             _account = account;

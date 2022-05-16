@@ -19,7 +19,7 @@ namespace WaxRentals.Banano.Transact
             _log = log;
         }
 
-        public ITransact BuildAccount(uint index)
+        public IBananoAccount BuildAccount(uint index)
         {
             return new WrappedAccount(_seed, index, _rpc, _data, _log);
         }

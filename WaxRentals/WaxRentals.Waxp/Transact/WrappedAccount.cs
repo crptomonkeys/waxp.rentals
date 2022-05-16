@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace WaxRentals.Waxp.Transact
 {
-    internal class WrappedAccount : ITransact
+    internal class WrappedAccount : IWaxAccount
     {
 
         public string Account { get; }
@@ -32,7 +32,24 @@ namespace WaxRentals.Waxp.Transact
             };
         }
 
-        #region " ITransact "
+        #region " IWaxAccount "
+
+        public async Task<AccountBalances> GetBalances()
+        {
+            var balances = new AccountBalances();
+            var apiTask = _client.ProcessApi(async client =>
+            {
+                var account = await client.GetAccount(Account);
+                decimal.TryParse(account.CoreLiquidBalance?.Split(' ')?.FirstOrDefault(), out decimal liquid);
+                decimal.TryParse(account.RefundRequest?.CpuAmount?.Split(' ')?.FirstOrDefault(), out decimal cpuRefund);
+                decimal.TryParse(account.RefundRequest?.NetAmount?.Split(' ')?.FirstOrDefault(), out decimal netRefund);
+                balances.Available = liquid;
+                balances.Unstaking = cpuRefund + netRefund;
+            });
+
+            await Task.WhenAll(apiTask);
+            return balances;
+        }
 
         public async Task<(bool, string)> Stake(string account, decimal cpu, decimal net)
         {
