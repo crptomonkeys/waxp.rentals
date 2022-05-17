@@ -11,7 +11,6 @@
 
 	,Banano               DECIMAL(18,8)               NOT NULL CONSTRAINT CK_Purchase__Banano               CHECK   (Banano                    >= 0 )
 	,BananoTransaction    CHAR(64)                        NULL CONSTRAINT CK_Purchase__BananoTransaction    CHECK   (LEN(BananoTransaction)     = 64)
-	                                                           CONSTRAINT UQ_Purchase__BananoTransaction    UNIQUE  (BananoTransaction)
 
 	,StatusId             INT                         NOT NULL CONSTRAINT FK_Purchase__Status               FOREIGN KEY REFERENCES dbo.Status (StatusId)
 	                                                           CONSTRAINT DF_Purchase__StatusId             DEFAULT 1

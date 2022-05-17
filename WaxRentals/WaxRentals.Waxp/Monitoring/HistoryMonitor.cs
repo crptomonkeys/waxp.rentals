@@ -49,7 +49,6 @@ namespace WaxRentals.Waxp.Monitoring
             return new Transfer
             {
                 Hash = block.transaction_id,
-                From = block.data.from,
                 Amount = block.data.amount,
                 Memo = block.data.memo
             };
@@ -63,7 +62,6 @@ namespace WaxRentals.Waxp.Monitoring
 
         private class TransferAction
         {
-            public string from { get; set; }
             public decimal amount { get; set; }
             public string memo { get; set; }
         }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WaxRentals.Data.Entities
 {
+    [Table("WaxHistory", Schema = "tracking")]
     public class WaxHistory
     {
 

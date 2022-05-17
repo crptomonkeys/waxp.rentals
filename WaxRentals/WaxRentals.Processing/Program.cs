@@ -1,9 +1,10 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
-using WaxDependencies = WaxRentals.Waxp.Config.Dependencies;
+using WaxRentals.Processing.Processors;
 using BananoDependencies = WaxRentals.Banano.Config.Dependencies;
 using DataDependencies = WaxRentals.Data.Config.Dependencies;
-using WaxRentals.Processing.Processors;
+using MonitoringDependencies = WaxRentals.Monitoring.Config.Dependencies;
+using WaxDependencies = WaxRentals.Waxp.Config.Dependencies;
 
 namespace WaxRentals.Processing
 {
@@ -32,13 +33,17 @@ namespace WaxRentals.Processing
         private static IServiceProvider BuildServiceProvider()
         {
             var services = new ServiceCollection();
+
             DataDependencies.AddDependencies(services);
             BananoDependencies.AddDependencies(services);
             WaxDependencies.AddDependencies(services);
+            MonitoringDependencies.AddDependencies(services);
+
             services.AddSingleton<RentalProcessor>();
             services.AddSingleton<PurchaseProcessor>();
             services.AddSingleton<RentalClosingProcessor>();
             services.AddSingleton<DayChangeProcessor>();
+
             return services.BuildServiceProvider();
         }
     }
