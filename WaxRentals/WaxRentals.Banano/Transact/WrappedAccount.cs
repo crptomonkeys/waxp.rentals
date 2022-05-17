@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Nano.Net;
@@ -134,7 +133,8 @@ namespace WaxRentals.Banano.Transact
         {
             await _rpc.Node.UpdateAccountAsync(_account);
             var work = await _rpc.WorkServer.WorkGenerateAsync(
-                _account.Opened ? _account.Frontier : _account.PublicKey.BytesToHex()
+                _account.Opened ? _account.Frontier : _account.PublicKey.BytesToHex(),
+                "fffffe0000000000"
             );
             return work?.Work;
         }

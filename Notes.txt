@@ -5,3 +5,4 @@
 - deep links somehow
 qr codes:
  https://dev.to/mhamzap10/how-to-generate-qr-code-in-c-full-tutorial-4hng
+
