@@ -7,7 +7,7 @@
         {
             public const string Account = "rentwaxp4ban";
             public static readonly string[] TransactAccounts = new[] { "rentwax4ban1", "rentwax4ban2", "rentwax4ban3", "rentwax4ban4" };
-            public const string HistoryBasePath = "/v2/history/get_actions?simple=true&sort=asc&account=" + Account + "&after=";
+            public const string HistoryBasePath = "/v2/history/get_actions?simple=true&sort=asc&limit=999&account=" + Account + "&after=";
 
             public const string TransactionEndpoints = "$..api_https2[*][1]";
             public const string HistoryEndpoints = "$..history_traditional_https[*][1]";

@@ -12,14 +12,12 @@ namespace WaxRentals.Waxp.Monitoring
     internal class HistoryMonitor : Monitor<IEnumerable<Transfer>>
     {
 
-        private readonly string _account;
         private readonly ClientFactory _client;
         private ITrackWax _wax;
 
-        public HistoryMonitor(TimeSpan interval, ILog log, string account, ClientFactory client, ITrackWax wax)
+        public HistoryMonitor(TimeSpan interval, ILog log, ClientFactory client, ITrackWax wax)
             : base(interval, log)
         {
-            _account = account;
             _client = client;
             _wax = wax;
         }
@@ -29,7 +27,7 @@ namespace WaxRentals.Waxp.Monitoring
             List<TransferBlock> blocks = new List<TransferBlock>();
             var success = _client.ProcessHistory(client =>
             {
-                var last = _wax.GetLastHistoryCheck();
+                var last = _wax.GetLastHistoryCheck()?.AddMilliseconds(1);
                 var history = client.GetStringAsync(Protocol.HistoryBasePath + last?.ToString("s")).GetAwaiter().GetResult();
                 _wax.SetLastHistoryCheck(DateTime.UtcNow);
                 

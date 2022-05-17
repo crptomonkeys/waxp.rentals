@@ -12,5 +12,7 @@ namespace WaxRentals.Banano.Transact
         Task<BigDecimal> Receive(bool verifyOnly);
         Task<BigDecimal> GetBalance();
 
+        Task<string> GenerateWork();
+
     }
 }

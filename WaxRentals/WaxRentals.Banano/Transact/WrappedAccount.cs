@@ -37,7 +37,7 @@ namespace WaxRentals.Banano.Transact
         public async Task<string> Send(string target, BigDecimal banano)
         {
             await _rpc.Node.UpdateAccountAsync(_account);
-            var work = await GenerateWork(_account);
+            var work = await GenerateWork();
             var send = Block.CreateSendBlock(
                 _account,
                 target,
@@ -62,7 +62,7 @@ namespace WaxRentals.Banano.Transact
                     if (!verifyOnly)
                     {
                         await _rpc.Node.UpdateAccountAsync(_account);
-                        var work = await GenerateWork(_account);
+                        var work = await GenerateWork();
                         var receive = Block.CreateReceiveBlock(_account, block, work);
                         var response = await _rpc.Node.ProcessAsync(receive);
                     }
@@ -130,10 +130,11 @@ namespace WaxRentals.Banano.Transact
 
         #region " Work "
 
-        private async Task<string> GenerateWork(Account account)
+        public async Task<string> GenerateWork()
         {
+            await _rpc.Node.UpdateAccountAsync(_account);
             var work = await _rpc.WorkServer.WorkGenerateAsync(
-                account.Opened ? account.Frontier : account.PublicKey.BytesToHex()
+                _account.Opened ? _account.Frontier : _account.PublicKey.BytesToHex()
             );
             return work?.Work;
         }

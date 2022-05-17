@@ -48,7 +48,6 @@ namespace WaxRentals.Waxp.Config
                 new HistoryMonitor(
                     TimeSpan.FromSeconds(30),
                     provider.GetRequiredService<ILog>(),
-                    Protocol.Account,
                     provider.GetRequiredService<ClientFactory>(),
                     provider.GetRequiredService<ITrackWax>()
                 )

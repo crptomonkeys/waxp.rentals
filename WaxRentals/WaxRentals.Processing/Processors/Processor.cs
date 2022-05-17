@@ -6,7 +6,6 @@ using WaxRentals.Data.Manager;
 namespace WaxRentals.Processing.Processors
 {
     internal abstract class Processor<T>
-        where T : class
     {
 
         protected IProcess Data { get; }

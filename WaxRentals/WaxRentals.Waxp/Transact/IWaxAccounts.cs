@@ -6,6 +6,7 @@ namespace WaxRentals.Waxp.Transact
     {
 
         IWaxAccount Primary { get; }
+        IWaxAccount Yesterday { get; }
         IWaxAccount Today { get; }
         IWaxAccount Tomorrow { get; }
 

@@ -23,9 +23,12 @@ namespace WaxRentals.Processing
             var closing = provider.GetRequiredService<RentalClosingProcessor>();
             closing.Start(TimeSpan.FromMinutes(5)); // Be generous on debits.
 
+            var work = provider.GetRequiredService<WorkProcessor>();
+            work.Start(TimeSpan.FromSeconds(5)); // Be very responsive to work needs.
+
             var dayChange = provider.GetRequiredService<DayChangeProcessor>();
             dayChange.Start(TimeSpan.FromSeconds(5)); // Be very responsive to the day changing.
-            
+
             Console.WriteLine("Processors running.  Hit any key to exit.");
             Console.ReadKey();
         }
@@ -42,6 +45,7 @@ namespace WaxRentals.Processing
             services.AddSingleton<RentalProcessor>();
             services.AddSingleton<PurchaseProcessor>();
             services.AddSingleton<RentalClosingProcessor>();
+            services.AddSingleton<WorkProcessor>();
             services.AddSingleton<DayChangeProcessor>();
 
             return services.BuildServiceProvider();

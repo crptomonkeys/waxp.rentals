@@ -18,6 +18,7 @@ namespace WaxRentals.Waxp.Transact
         }
 
         public IWaxAccount Primary { get; }
+        public IWaxAccount Yesterday { get { return Transact[(DaysPassed - 1) % Transact.Length]; } }
         public IWaxAccount Today { get { return Transact[DaysPassed % Transact.Length]; } }
         public IWaxAccount Tomorrow { get { return Transact[(DaysPassed + 1) % Transact.Length]; } }
 

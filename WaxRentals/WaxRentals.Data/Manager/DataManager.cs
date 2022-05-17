@@ -8,7 +8,7 @@ using WaxRentals.Data.Entities;
 
 namespace WaxRentals.Data.Manager
 {
-    internal class DataManager : IInsert, IProcess, ITrackWax, ILog
+    internal class DataManager : IInsert, IProcess, ITrackWax, IWork, ILog
     {
 
         private WaxRentalsContext Context { get; }
@@ -135,6 +135,27 @@ namespace WaxRentals.Data.Manager
 
         #endregion
 
+        #region " IWork "
+
+        public Task<int> PullNextAddress()
+        {
+            return Task.FromResult(
+                Context.Addresses.FirstOrDefault(address => address.Work == null).AddressId
+            );
+        }
+
+        public async Task SaveWork(int addressId, string work)
+        {
+            var address = Context.Addresses.SingleOrDefault(address => address.AddressId == addressId && address.Work == null);
+            if (address != null)
+            {
+                address.Work = work;
+                await Context.SaveChangesAsync();
+            }
+        }
+
+        #endregion
+
         #region " ILog "
 
         public async Task Error(Exception exception, string error = null, object context = null)
@@ -151,7 +172,7 @@ namespace WaxRentals.Data.Manager
                 };
                 if (context != null)
                 {
-                    log.Context = context is string ctx ? ctx : JObject.FromObject(context).ToString();
+                    log.Context = context.GetType().IsValueType ? context.ToString() : JObject.FromObject(context).ToString();
                 }
 
                 Context.Errors.Add(log);
@@ -171,7 +192,7 @@ namespace WaxRentals.Data.Manager
                 {
                     RequestId = requestId,
                     Url = url,
-                    Direction = Enum.GetName<MessageDirection>(direction),
+                    Direction = Enum.GetName(direction),
                     MessageObject = message
                 };
 

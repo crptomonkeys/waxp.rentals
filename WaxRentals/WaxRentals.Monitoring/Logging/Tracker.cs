@@ -13,7 +13,7 @@ namespace WaxRentals.Monitoring.Logging
             lock (_deadbolt)
             {
                 File.AppendAllText(
-                    "Output/tracking.csv",
+                    "/run/output/tracking.csv",
                     $"{DateTime.Now:yyyy-MM-dd},{description},{quantity:0.0000} {coin},{earned:0.00},{spent:0.00}{Environment.NewLine}"
                 );
             }
