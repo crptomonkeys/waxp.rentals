@@ -1,7 +1,4 @@
 
-- add spent tracking for banano when paying out a purchase
-
-
 
 
 - browser local storage to keep trx for easy access to earlier trx for users
