@@ -6,7 +6,7 @@ namespace WaxRentals.Banano.Transact
     internal class StorageAccount : WrappedAccount
     {
 
-        public StorageAccount(BananoSeed seed, RpcClients rpc, IInsert data, ILog log) : base (seed, 0, rpc, data, log) { }
+        public StorageAccount(BananoSeed seed, RpcClients rpc, ILog log) : base (seed, 0, rpc, log) { }
 
     }
 }

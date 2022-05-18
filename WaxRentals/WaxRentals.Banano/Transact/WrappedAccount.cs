@@ -19,15 +19,13 @@ namespace WaxRentals.Banano.Transact
         private readonly Account _account;
         private readonly uint _index;
         private readonly RpcClients _rpc;
-        private readonly IInsert _data;
         private readonly ILog _log;
 
-        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, IInsert data, ILog log)
+        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, ILog log)
         {
             _account = new Account(seed.Seed, index, Protocol.Prefix);
             _index = index;
             _rpc = rpc;
-            _data = data;
             _log = log;
         }
 
