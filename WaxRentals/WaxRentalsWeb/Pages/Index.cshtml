@@ -85,9 +85,9 @@
                 <div class="toggle-content text-center spacing">
                   <h3>Rent WAX</h3>
                   <p>
-                    <strong>Stake CPU and NET to your WAX account for {{ state.WaxRentPriceInBanano }} BAN per WAX per day.</strong>
-                    <br><br>Currently staked: <strong>{{ state.WaxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.WaxBalanceAvailable }}</strong> WAX
-                    <br>Available tomorrow: <strong>{{ state.WaxBalanceUnstaking }}</strong> WAX
+                    <strong>Stake CPU and NET to your WAX account for {{ state.waxRentPriceInBanano }} BAN per WAX per day.</strong>
+                    <br><br>Currently staked: <strong>{{ state.waxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.waxBalanceAvailable }}</strong> WAX
+                    <br>Available tomorrow: <strong>{{ state.waxBalanceUnstaking }}</strong> WAX
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -100,10 +100,10 @@
                         <input type="text" name="account" id="account" minlength="1" maxlength="12" placeholder="WAX Account" required>
                       </fieldset>
                       <fieldset class="col-md-3">
-                        <input type="number" name="cpu" id="cpu" min="0" :max="state.WaxMaximumRent" step="1" placeholder="# CPU" required>
+                        <input type="number" name="cpu" id="cpu" min="0" :max="state.waxMaximumRent" step="1" placeholder="# CPU" required>
                       </fieldset>
                       <fieldset class="col-md-3">
-                        <input type="number" name="net" id="net" min="0" :max="state.WaxMaximumRent" step="1" placeholder="# NET">
+                        <input type="number" name="net" id="net" min="0" :max="state.waxMaximumRent" step="1" placeholder="# NET">
                       </fieldset>
                       <fieldset class="col-md-3">
                         <input type="number" name="days" id="days" min="1" step="1" placeholder="# Days" required>
@@ -440,7 +440,13 @@
       return console.error(err.toString());
     });
 
-    //_connection.on("AppStateChanged", state => app.state = state);
+    _connection.on("AppStateChanged", state => {
+      console.log(state);
+      rent.state = state;
+      sell.state = state;
+      my.state = state;
+      explore.state = state;
+    });
     
   </script>
 

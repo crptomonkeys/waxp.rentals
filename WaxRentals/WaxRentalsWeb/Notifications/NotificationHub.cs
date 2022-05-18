@@ -33,7 +33,7 @@ namespace WaxRentalsWeb.Notifications
 
         private async Task NotifyAppState(IClientProxy client)
         {
-            await Notify(client, "AppStateChanged", () => _data.AppState);
+            await Notify(client, "AppStateChanged", () => new AppStateModel(_data.AppState));
         }
 
         private async Task Notify<T>(IClientProxy client, string method, Func<T> getData)

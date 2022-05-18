@@ -16,7 +16,7 @@ namespace WaxRentalsWeb.Data
         public VolatileDecimal WaxPrice { get; } = new();
 
         public decimal WaxRentPriceInBanano { get { return Calculations.BananoPerWaxPerDay; } }
-        public decimal WaxBuyPriceInBanano { get { return SafeDivide(BananoPrice.Value, WaxPrice.Value); } }
+        public decimal WaxBuyPriceInBanano { get { return SafeDivide(WaxPrice.Value, BananoPrice.Value); } }
 
         public decimal BananoMinimumCredit { get { return BananoConstants.Minimum; } }
         // No BananoMaximumCredit because it's based on time, not number of WAX.
