@@ -9,11 +9,11 @@ namespace WaxRentals.Waxp.Transact
     internal class WaxAccounts : IWaxAccounts
     {
 
-        public WaxAccounts(PrivateKey active, ClientFactory client, ILog log)
+        public WaxAccounts(PrivateKey active, IClientFactory client, IDataFactory factory)
         {
-            Primary = new WrappedAccount(Protocol.Account, active, client, log);
+            Primary = new WrappedAccount(Protocol.Account, active, client, factory);
             Transact = Protocol.TransactAccounts.Select(
-                account => new WrappedAccount(account, active, client, log)
+                account => new WrappedAccount(account, active, client, factory)
             ).ToArray();
         }
 

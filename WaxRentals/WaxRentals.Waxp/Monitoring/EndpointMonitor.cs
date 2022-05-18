@@ -14,7 +14,7 @@ namespace WaxRentals.Waxp.Monitoring
     internal class EndpointMonitor : Monitor<Endpoints>
     {
 
-        public EndpointMonitor(TimeSpan interval, ILog log) : base(interval, log) { }
+        public EndpointMonitor(TimeSpan interval, IDataFactory factory) : base(interval, factory) { }
         
         protected override bool Tick(out Endpoints result)
         {
@@ -34,7 +34,7 @@ namespace WaxRentals.Waxp.Monitoring
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Factory.Log.Error(ex);
                 return false;
             }
         }

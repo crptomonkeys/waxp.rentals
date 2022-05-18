@@ -29,31 +29,20 @@ namespace WaxRentals.Waxp.Config
             services.AddSingleton(provider =>
                 new EndpointMonitor(
                     TimeSpan.FromHours(1),
-                    provider.GetRequiredService<ILog>()
+                    provider.GetRequiredService<IDataFactory>()
                 )
             );
 
-            services.AddSingleton<ClientFactory>();
+            services.AddSingleton<IClientFactory, ClientFactory>();
             services.AddSingleton<IWaxAccounts, WaxAccounts>();
 
             services.AddSingleton(provider =>
                 new BalancesMonitor(
                     TimeSpan.FromMinutes(2),
-                    provider.GetRequiredService<ILog>(),
+                    provider.GetRequiredService<IDataFactory>(),
                     provider.GetRequiredService<IWaxAccounts>()
                 )
             );
-
-            services.AddSingleton(provider =>
-                new HistoryMonitor(
-                    TimeSpan.FromSeconds(30),
-                    provider.GetRequiredService<ILog>(),
-                    provider.GetRequiredService<ClientFactory>(),
-                    provider.GetRequiredService<ITrackWax>()
-                )
-            );
-
-            services.AddSingleton<IGlobalMonitor, GlobalMonitor>();
         }
 
     }

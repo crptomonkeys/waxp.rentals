@@ -11,8 +11,8 @@ namespace WaxRentals.Banano.Monitoring
 
         private readonly IBananoAccount _account;
 
-        public BalanceMonitor(TimeSpan interval, ILog log, IBananoAccount account)
-            : base(interval, log)
+        public BalanceMonitor(TimeSpan interval, IDataFactory factory, IBananoAccount account)
+            : base(interval, factory)
         {
             _account = account;
         }

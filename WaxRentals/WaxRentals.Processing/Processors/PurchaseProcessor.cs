@@ -17,19 +17,19 @@ namespace WaxRentals.Processing.Processors
         private IWaxAccounts Wax { get; }
         private IPriceMonitor Prices { get; }
 
-        public PurchaseProcessor(IProcess data, ILog log, BananoAccount banano, IWaxAccounts wax, IPriceMonitor prices)
-            : base(data, log)
+        public PurchaseProcessor(IDataFactory factory, BananoAccount banano, IWaxAccounts wax, IPriceMonitor prices)
+            : base(factory)
         {
             Banano = banano;
             Wax = wax;
             Prices = prices;
         }
 
-        protected override Func<Task<Purchase>> Get => Data.PullNextPurchase;
-        protected override async Task Process(Purchase purchase)
+        protected override Func<Task<Purchase>> Get => Factory.Process.PullNextPurchase;
+        protected async override Task Process(Purchase purchase)
         {
             var hash = await Banano.Send(purchase.PaymentBananoAddress, purchase.Banano);
-            var dataTask = Data.ProcessPurchase(purchase.PurchaseId, hash);
+            var dataTask = Factory.Process.ProcessPurchase(purchase.PurchaseId, hash);
             var waxTask = Wax.Primary.Send(Wax.Today.Account, purchase.Wax);
             Tracker.Track("Sent BAN", purchase.Banano, Coins.Banano, spent: purchase.Banano * Prices.Banano);
             await Task.WhenAll(dataTask, waxTask);

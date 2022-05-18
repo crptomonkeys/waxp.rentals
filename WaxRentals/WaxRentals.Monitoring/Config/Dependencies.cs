@@ -14,7 +14,7 @@ namespace WaxRentals.Monitoring.Config
             services.AddSingleton<IPriceMonitor>(provider =>
                 new PriceMonitor(
                     TimeSpan.FromMinutes(2),
-                    provider.GetRequiredService<ILog>(),
+                    provider.GetRequiredService<IDataFactory>(),
                     $"https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd&include_24hr_change=true&ids={Coins.Banano},{Coins.Wax}"
                 )
             );

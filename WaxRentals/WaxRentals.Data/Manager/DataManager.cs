@@ -36,19 +36,27 @@ namespace WaxRentals.Data.Manager
             return rental.RentalId;
         }
 
-        public async Task OpenPurchase(decimal wax, string transaction, string bananoAddress, decimal banano, Status status)
+        public async Task<bool> OpenPurchase(decimal wax, string transaction, string bananoAddress, decimal banano, Status status)
         {
-            Context.Purchases.Add(
-                new Purchase
-                {
-                    Wax = wax,
-                    WaxTransaction = transaction,
-                    PaymentBananoAddress = bananoAddress,
-                    Banano = banano,
-                    Status = status
-                }
-            );
-            await Context.SaveChangesAsync();
+            // Some endpoints don't filter very accurately, so make sure we're not trying to insert the same transaction more than once.
+            // (Note that WaxTransaction has to be unique in the database, so this is just preventing an exception.)
+            var exists = Context.Purchases.Any(purchase => purchase.WaxTransaction == transaction);
+            if (!exists)
+            {
+                Context.Purchases.Add(
+                    new Purchase
+                    {
+                        Wax = wax,
+                        WaxTransaction = transaction,
+                        PaymentBananoAddress = bananoAddress,
+                        Banano = banano,
+                        Status = status
+                    }
+                );
+                await Context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
 
         #endregion
@@ -137,10 +145,10 @@ namespace WaxRentals.Data.Manager
 
         #region " IWork "
 
-        public Task<int> PullNextAddress()
+        public Task<int?> PullNextAddress()
         {
             return Task.FromResult(
-                Context.Addresses.FirstOrDefault(address => address.Work == null).AddressId
+                Context.Addresses.FirstOrDefault(address => address.Work == null)?.AddressId
             );
         }
 
@@ -172,7 +180,7 @@ namespace WaxRentals.Data.Manager
                 };
                 if (context != null)
                 {
-                    log.Context = context.GetType().IsValueType ? context.ToString() : JObject.FromObject(context).ToString();
+                    log.Context = JToken.FromObject(context).ToString();
                 }
 
                 Context.Errors.Add(log);

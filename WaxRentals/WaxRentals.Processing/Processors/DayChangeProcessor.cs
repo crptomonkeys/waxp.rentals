@@ -11,14 +11,14 @@ namespace WaxRentals.Processing.Processors
         private IWaxAccounts Wax { get; }
         private IWaxAccount Today { get; set; }
 
-        public DayChangeProcessor(IProcess data, ILog log, IWaxAccounts wax)
-            : base(data, log)
+        public DayChangeProcessor(IDataFactory factory, IWaxAccounts wax)
+            : base(factory)
         {
             Wax = wax;
         }
 
         protected override Func<Task<IWaxAccount>> Get => () => Task.FromResult(Wax.Today);
-        protected override async Task Process(IWaxAccount today)
+        protected async override Task Process(IWaxAccount today)
         {
             if (Today == null)
             {

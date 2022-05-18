@@ -33,7 +33,7 @@ namespace WaxRentals.Banano.Config
             services.AddSingleton(provider =>
                 new BalanceMonitor(
                     TimeSpan.FromMinutes(2),
-                    provider.GetRequiredService<ILog>(),
+                    provider.GetRequiredService<IDataFactory>(),
                     provider.GetRequiredService<IBananoAccount>()
                 )
             );
@@ -43,7 +43,6 @@ namespace WaxRentals.Banano.Config
                 provider.GetRequiredService<StorageAccount>()
             );
             services.AddSingleton<IBananoAccountFactory, BananoAccountFactory>();
-            services.AddSingleton<IGlobalMonitor, GlobalMonitor>();
         }
 
     }

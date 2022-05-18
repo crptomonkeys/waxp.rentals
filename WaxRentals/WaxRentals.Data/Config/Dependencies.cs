@@ -19,11 +19,8 @@ namespace WaxRentals.Data.Config
             );
 
             services.AddTransient<WaxRentalsContext>();
-            services.AddTransient<IInsert, DataManager>();
-            services.AddTransient<IProcess, DataManager>();
-            services.AddTransient<ITrackWax, DataManager>();
-            services.AddTransient<IWork, DataManager>();
-            services.AddTransient<ILog, DataManager>();
+            services.AddTransient<DataManager>();
+            services.AddSingleton<IDataFactory, DataFactory>();
         }
 
     }

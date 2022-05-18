@@ -16,15 +16,15 @@ namespace WaxRentals.Processing.Processors
         private IWaxAccounts Wax { get; }
         private IBananoAccountFactory Banano { get; }
 
-        public RentalProcessor(IProcess data, ILog log, IWaxAccounts wax, IBananoAccountFactory banano)
-            : base(data, log)
+        public RentalProcessor(IDataFactory factory, IWaxAccounts wax, IBananoAccountFactory banano)
+            : base(factory)
         {
             Wax = wax;
             Banano = banano;
         }
 
-        protected override Func<Task<IEnumerable<Rental>>> Get => Data.PullNewRentals;
-        protected override async Task Process(IEnumerable<Rental> rentals)
+        protected override Func<Task<IEnumerable<Rental>>> Get => Factory.Process.PullNewRentals;
+        protected async override Task Process(IEnumerable<Rental> rentals)
         {
             var tasks = rentals.Select(Process);
             await Task.WhenAll(tasks);
@@ -40,18 +40,18 @@ namespace WaxRentals.Processing.Processors
                 if (rental.Banano >= pending)
                 {
                     var wax = Wax.Today;
-                    await Data.ProcessRentalPayment(rental.RentalId);
+                    await Factory.Process.ProcessRentalPayment(rental.RentalId);
                     var (success, hash) = await wax.Stake(rental.TargetWaxAccount, rental.CPU, rental.NET);
                     if (success)
                     {
-                        await Data.ProcessRentalStaking(rental.RentalId, wax.Account, hash);
+                        await Factory.Process.ProcessRentalStaking(rental.RentalId, wax.Account, hash);
                         await account.Receive(verifyOnly: false);
                     }
                 }
             }
             catch (Exception ex)
             {
-                await Log.Error(ex, context: rental);
+                await Factory.Log.Error(ex, context: rental);
             }
         }
 

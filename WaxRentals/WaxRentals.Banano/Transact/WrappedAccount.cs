@@ -19,14 +19,14 @@ namespace WaxRentals.Banano.Transact
         private readonly Account _account;
         private readonly uint _index;
         private readonly RpcClients _rpc;
-        private readonly ILog _log;
+        private readonly IDataFactory _factory;
 
-        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, ILog log)
+        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, IDataFactory factory)
         {
             _account = new Account(seed.Seed, index, Protocol.Prefix);
             _index = index;
             _rpc = rpc;
-            _log = log;
+            _factory = factory;
         }
 
         #region " Send "
@@ -69,7 +69,7 @@ namespace WaxRentals.Banano.Transact
                 }
                 catch (Exception ex)
                 {
-                    await _log.Error(ex, context: block);
+                    await _factory.Log.Error(ex, context: block);
                 }
             }
 
@@ -100,7 +100,7 @@ namespace WaxRentals.Banano.Transact
                     }
                     catch (Exception ex)
                     {
-                        await _log.Error(ex, context: block);
+                        await _factory.Log.Error(ex, context: block);
                     }
                 }
             }

@@ -7,7 +7,7 @@ namespace WaxRentals.Data.Manager
     {
 
         Task<int> OpenRental(string account, int days, decimal cpu, decimal net, decimal banano);
-        Task OpenPurchase(decimal wax, string transaction, string bananoAddress, decimal banano, Status status);
+        Task<bool> OpenPurchase(decimal wax, string transaction, string bananoAddress, decimal banano, Status status);
 
     }
 }

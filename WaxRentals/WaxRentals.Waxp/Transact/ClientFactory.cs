@@ -15,7 +15,7 @@ using static WaxRentals.Monitoring.Config.Constants;
 
 namespace WaxRentals.Waxp.Transact
 {
-    internal class ClientFactory
+    internal class ClientFactory : IClientFactory
     {
 
         #region " Endpoints "
@@ -24,9 +24,9 @@ namespace WaxRentals.Waxp.Transact
         private readonly IDictionary<string, Status> _history = new Dictionary<string, Status>();
         private readonly Random _random = new Random();
 
-        public ClientFactory(EndpointMonitor monitor, ILog log)
+        public ClientFactory(EndpointMonitor monitor, IDataFactory factory)
         {
-            Log = log;
+            Factory = factory;
 
             monitor.Updated += Monitor_Updated;
             monitor.Initialize();
@@ -115,7 +115,7 @@ namespace WaxRentals.Waxp.Transact
 
         #region " Requests "
 
-        private ILog Log { get; }
+        private IDataFactory Factory { get; }
 
         public async Task<bool> ProcessApi(Func<NodeApiClient, Task> action)
         {
@@ -131,29 +131,29 @@ namespace WaxRentals.Waxp.Transact
                 status.Fail();
                 if (ex is ApiException er && er.Error != null)
                 {
-                    await Log.Error(er, error: JObject.FromObject(er.Error).ToString(), context: endpoint);
+                    await Factory.Log.Error(er, error: JObject.FromObject(er.Error).ToString(), context: endpoint);
                 }
                 else
                 {
-                    await Log.Error(ex, context: endpoint);
+                    await Factory.Log.Error(ex, context: endpoint);
                 }
                 return false;
             }
         }
 
-        public bool ProcessHistory(Action<HttpClient> action)
+        public async Task<bool> ProcessHistory(Func<HttpClient, Task> action)
         {
             var (endpoint, status) = GetEndpoint(_history);
             try
             {
-                action(BuildHttpClient(endpoint));
+                await action(BuildHttpClient(endpoint));
                 status.Succeed();
                 return true;
             }
             catch (Exception ex)
             {
                 status.Fail();
-                Log.Error(ex, context: endpoint);
+                await Factory.Log.Error(ex, context: endpoint);
                 return false;
             }
         }
@@ -167,13 +167,13 @@ namespace WaxRentals.Waxp.Transact
             var client = new NodeApiClient(endpoint);
             var httpClient = (HttpMessageInvoker)HttpClientField.GetValue(client);
             var handler = (HttpClientHandler)HandlerField.GetValue(httpClient);
-            HandlerField.SetValue(httpClient, new MessageHandler(handler, Log));
+            HandlerField.SetValue(httpClient, new MessageHandler(handler, Factory));
             return client;
         }
 
         private HttpClient BuildHttpClient(string endpoint)
         {
-            var handler = new MessageHandler(new HttpClientHandler(), Log);
+            var handler = new MessageHandler(new HttpClientHandler(), Factory);
             return new HttpClient(handler) { BaseAddress = new Uri(endpoint) };
         }
 

@@ -12,8 +12,8 @@ namespace WaxRentals.Waxp.Monitoring
 
         private readonly IWaxAccounts _wax;
 
-        public BalancesMonitor(TimeSpan interval, ILog log, IWaxAccounts wax)
-            : base(interval, log)
+        public BalancesMonitor(TimeSpan interval, IDataFactory factory, IWaxAccounts wax)
+            : base(interval, factory)
         {
             _wax = wax;
         }

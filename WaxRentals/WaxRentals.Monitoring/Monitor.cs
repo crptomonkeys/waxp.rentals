@@ -10,7 +10,7 @@ namespace WaxRentals.Monitoring
         #region " Event "
 
         public event EventHandler Updated;
-        protected ILog Log { get; }
+        protected IDataFactory Factory { get; }
 
         protected void RaiseEvent()
         {
@@ -20,7 +20,7 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Factory.Log.Error(ex);
             }
         }
 
@@ -35,9 +35,9 @@ namespace WaxRentals.Monitoring
 
         private readonly Timer _timer;
 
-        protected Monitor(TimeSpan interval, ILog log)
+        protected Monitor(TimeSpan interval, IDataFactory factory)
         {
-            Log = log;
+            Factory = factory;
 
             _timer = new Timer(interval.TotalMilliseconds);
             _timer.Elapsed += (_, _) => Elapsed();
@@ -63,7 +63,7 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Factory.Log.Error(ex);
             }
         }
 
@@ -78,7 +78,7 @@ namespace WaxRentals.Monitoring
 
         #region " Event "
 
-        protected Monitor(TimeSpan interval, ILog log) : base(interval, log) { }
+        protected Monitor(TimeSpan interval, IDataFactory factory) : base(interval, factory) { }
 
         public new event EventHandler<T> Updated;
 
@@ -87,11 +87,11 @@ namespace WaxRentals.Monitoring
             try
             {
                 Updated?.Invoke(this, result);
-                base.RaiseEvent();
+                RaiseEvent();
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Factory.Log.Error(ex);
             }
         }
 
@@ -110,7 +110,7 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                Log.Error(ex);
+                Factory.Log.Error(ex);
             }
         }
 

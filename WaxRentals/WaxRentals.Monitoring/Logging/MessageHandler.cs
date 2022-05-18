@@ -12,15 +12,15 @@ namespace WaxRentals.Monitoring.Logging
     public class MessageHandler : DelegatingHandler
     {
 
-        private readonly ILog _log;
+        private readonly IDataFactory _factory;
 
-        public MessageHandler(HttpMessageHandler innerHandler, ILog log)
+        public MessageHandler(HttpMessageHandler innerHandler, IDataFactory factory)
             : base(innerHandler)
         {
-            _log = log;
+            _factory = factory;
         }
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var url = request.RequestUri.OriginalString;
             var requestId = Guid.NewGuid();
@@ -31,7 +31,7 @@ namespace WaxRentals.Monitoring.Logging
                 request.Headers,
                 request.Content?.Headers
             );
-            await _log.Message(requestId, url, MessageDirection.Out, fullRequest);
+            await _factory.Log.Message(requestId, url, MessageDirection.Out, fullRequest);
 
             var response = await base.SendAsync(request, cancellationToken);
             var fullResponse = await GetFullMessage(
@@ -40,7 +40,7 @@ namespace WaxRentals.Monitoring.Logging
                 response.Headers,
                 response.Content.Headers
             );
-            await _log.Message(requestId, url, MessageDirection.In, fullResponse);
+            await _factory.Log.Message(requestId, url, MessageDirection.In, fullResponse);
 
             return response;
         }

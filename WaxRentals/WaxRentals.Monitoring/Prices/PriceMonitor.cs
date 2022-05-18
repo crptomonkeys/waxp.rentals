@@ -21,8 +21,8 @@ namespace WaxRentals.Monitoring.Prices
         public decimal Banano { get { return _bananoLock.SafeRead(() => _banano); } }
         public decimal Wax { get { return _waxLock.SafeRead(() => _wax); } }
 
-        public PriceMonitor(TimeSpan interval, ILog log, string url)
-            : base(interval, log)
+        public PriceMonitor(TimeSpan interval, IDataFactory factory, string url)
+            : base(interval, factory)
         {
             _url = url;
             Tick();
@@ -32,25 +32,32 @@ namespace WaxRentals.Monitoring.Prices
         {
             var update = false;
 
-            var data = new WebClient().DownloadString(_url);
-            var parsed = JsonConvert.DeserializeObject<IDictionary<string, Price>>(data);
-
-            if (parsed.TryGetValue(Coins.Banano, out Price banano))
+            try
             {
-                if (_banano != banano.usd)
+                var data = new WebClient().DownloadString(_url);
+                var parsed = JsonConvert.DeserializeObject<IDictionary<string, Price>>(data);
+
+                if (parsed.TryGetValue(Coins.Banano, out Price banano))
                 {
-                    update = true;
-                    _bananoLock.SafeWrite(() => _banano = banano.usd);
+                    if (_banano != banano.usd)
+                    {
+                        update = true;
+                        _bananoLock.SafeWrite(() => _banano = banano.usd);
+                    }
+                }
+
+                if (parsed.TryGetValue(Coins.Wax, out Price wax))
+                {
+                    if (_wax != wax.usd)
+                    {
+                        update = true;
+                        _waxLock.SafeWrite(() => _wax = wax.usd);
+                    }
                 }
             }
-
-            if (parsed.TryGetValue(Coins.Wax, out Price wax))
+            catch (Exception ex)
             {
-                if (_wax != wax.usd)
-                {
-                    update = true;
-                    _waxLock.SafeWrite(() => _wax = wax.usd);
-                }
+                Factory.Log.Error(ex);
             }
 
             return update;

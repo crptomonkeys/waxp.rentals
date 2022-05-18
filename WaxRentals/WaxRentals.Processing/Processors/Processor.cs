@@ -8,13 +8,12 @@ namespace WaxRentals.Processing.Processors
     internal abstract class Processor<T>
     {
 
-        protected IProcess Data { get; }
-        protected ILog Log { get; }
+        protected IDataFactory Factory { get; }
+        protected virtual bool ProcessMultiplePerTick { get; } = true;
 
-        protected Processor(IProcess data, ILog log)
+        protected Processor(IDataFactory factory)
         {
-            Data = data;
-            Log = log;
+            Factory = factory;
         }
         
         #region " Processing "
@@ -72,15 +71,22 @@ namespace WaxRentals.Processing.Processors
                 // Process one at a time.
                 // Revisit if this ends up being too slow.
                 target = await Get();
-                while (target != null)
+                if (ProcessMultiplePerTick)
+                {
+                    while (target != null)
+                    {
+                        await Process(target);
+                        target = await Get();
+                    }
+                }
+                else if (target != null)
                 {
                     await Process(target);
-                    target = await Get();
                 }
             }
             catch (Exception ex)
             {
-                await Log.Error(ex, context: target);
+                await Factory.Log.Error(ex, context: target);
             }
         }
 

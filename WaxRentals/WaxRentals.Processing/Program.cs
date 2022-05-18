@@ -29,6 +29,12 @@ namespace WaxRentals.Processing
             var dayChange = provider.GetRequiredService<DayChangeProcessor>();
             dayChange.Start(TimeSpan.FromSeconds(5)); // Be very responsive to the day changing.
 
+            var trackBanano = provider.GetRequiredService<TrackBananoProcessor>();
+            trackBanano.Start(TimeSpan.FromMinutes(1)); // This is just for tracking purposes; don't have to check that often.
+
+            var trackWax = provider.GetRequiredService<TrackWaxProcessor>();
+            trackWax.Start(TimeSpan.FromSeconds(30)); // Be responsive on credits but don't annoy the node operators.
+
             Console.WriteLine("Processors running.  Hit any key to exit.");
             Console.ReadKey();
         }
@@ -47,6 +53,8 @@ namespace WaxRentals.Processing
             services.AddSingleton<RentalClosingProcessor>();
             //services.AddSingleton<WorkProcessor>();
             services.AddSingleton<DayChangeProcessor>();
+            services.AddSingleton<TrackBananoProcessor>();
+            services.AddSingleton<TrackWaxProcessor>();
 
             return services.BuildServiceProvider();
         }
