@@ -12,6 +12,7 @@ namespace WaxRentals.Waxp.Transact
 
         IWaxAccount[] Transact { get; }
 
+        IWaxAccount GetAccount(int daysOffset);
         IWaxAccount GetAccount(string account);
 
     }

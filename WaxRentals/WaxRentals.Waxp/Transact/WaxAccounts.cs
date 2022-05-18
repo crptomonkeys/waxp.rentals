@@ -18,9 +18,9 @@ namespace WaxRentals.Waxp.Transact
         }
 
         public IWaxAccount Primary { get; }
-        public IWaxAccount Yesterday { get { return Transact[(DaysPassed - 1) % Transact.Length]; } }
-        public IWaxAccount Today { get { return Transact[DaysPassed % Transact.Length]; } }
-        public IWaxAccount Tomorrow { get { return Transact[(DaysPassed + 1) % Transact.Length]; } }
+        public IWaxAccount Yesterday { get { return GetAccount(-1); } }
+        public IWaxAccount Today { get { return GetAccount(0); } }
+        public IWaxAccount Tomorrow { get { return GetAccount(1); } }
 
         public IWaxAccount[] Transact { get; }
 
@@ -32,6 +32,11 @@ namespace WaxRentals.Waxp.Transact
                 var timespan = DateTime.UtcNow - _startDate;
                 return Convert.ToInt32(timespan.TotalDays);
             }
+        }
+
+        public IWaxAccount GetAccount(int daysOffset)
+        {
+            return Transact[(DaysPassed + daysOffset) % Transact.Length];
         }
 
         public IWaxAccount GetAccount(string account)

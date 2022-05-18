@@ -42,7 +42,7 @@
 
   <div class="bg-overlay"></div>
 
-  <div class="container-fluid" id="vue-app">
+  <div class="container-fluid">
     <div class="row">
 
       <div class="col-md-4 col-sm-12">
@@ -354,7 +354,7 @@
   <script src="js/jquery.easing-1.3.js"></script>
   <script src="js/bootstrap.js"></script>
   <script src="js/plugins.js"></script>
-  @*<script src="js/vendor/signalr.min.js"></script>*@
+  <script src="js/vendor/signalr.min.js"></script>
   <script src="js/vendor/vue.min.js"></script>
   <script src="js/vendor/axios.min.js"></script>
   <script src="js/main.js"></script>
@@ -391,19 +391,46 @@
     //    VUE
     // ================
 
-    //var app = new Vue({
-    //  el: '#vue-app',
-    //  data() {
-    //    return {
-    //      state: { }
-    //    }
-    //  }
-    //});
+    var rent = new Vue({
+      el: '#menu-0',
+      data() {
+        return {
+          state: { }
+        }
+      }
+    });
+
+    var sell = new Vue({
+      el: '#menu-1',
+      data() {
+        return {
+          state: {}
+        }
+      }
+    });
+
+    var my = new Vue({
+      el: '#menu-3',
+      data() {
+        return {
+          state: {}
+        }
+      }
+    });
+
+    var explore = new Vue({
+      el: '#menu-4',
+      data() {
+        return {
+          state: {}
+        }
+      }
+    });
 
     // ================
     //    NOTIFICATIONS
     // ================
-    /*
+    
     const _connection = new signalR.HubConnectionBuilder()
       .withUrl('/notifications')
       .withAutomaticReconnect()
@@ -413,8 +440,8 @@
       return console.error(err.toString());
     });
 
-    _connection.on("AppStateChanged", state => app.state = state);
-    */
+    //_connection.on("AppStateChanged", state => app.state = state);
+    
   </script>
 
 </body>

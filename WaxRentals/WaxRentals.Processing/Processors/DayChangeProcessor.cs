@@ -20,21 +20,16 @@ namespace WaxRentals.Processing.Processors
         protected override Func<Task<IWaxAccount>> Get => () => Task.FromResult(Wax.Today);
         protected async override Task Process(IWaxAccount today)
         {
-            if (Today == null)
+            if (Today != today)
             {
-                Today = today;
-            }
-            else if (Today != today)
-            {
-                var yesterday = Today;
                 Today = today;
 
                 await today.ClaimRefund();
                 
-                var available = (await yesterday.GetBalances()).Available;
+                var available = (await Wax.Yesterday.GetBalances()).Available;
                 if (available > 0)
                 {
-                    await yesterday.Send(today.Account, available);
+                    await Wax.Yesterday.Send(today.Account, available);
                 }
             }
         }

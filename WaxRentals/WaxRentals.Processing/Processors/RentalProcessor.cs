@@ -39,12 +39,21 @@ namespace WaxRentals.Processing.Processors
                 pending /= Math.Pow(10, Protocol.Decimals);
                 if (rental.Banano >= pending)
                 {
-                    var wax = Wax.Today;
                     await Factory.Process.ProcessRentalPayment(rental.RentalId);
-                    var (success, hash) = await wax.Stake(rental.TargetWaxAccount, rental.CPU, rental.NET);
+
+                    // Fund the source account.
+                    var source = Wax.GetAccount(rental.RentalDays);
+                    var wax = rental.CPU + rental.NET;
+                    var balance = (await source.GetBalances()).Available;
+                    if (balance < wax)
+                    {
+                        await Wax.Today.Send(source.Account, wax - balance);
+                    }
+
+                    var (success, hash) = await source.Stake(rental.TargetWaxAccount, rental.CPU, rental.NET);
                     if (success)
                     {
-                        await Factory.Process.ProcessRentalStaking(rental.RentalId, wax.Account, hash);
+                        await Factory.Process.ProcessRentalStaking(rental.RentalId, source.Account, hash);
                         await account.Receive(verifyOnly: false);
                     }
                 }

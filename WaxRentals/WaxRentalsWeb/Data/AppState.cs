@@ -16,14 +16,23 @@ namespace WaxRentalsWeb.Data
         public VolatileDecimal WaxPrice { get; } = new();
 
         public decimal WaxRentPriceInBanano { get { return Calculations.BananoPerWaxPerDay; } }
-        public decimal WaxBuyPriceInBanano { get { return BananoPrice.Value / WaxPrice.Value; } }
+        public decimal WaxBuyPriceInBanano { get { return SafeDivide(BananoPrice.Value, WaxPrice.Value); } }
 
         public decimal BananoMinimumCredit { get { return BananoConstants.Minimum; } }
         // No BananoMaximumCredit because it's based on time, not number of WAX.
         public decimal WaxMinimumRent { get { return WaxConstants.MinimumTransaction; } }
         public decimal WaxMaximumRent { get { return WaxBalanceAvailable.Value >= (WaxMinimumRent * 2) ? (WaxBalanceAvailable.Value / 2) : WaxMinimumRent; } }
         public decimal WaxMinimumBuy { get { return WaxConstants.MinimumTransaction; } }
-        public decimal WaxMaximumBuy { get { return BananoBalance.Value / (WaxBuyPriceInBanano * 2); } }
+        public decimal WaxMaximumBuy { get { return SafeDivide(BananoBalance.Value, WaxBuyPriceInBanano * 2); } }
+
+        private decimal SafeDivide(decimal numerator, decimal denominator)
+        {
+            if (numerator == 0 || denominator == 0)
+            {
+                return 0;
+            }
+            return numerator / denominator;
+        }
 
     }
 }

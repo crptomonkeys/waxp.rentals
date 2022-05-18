@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WaxRentalsWeb.Config;
 using WaxRentalsWeb.Data;
+using WaxRentalsWeb.Notifications;
 
 namespace WaxRentalsWeb
 {
@@ -21,6 +22,7 @@ namespace WaxRentalsWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.AddSignalR();
             services.AddDependencies();
         }
 
@@ -45,6 +47,7 @@ namespace WaxRentalsWeb
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapHub<NotificationHub>("/notifications");
             });
 
             app.ApplicationServices.UseDataCache();
