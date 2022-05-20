@@ -27,6 +27,7 @@ namespace WaxRentals.Monitoring
         public void Initialize()
         {
             Elapsed();
+            RaiseEvent();
         }
 
         #endregion

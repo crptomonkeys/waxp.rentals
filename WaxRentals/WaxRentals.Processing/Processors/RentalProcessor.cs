@@ -13,6 +13,8 @@ namespace WaxRentals.Processing.Processors
     internal class RentalProcessor : Processor<IEnumerable<Rental>>
     {
 
+        protected override bool ProcessMultiplePerTick => false;
+
         private IWaxAccounts Wax { get; }
         private IBananoAccountFactory Banano { get; }
 
@@ -37,7 +39,7 @@ namespace WaxRentals.Processing.Processors
                 var account = Banano.BuildAccount((uint)rental.RentalId);
                 var pending = await account.Receive(verifyOnly: true);
                 pending /= Math.Pow(10, Protocol.Decimals);
-                if (rental.Banano >= pending)
+                if (pending >= rental.Banano)
                 {
                     await Factory.Process.ProcessRentalPayment(rental.RentalId);
 

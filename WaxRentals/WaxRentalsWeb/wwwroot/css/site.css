@@ -3,3 +3,7 @@ body {
   overflow-y: scroll;
 }
 
+#menu-3 div.toggle-content {
+  height: 350px;
+  margin-bottom: 20px;
+}
