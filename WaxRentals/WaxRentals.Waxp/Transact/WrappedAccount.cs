@@ -49,11 +49,14 @@ namespace WaxRentals.Waxp.Transact
             var apiTask = _client.ProcessApi(async client =>
             {
                 var account = await client.GetAccount(Account);
-                decimal.TryParse(account.CoreLiquidBalance?.Split(' ')?.FirstOrDefault(), out decimal liquid);
-                decimal.TryParse(account.RefundRequest?.CpuAmount?.Split(' ')?.FirstOrDefault(), out decimal cpuRefund);
-                decimal.TryParse(account.RefundRequest?.NetAmount?.Split(' ')?.FirstOrDefault(), out decimal netRefund);
-                balances.Available = liquid;
-                balances.Unstaking = cpuRefund + netRefund;
+                if (account != null)
+                {
+                    decimal.TryParse(account.CoreLiquidBalance?.Split(' ')?.FirstOrDefault(), out decimal liquid);
+                    decimal.TryParse(account.RefundRequest?.CpuAmount?.Split(' ')?.FirstOrDefault(), out decimal cpuRefund);
+                    decimal.TryParse(account.RefundRequest?.NetAmount?.Split(' ')?.FirstOrDefault(), out decimal netRefund);
+                    balances.Available = liquid;
+                    balances.Unstaking = cpuRefund + netRefund;
+                }
             });
             var jsonTask = GetValueFromJson(
                 string.Format(Locations.StakedEndpointFormat, Account),
