@@ -125,7 +125,8 @@
                 <div class="toggle-content text-center" id="tab1">
                   <h3>Sell WAX</h3>
                   <p>
-                    Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@WaxRentals.Waxp.Config.Constants.Protocol.Account</strong> and <strong>include your BAN address as the memo</strong>.
+                    <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@WaxRentals.Waxp.Config.Constants.Protocol.Account</strong> and <strong>include your BAN address as the memo</strong>.</span>
+                    <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
                     <br><br>WAX price: <strong>${{ state.waxPrice }}</strong> | BAN price: <strong>${{ state.bananoPrice }}</strong>
                     <br>Currently paying <strong>{{ state.waxBuyPriceInBanano }} BAN</strong> per WAX
                     <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong>
