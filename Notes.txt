@@ -1,6 +1,5 @@
 
 
-- why are recents triggering so often?
 - fill in my rentals page
 - direct links
 

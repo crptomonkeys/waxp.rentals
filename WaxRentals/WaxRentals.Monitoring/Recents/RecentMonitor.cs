@@ -42,13 +42,13 @@ namespace WaxRentals.Monitoring.Recents
                 }
                 else
                 {
-                    if (!Match(_rentals, rentals, rental => rental.RentalId))
+                    if (Differ(_rentals, rentals, rental => rental.RentalId))
                     {
                         update = true;
                         _rentalsLock.SafeWrite(() => _rentals = rentals);
                     }
 
-                    if (!Match(_purchases, purchases, purchase => purchase.PurchaseId))
+                    if (Differ(_purchases, purchases, purchase => purchase.PurchaseId))
                     {
                         update = true;
                         _purchasesLock.SafeWrite(() => _purchases = purchases);
@@ -63,7 +63,7 @@ namespace WaxRentals.Monitoring.Recents
             return update;
         }
 
-        private bool Match<T>(IEnumerable<T> left, IEnumerable<T> right, Func<T, int> get)
+        private bool Differ<T>(IEnumerable<T> left, IEnumerable<T> right, Func<T, int> get)
         {
             var leftIds = left.Select(get);
             var rightIds = right.Select(get);

@@ -236,7 +236,8 @@ namespace WaxRentals.Data.Manager
             return Context.Rentals
                           .Where(rental => rental.StatusId == (int)Status.Processed)
                           .OrderByDescending(rental => rental.RentalId)
-                          .Take(10);
+                          .Take(10)
+                          .ToArray();
         }
 
         public IEnumerable<Purchase> GetRecentPurchases()
@@ -244,7 +245,8 @@ namespace WaxRentals.Data.Manager
             return Context.Purchases
                           .Where(purchase => purchase.StatusId == (int)Status.Processed && purchase.BananoTransaction != null)
                           .OrderByDescending(purchase => purchase.PurchaseId)
-                          .Take(10);
+                          .Take(10)
+                          .ToArray();
         }
 
         public Rental GetRentalByBananoAddress(string address)
