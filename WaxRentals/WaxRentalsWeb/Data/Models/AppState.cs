@@ -2,7 +2,7 @@
 using Calculations = WaxRentals.Data.Config.Constants.Calculations;
 using WaxConstants = WaxRentals.Waxp.Config.Constants.Protocol;
 
-namespace WaxRentalsWeb.Data
+namespace WaxRentalsWeb.Data.Models
 {
     public class AppState
     {

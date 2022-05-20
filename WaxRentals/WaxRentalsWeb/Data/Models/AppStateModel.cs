@@ -1,4 +1,4 @@
-﻿namespace WaxRentalsWeb.Data
+﻿namespace WaxRentalsWeb.Data.Models
 {
     public class AppStateModel
     {

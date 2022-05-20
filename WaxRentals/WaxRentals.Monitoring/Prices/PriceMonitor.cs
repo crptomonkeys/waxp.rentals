@@ -25,7 +25,6 @@ namespace WaxRentals.Monitoring.Prices
             : base(interval, factory)
         {
             _url = url;
-            Tick();
         }
 
         protected override bool Tick()

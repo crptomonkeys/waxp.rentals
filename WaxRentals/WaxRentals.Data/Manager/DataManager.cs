@@ -242,7 +242,7 @@ namespace WaxRentals.Data.Manager
         public IEnumerable<Purchase> GetRecentPurchases()
         {
             return Context.Purchases
-                          .Where(purchase => purchase.StatusId == (int)Status.Processed)
+                          .Where(purchase => purchase.StatusId == (int)Status.Processed && purchase.BananoTransaction != null)
                           .OrderByDescending(purchase => purchase.PurchaseId)
                           .Take(10);
         }

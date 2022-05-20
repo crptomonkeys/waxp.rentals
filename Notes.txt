@@ -1,15 +1,12 @@
 
 
-- rearrange my rentals page on mobile
+- why are recents triggering so often?
 - fill in my rentals page
 - direct links
-- explore
 
 
 - browser local storage to keep trx for easy access to earlier trx for users
 - deep links somehow
-qr codes:
- https://dev.to/mhamzap10/how-to-generate-qr-code-in-c-full-tutorial-4hng
 
 
 

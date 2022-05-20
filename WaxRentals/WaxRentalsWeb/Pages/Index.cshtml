@@ -63,7 +63,7 @@
               <li><a class="show-1" href="#">Sell WAX</a></li>
               <li><a class="show-2" href="#">Get Banano</a></li>
               <li><a class="show-3" href="#">My Rentals</a></li>
-              <li><a class="show-4" href="#">Explore</a></li>
+              <li><a class="show-4" href="#">Recent Transactions</a></li>
             </ul> <!-- /.menu -->
             <a href="#" class="toggle-menu"><i class="fa fa-bars"></i></a>
           </div> <!-- /.menu-wrapper -->
@@ -244,18 +244,56 @@
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
                   <h3>Recent Wax Rentals</h3>
-                  <p>
-
-                  </p>
+                  <table class="table table-dark table-striped table-sm">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="text-right">Staked</th>
+                        <th scope="col" class="text-right">Duration</th>
+                        <th scope="col" class="text-right">Cost</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="rental in recent.rentals">
+                        <td class="text-right">
+                          {{ rental.cpu + rental.net }} WAX
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                        </td>
+                        <td class="text-right">
+                          {{ rental.days }} days
+                        </td>
+                        <td class="text-right">
+                          {{ rental.banano }} BAN
+                          <i class="fa fa-external-link banano-address-link" :data-address="rental.bananoAddress"></i>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div> <!-- /.col-md-6 -->
 
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
                   <h3>Recent Wax Purchases</h3>
-                  <p>
-
-                  </p>
+                  <table class="table table-dark table-striped table-sm">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="text-right">Received</th>
+                        <th scope="col" class="text-right">Paid</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="purchase in recent.purchases">
+                        <td class="text-right">
+                          {{ purchase.wax }} WAX
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction"></i>
+                        </td>
+                        <td class="text-right">
+                          {{ purchase.banano }} BAN
+                          <i class="fa fa-external-link banano-transaction-link" :data-hash="purchase.bananoTransaction"></i>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div> <!-- /.col-md-6 -->
             </div> <!-- /.row -->
@@ -349,7 +387,7 @@
       }
     });
 
-    var explore = new Vue({
+    var recents = new Vue({
       el: '#menu-4',
       data() {
         return {
@@ -382,8 +420,8 @@
       explore.state = state;
     });
 
-    _connection.on("RecentChanged", recent => {
-      explore.recent = recent;
+    _connection.on("RecentsChanged", recent => {
+      recents.recent = recent;
     });
 
   </script>

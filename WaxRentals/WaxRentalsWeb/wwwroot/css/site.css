@@ -3,7 +3,8 @@ body {
   overflow-y: scroll;
 }
 
-.clipboard {
+.clipboard,
+.fa-external-link {
   cursor: pointer;
 }
 
