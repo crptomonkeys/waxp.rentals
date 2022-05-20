@@ -22,6 +22,19 @@ namespace WaxRentals.Data.Manager
 
         public async Task<int> OpenRental(string account, int days, decimal cpu, decimal net, decimal banano)
         {
+            // Prevent spamming of the same unpaid account info.
+            var existing = Context.Rentals.SingleOrDefault(rental =>
+                rental.TargetWaxAccount == account &&
+                rental.RentalDays == days &&
+                rental.CPU == cpu &&
+                rental.NET == net &&
+                rental.Banano == banano &&
+                rental.StatusId == (int)Status.New);
+            if (existing != null)
+            {
+                return existing.RentalId;
+            }
+
             var rental = Context.Rentals.Add(
                 new Rental
                 {
