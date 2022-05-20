@@ -22,7 +22,7 @@ namespace WaxRentals.Waxp.Transact
 
         private readonly IDictionary<string, Status> _api = new Dictionary<string, Status>();
         private readonly IDictionary<string, Status> _history = new Dictionary<string, Status>();
-        private readonly Random _random = new Random();
+        private readonly Random _random = new();
 
         public ClientFactory(EndpointMonitor monitor, IDataFactory factory)
         {
@@ -106,7 +106,7 @@ namespace WaxRentals.Waxp.Transact
                 }
             }
 
-            private readonly ReaderWriterLockSlim _locker = new ReaderWriterLockSlim();
+            private readonly ReaderWriterLockSlim _locker = new();
         }
 
         private readonly ReaderWriterLockSlim _locker = new();

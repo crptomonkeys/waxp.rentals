@@ -33,7 +33,7 @@ namespace WaxRentals.Processing.Processors
 
         internal async Task<IEnumerable<Transfer>> PullHistory()
         {
-            List<TransferBlock> blocks = new List<TransferBlock>();
+            List<TransferBlock> blocks = new();
             var success = await Client.ProcessHistory(async client =>
             {
                 var last = Factory.TrackWax.GetLastHistoryCheck()?.AddMilliseconds(1);
@@ -74,7 +74,7 @@ namespace WaxRentals.Processing.Processors
             };
         }
 
-        private bool IsBananoAddress(string memo)
+        private static bool IsBananoAddress(string memo)
         {
             return Regex.IsMatch(memo ?? "", Protocol.BananoAddressRegex, RegexOptions.IgnoreCase);
         }

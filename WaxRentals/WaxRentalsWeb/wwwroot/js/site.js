@@ -7,5 +7,11 @@
     return false;
   });
 
+  $('body').on('click', '.clipboard', function copy() {
+    $(this).toggleClass('fa-copy fa-check clipboard');
+    navigator.clipboard.writeText($(this).data('copy'));
+    setTimeout(() => $(this).toggleClass('fa-copy fa-check clipboard'), 500);
+  });
+
 })(jQuery);
 

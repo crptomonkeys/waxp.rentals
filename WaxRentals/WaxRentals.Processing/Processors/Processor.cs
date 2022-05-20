@@ -31,7 +31,7 @@ namespace WaxRentals.Processing.Processors
         }
 
         private bool _running;
-        private readonly object _locker = new object();
+        private readonly object _locker = new();
         private async Task Tick()
         {
             if (!_running)

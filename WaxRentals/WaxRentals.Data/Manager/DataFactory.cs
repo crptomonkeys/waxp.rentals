@@ -6,7 +6,7 @@ namespace WaxRentals.Data.Manager
     internal class DataFactory : IDataFactory
     {
 
-        private IServiceProvider _provider;
+        private readonly IServiceProvider _provider;
 
         public DataFactory(IServiceProvider provider)
         {
@@ -18,6 +18,7 @@ namespace WaxRentals.Data.Manager
         public IProcess  Process  { get { return _provider.GetRequiredService<DataManager>(); } }
         public ITrackWax TrackWax { get { return _provider.GetRequiredService<DataManager>(); } }
         public IWork     Work     { get { return _provider.GetRequiredService<DataManager>(); } }
+        public IExplore  Explore  { get { return _provider.GetRequiredService<DataManager>(); } }
 
     }
 }

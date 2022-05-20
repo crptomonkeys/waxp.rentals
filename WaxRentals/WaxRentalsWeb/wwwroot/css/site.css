@@ -3,7 +3,21 @@ body {
   overflow-y: scroll;
 }
 
+.clipboard {
+  cursor: pointer;
+}
+
 #menu-3 div.toggle-content {
   height: 350px;
   margin-bottom: 20px;
+}
+
+@media (max-width: 767px) {
+  .mobile-show {
+    display: block !important;
+  }
+
+  .mobile-hide {
+    display: none !important;
+  }
 }

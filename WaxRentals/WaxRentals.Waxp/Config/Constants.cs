@@ -1,4 +1,6 @@
-﻿namespace WaxRentals.Waxp.Config
+﻿using static WaxRentals.Data.Config.Constants;
+
+namespace WaxRentals.Waxp.Config
 {
     public static class Constants
     {
@@ -14,7 +16,7 @@
 
             public const string TransferBlocks = "$.simple_actions[?(@.action=='transfer' && @.data.to=='" + Account + "')]";
 
-            public const decimal MinimumTransaction = 1;
+            public const decimal MinimumTransaction = Calculations.BananoPerWaxPerDay;
 
             public const string WaxAddressRegex = @"^[A-Za-z1-5\.]{1,12}$";
             public const string BananoAddressRegex = "^ban_[13]{1}[13456789abcdefghijkmnopqrstuwxyz]{59}$";

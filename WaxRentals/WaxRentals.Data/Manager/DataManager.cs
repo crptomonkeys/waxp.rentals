@@ -8,7 +8,7 @@ using WaxRentals.Data.Entities;
 
 namespace WaxRentals.Data.Manager
 {
-    internal class DataManager : IInsert, IProcess, ITrackWax, IWork, ILog
+    internal class DataManager : IInsert, IProcess, ITrackWax, IWork, ILog, IExplore
     {
 
         private WaxRentalsContext Context { get; }
@@ -225,6 +225,34 @@ namespace WaxRentals.Data.Manager
             {
                 Console.WriteLine(ex);
             }
+        }
+
+        #endregion
+
+        #region " IExplore "
+
+        public IEnumerable<Rental> GetRecentRentals()
+        {
+            return Context.Rentals
+                          .Where(rental => rental.StatusId == (int)Status.Processed)
+                          .OrderByDescending(rental => rental.RentalId)
+                          .Take(10);
+        }
+
+        public IEnumerable<Purchase> GetRecentPurchases()
+        {
+            return Context.Purchases
+                          .Where(purchase => purchase.StatusId == (int)Status.Processed)
+                          .OrderByDescending(purchase => purchase.PurchaseId)
+                          .Take(10);
+        }
+
+        public Rental GetRentalByBananoAddress(string address)
+        {
+            return (from rental in Context.Rentals
+                    join banano in Context.Addresses on rental.RentalId equals banano.AddressId
+                    where banano.BananoAddress == address
+                    select rental).SingleOrDefault();
         }
 
         #endregion

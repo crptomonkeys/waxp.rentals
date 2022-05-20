@@ -8,6 +8,7 @@
         public IProcess  Process  { get; }
         public ITrackWax TrackWax { get; }
         public IWork     Work     { get; }
+        public IExplore  Explore  { get; }
 
     }
 }

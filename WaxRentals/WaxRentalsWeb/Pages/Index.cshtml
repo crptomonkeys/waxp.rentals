@@ -125,7 +125,10 @@
                 <div class="toggle-content text-center" id="tab1">
                   <h3>Sell WAX</h3>
                   <p>
-                    <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@WaxRentals.Waxp.Config.Constants.Protocol.Account</strong> and <strong>include your BAN address as the memo</strong>.</span>
+                    <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">
+                      <img src="/qr/wax" />
+                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@WaxRentals.Waxp.Config.Constants.Protocol.Account</strong> <i class="fa fa-copy clipboard" data-copy="@WaxRentals.Waxp.Config.Constants.Protocol.Account"></i> and <strong>include your BAN address as the memo</strong>.
+                    </span>
                     <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
                     <br><br>WAX price: <strong>${{ state.waxPrice }}</strong> | BAN price: <strong>${{ state.bananoPrice }}</strong>
                     <br>Currently paying <strong>{{ state.waxBuyPriceInBanano }} BAN</strong> per WAX
@@ -186,20 +189,29 @@
 
           <div id="menu-3" class="services content">
             <div class="row">
-              <div class="col-md-6 col-sm-6">
+              <div class="col-md-6 col-sm-6 mobile-show" style="display: none;">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rentals</h3>
+                  <h3>Rental Details</h3>
                   <p>
-                    
+
                   </p>
                 </div>
               </div>
 
               <div class="col-md-6 col-sm-6">
                 <div class="toggle-content text-center">
+                  <h3>Pending Rentals</h3>
+                  <p>
+
+                  </p>
+                </div>
+              </div>
+
+              <div class="col-md-6 col-sm-6 mobile-hide">
+                <div class="toggle-content text-center">
                   <h3>Rental Details</h3>
                   <p>
-                    
+
                   </p>
                 </div>
               </div>
@@ -210,7 +222,7 @@
                 <div class="toggle-content text-center">
                   <h3>Active Rentals</h3>
                   <p>
-                    
+
                   </p>
                 </div>
               </div>
@@ -219,7 +231,7 @@
                 <div class="toggle-content text-center">
                   <h3>Expired Rentals</h3>
                   <p>
-                    
+
                   </p>
                 </div>
               </div>
@@ -229,40 +241,23 @@
           <div id="menu-4" class="contact content">
             <div class="row">
 
-              <div class="col-md-12">
+              <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
-                  <h3>Contact Us</h3>
+                  <h3>Recent Wax Rentals</h3>
                   <p>
-                    Donec mattis enim sit amet nisl faucibus, eu pulvinar nibh facilisis. Aliquam erat volutpat. Vivamus tempus, nisi varius imperdiet molestie, velit mi feugiat felis, sit amet fringilla mi massa sit amet arcu. Mauris dictum nisl id felis lacinia congue. Aliquam lectus nisi, sodales in lacinia quis, lobortis vel sem.
-                    <br><br><strong>Address:</strong> 123 Thamine Street, Digital Estate, Yangon 10620, Myanmar
-                    <br><strong>Email:</strong> info@company.com | <strong>Tel:</strong> 010-020-0340
+
                   </p>
                 </div>
-              </div> <!-- /.col-md-12 -->
+              </div> <!-- /.col-md-6 -->
 
-              <div class="col-md-12">
-                <div class="contact-form">
-                  <div class="row">
-                    <form action="#" method="post">
-                      <fieldset class="col-md-4">
-                        <input id="name" type="text" name="name" placeholder="Name">
-                      </fieldset>
-                      <fieldset class="col-md-4">
-                        <input type="email" name="email" id="email" placeholder="Email">
-                      </fieldset>
-                      <fieldset class="col-md-4">
-                        <input type="text" name="subject" id="subject" placeholder="Subject">
-                      </fieldset>
-                      <fieldset class="col-md-12">
-                        <textarea name="message" id="message" placeholder="Message"></textarea>
-                      </fieldset>
-                      <fieldset class="col-md-12">
-                        <input type="submit" name="send" value="Send Message" id="submit" class="button">
-                      </fieldset>
-                    </form>
-                  </div> <!-- /.row -->
-                </div> <!-- /.contact-form -->
-              </div> <!-- /.col-md-12 -->
+              <div class="col-md-6">
+                <div class="toggle-content text-center spacing">
+                  <h3>Recent Wax Purchases</h3>
+                  <p>
+
+                  </p>
+                </div>
+              </div> <!-- /.col-md-6 -->
             </div> <!-- /.row -->
           </div> <!-- /.contact -->
 
@@ -358,7 +353,11 @@
       el: '#menu-4',
       data() {
         return {
-          state: {}
+          state: {},
+          recent: {
+            rentals: [],
+            purchases: []
+          }
         }
       }
     });
@@ -381,6 +380,10 @@
       sell.state = state;
       my.state = state;
       explore.state = state;
+    });
+
+    _connection.on("RecentChanged", recent => {
+      explore.recent = recent;
     });
 
   </script>

@@ -24,8 +24,8 @@ namespace WaxRentals.Waxp.Transact
 
         public IWaxAccount[] Transact { get; }
 
-        private static readonly DateTime _startDate = new DateTime(2022, 05, 15, 0, 0, 0, DateTimeKind.Utc);
-        private int DaysPassed
+        private static readonly DateTime _startDate = new(2022, 05, 15, 0, 0, 0, DateTimeKind.Utc);
+        private static int DaysPassed
         {
             get
             {
