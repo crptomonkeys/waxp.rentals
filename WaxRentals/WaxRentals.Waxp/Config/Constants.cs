@@ -16,6 +16,7 @@
 
             public const decimal MinimumTransaction = 1;
 
+            public const string WaxAddressRegex = @"^[A-Za-z1-5\.]{1,12}$";
             public const string BananoAddressRegex = "^ban_[13]{1}[13456789abcdefghijkmnopqrstuwxyz]{59}$";
 
             public const int Decimals = 8;

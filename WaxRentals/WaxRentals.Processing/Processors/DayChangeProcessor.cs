@@ -24,7 +24,10 @@ namespace WaxRentals.Processing.Processors
             {
                 Today = today;
 
-                await today.ClaimRefund();
+                if ((await today.GetBalances()).Unstaking > 0)
+                {
+                    await today.ClaimRefund();
+                }
                 
                 var available = (await Wax.Yesterday.GetBalances()).Available;
                 if (available > 0)

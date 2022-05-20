@@ -95,12 +95,12 @@
               <div class="col-md-12">
                 <div class="contact-form">
                   <div class="row">
-                    <form action="#" method="post">
+                    <form action="" method="post">
                       <fieldset class="col-md-3">
-                        <input type="text" name="account" id="account" minlength="1" maxlength="12" placeholder="WAX Account" required>
+                        <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.WaxAddressRegex" placeholder="WAX Account" required>
                       </fieldset>
                       <fieldset class="col-md-3">
-                        <input type="number" name="cpu" id="cpu" min="0" :max="state.waxMaximumRent" step="1" placeholder="# CPU" required>
+                        <input type="number" name="cpu" id="cpu" min="0" :max="state.waxMaximumRent" step="1" placeholder="# CPU">
                       </fieldset>
                       <fieldset class="col-md-3">
                         <input type="number" name="net" id="net" min="0" :max="state.waxMaximumRent" step="1" placeholder="# NET">

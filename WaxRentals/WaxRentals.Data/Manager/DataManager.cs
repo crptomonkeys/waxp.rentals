@@ -29,7 +29,8 @@ namespace WaxRentals.Data.Manager
                     RentalDays = days,
                     CPU = cpu,
                     NET = net,
-                    Banano = banano
+                    Banano = banano,
+                    Status = Status.New
                 }
             );
             await Context.SaveChangesAsync();
