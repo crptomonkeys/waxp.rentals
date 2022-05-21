@@ -8,7 +8,8 @@ namespace WaxRentals.Data.Manager
 
         IEnumerable<Rental> GetRecentRentals();
         IEnumerable<Purchase> GetRecentPurchases();
-        Rental GetRentalByBananoAddress(string address);
+        IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses);
+        IEnumerable<Rental> GetRentalsByWaxAccount(string account);
 
     }
 }

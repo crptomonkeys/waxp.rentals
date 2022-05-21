@@ -1,7 +1,5 @@
 (function ($) {
 
-  setTimeout(() => $('.menu .show-0').click(), 500);
-
   $('.buy-wax').on('click', () => {
     $('.menu .show-1').click();
     return false;
@@ -36,3 +34,53 @@
 
 })(jQuery);
 
+// ================
+//    LOCAL STORAGE
+// ================
+
+const storage = {
+
+  addresses: value => {
+    if (value === undefined) {
+      const stored = localStorage.getItem('MyRentals');
+      return stored === null ? [] : JSON.parse(stored);
+    } else {
+      localStorage.setItem('MyRentals', JSON.stringify(value));
+    }
+  },
+
+  remove: address => {
+    if (address !== undefined && address !== null) {
+      const value = storage.addresses();
+      const index = value.indexOf(address.toLowerCase());
+      if (index > -1) {
+        value.splice(index, 1);
+        storage.addresses(value);
+      }
+    }
+    return storage.addresses();
+  },
+
+  add: address => {
+    if (address !== undefined && address !== null) {
+      const value = storage.addresses();
+      if (!value.includes(address.toLowerCase())) {
+        value.push(address.toLowerCase());
+        storage.addresses(value);
+      }
+    }
+    return storage.addresses();
+  },
+
+  addAll: addresses => {
+    const value = storage.addresses();
+    addresses.forEach(address => {
+      if (!value.includes(address.toLowerCase())) {
+        value.push(address.toLowerCase());
+      }
+    });
+    storage.addresses(value);
+    return storage.addresses();
+  }
+
+};

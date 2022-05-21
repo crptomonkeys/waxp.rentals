@@ -1,6 +1,11 @@
 ﻿@page
 @model IndexModel
 
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+@{
+  var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
+}
+
 <!DOCTYPE html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]><html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -95,7 +100,7 @@
               <div class="col-md-12">
                 <div class="contact-form">
                   <div class="row">
-                    <form action="" method="post">
+                    <form action="/" method="post">
                       <fieldset class="col-md-3">
                         <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.WaxAddressRegex" placeholder="WAX Account" required>
                       </fieldset>
@@ -191,9 +196,18 @@
             <div class="row">
               <div class="col-md-6 col-sm-6 mobile-show" style="display: none;" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rental Details</h3>
-                  <p>
-                    
+                  <h3>Pending Rental Details <a href="#"><i class="fa fa-times"></i></a></h3>
+                  <p v-if="detail.loading">
+                    <img class="text-center" src="/images/progress.gif" />
+                  </p>
+                  <p v-else>
+                    <a :href="detail.link">
+                      <img :src="'/qr/banano/' + detail.address.full" width="150" height="150" />
+                      <br>Tap to open Kalium
+                    </a>
+                    <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
+                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span>  <i class="fa fa-copy clipboard" :data-copy="detail.address.full"></i>.
+                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} days
                   </p>
                 </div>
               </div>
@@ -201,18 +215,49 @@
               <div class="col-md-6 col-sm-6">
                 <div class="toggle-content text-center">
                   <h3>Pending Rentals</h3>
-                  <p>
-
-                  </p>
+                  <table class="table table-striped table-sm">
+                    <thead>
+                      <tr>
+                        <th scope="col"></th>
+                        <th scope="col" class="text-center">Account</th>
+                        <th scope="col" class="text-right">CPU</th>
+                        <th scope="col" class="text-right">NET</th>
+                        <th scope="col" class="text-right">Duration</th>
+                        <th scope="col" class="text-right">Cost</th>
+                        <th scope="col"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="rental in pending">
+                        <td class="text-center">
+                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)"><i class="fa fa-times" alt="Stop Tracking"></i></a>
+                          <a href="#" @@click.prevent="add(rental.bananoAddress)" v-else><i class="fa fa-plus" alt="Track"></i></a>
+                        </td>
+                        <td class="text-center">{{ rental.waxAccount }}</td>
+                        <td class="text-right">{{ rental.cpu }} WAX</td>
+                        <td class="text-right">{{ rental.net }} WAX</td>
+                        <td class="text-right">{{ days(rental.days) }}</td>
+                        <td class="text-right">{{ rental.banano }} BAN</td>
+                        <td class="text-center">
+                          <a :href="'/ba/' + rental.bananoAddress" class="detail-link" @@click.prevent="fetchRentalDetails(rental.bananoAddress)">
+                            <i class="fa fa-search-plus" alt="View"></i>
+                          </a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
               <div class="col-md-6 col-sm-6 mobile-hide" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rental Details</h3>
-                  <p>
+                  <h3>Pending Rental Details <a class="pull-right" href="#" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
+                  <p v-if="detail.loading">
+                    <img class="text-center" src="/images/progress.gif" />
+                  </p>
+                  <p v-else>
                     <a :href="detail.link">
-                      <img :src="'/qr/banano/' + detail.address.full" />
+                      <img :src="'/qr/banano/' + detail.address.full" width="150" height="150" />
                       <br>Tap to open Kalium
                     </a>
                     <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
@@ -250,7 +295,7 @@
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
                   <h3>Recent Wax Rentals</h3>
-                  <table class="table table-dark table-striped table-sm">
+                  <table class="table table-striped table-sm">
                     <thead>
                       <tr>
                         <th scope="col" class="text-right">Staked</th>
@@ -265,7 +310,7 @@
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
                         </td>
                         <td class="text-right">
-                          {{ rental.days }} days
+                          {{ days(rental.days) }}
                         </td>
                         <td class="text-right">
                           {{ rental.banano }} BAN
@@ -336,7 +381,6 @@
   <script src="js/site.js"></script>
   <script src="js/formatting.js"></script>
   <script type="text/javascript">
-
     jQuery(function ($) {
 
       $.supersized({
@@ -359,90 +403,132 @@
         ]
 
       });
-    });
 
+      // ================
+      //    VUE
+      // ================
 
-    // ================
-    //    VUE
-    // ================
-
-    var rent = new Vue({
-      el: '#menu-0',
-      data() {
-        return {
-          state: {}
-        }
-      }
-    });
-
-    var sell = new Vue({
-      el: '#menu-1',
-      data() {
-        return {
-          state: {}
-        }
-      }
-    });
-
-    var my = new Vue({
-      el: '#menu-3',
-      data() {
-        return {
-          state: {},
-          detail: {
-            address: {
-              full: 'ban_3pru4k1zzm3qqwbr9znnc9kbhd4z6yy6kgtcspwawe6sst953gq9ybmbqy5y',
-              start: 'ban_3pru4k1',
-              mid: 'zzm3qqwbr9znnc9kbhd4z6yy6kgtcspwawe6sst953gq9yb',
-              end: 'mbqy5y'
-            },
-            link: 'banano:ban_3pru4k1zzm3qqwbr9znnc9kbhd4z6yy6kgtcspwawe6sst953gq9ybmbqy5y?amount=1200000000000000000000000000000',
-            cpu: 3,
-            net: 1,
-            days: 3,
-            banano: 12
+      var rent = new Vue({
+        el: '#menu-0',
+        data() {
+          return {
+            state: {}
           }
         }
-      }
-    });
+      });
 
-    var recents = new Vue({
-      el: '#menu-4',
-      data() {
-        return {
-          state: {},
-          recent: {
+      var sell = new Vue({
+        el: '#menu-1',
+        data() {
+          return {
+            state: {}
+          }
+        }
+      });
+
+      var my = new Vue({
+        el: '#menu-3',
+        data() {
+          return {
+            state: {},
             rentals: [],
-            purchases: []
+            display: null,
+            detail: null
+          }
+        },
+        computed: {
+          current: function () {
+            return this.display ?? this.rentals;
+          },
+          pending: function () {
+            return (this.current.New ?? []).concat(this.current.Pending ?? []);
+          },
+          active: function () {
+            return this.current.Processed ?? [];
+          },
+          expired: function () {
+            return this.current.Closed ?? [];
+          }
+        },
+        methods: {
+          fetchRentals: function (addresses, save) {
+            axios.post('/api/myrentals', addresses, { headers: { 'RequestVerificationToken': '@token' } })
+              .then(response => {
+                if (save) {
+                  this.rentals = response.data;
+                } else {
+                  this.display = response.data;
+                }
+              });
+          },
+          fetchRentalDetails: function (address) {
+            this.detail = { loading: true };
+            axios.get('/api/rentaldetails/' + address)
+              .then(response => this.detail = response.data);
+          },
+          days: function (days) {
+            return days + (days === 1 ? ' day' : ' days');
+          },
+          tracked: function (address) {
+            return storage.addresses().includes(address);
+          },
+          remove: function (rental) {
+            storage.remove(rental.bananoAddress);
+            [this.rentals.New, this.rentals.Pending, this.rentals.Processed, this.rentals.Closed].forEach(arr => {
+              if (arr && arr.includes(rental)) {
+                arr.splice(arr.indexOf(rental, 1));
+              }
+            });
+          },
+          add: function (address) {
+            storage.add(address);
+          }
+        },
+        mounted() {
+          this.fetchRentals(storage.addresses(), true);
+
+          setTimeout(() => $('.menu .show-0').click(), 500);
+        }
+      });
+
+      var recents = new Vue({
+        el: '#menu-4',
+        data() {
+          return {
+            state: {},
+            recent: {
+              rentals: [],
+              purchases: []
+            }
           }
         }
-      }
+      });
+
+      // ================
+      //    NOTIFICATIONS
+      // ================
+
+      const _connection = new signalR.HubConnectionBuilder()
+        .withUrl('/notifications')
+        .withAutomaticReconnect()
+        .build();
+
+      _connection.start().catch(function (err) {
+        return console.error(err.toString());
+      });
+
+      _connection.on("AppStateChanged", state => {
+        rent.state = state;
+        sell.state = state;
+        my.state = state;
+        explore.state = state;
+      });
+
+      _connection.on("RecentsChanged", recent => {
+        recents.recent = recent;
+      });
+
     });
-
-    // ================
-    //    NOTIFICATIONS
-    // ================
-
-    const _connection = new signalR.HubConnectionBuilder()
-      .withUrl('/notifications')
-      .withAutomaticReconnect()
-      .build();
-
-    _connection.start().catch(function (err) {
-      return console.error(err.toString());
-    });
-
-    _connection.on("AppStateChanged", state => {
-      rent.state = state;
-      sell.state = state;
-      my.state = state;
-      explore.state = state;
-    });
-
-    _connection.on("RecentsChanged", recent => {
-      recents.recent = recent;
-    });
-
   </script>
 
 </body>

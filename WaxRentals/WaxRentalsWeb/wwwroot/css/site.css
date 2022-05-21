@@ -9,7 +9,6 @@ body {
 }
 
 #menu-3 div.toggle-content {
-  height: 400px;
   margin-bottom: 20px;
 }
 
@@ -20,6 +19,12 @@ span.banano-address {
 
 span.address-highlight {
   color: #d8aa46;
+}
+
+@media (min-width: 767px) {
+  #menu-3 div.toggle-content {
+    min-height: 420px;
+  }
 }
 
 @media (max-width: 767px) {

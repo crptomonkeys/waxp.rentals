@@ -7,12 +7,12 @@ namespace WaxRentalsWeb.Data.Models
     public class RentalModel
     {
 
-        public int Cpu { get; set; }
-        public int Net { get; set; }
-        public int Days { get; set; }
-        public decimal Banano { get; set; }
-        public string BananoAddress { get; set; }
-        public string StakeTransaction { get; set; }
+        public int Cpu { get; }
+        public int Net { get; }
+        public int Days { get; }
+        public decimal Banano { get; }
+        public string BananoAddress { get; }
+        public string StakeTransaction { get; }
 
         public RentalModel(Rental rental, IBananoAccountFactory banano)
         {

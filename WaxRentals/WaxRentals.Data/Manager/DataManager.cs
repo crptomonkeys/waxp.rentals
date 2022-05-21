@@ -249,12 +249,17 @@ namespace WaxRentals.Data.Manager
                           .ToArray();
         }
 
-        public Rental GetRentalByBananoAddress(string address)
+        public IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses)
         {
-            return (from rental in Context.Rentals
-                    join banano in Context.Addresses on rental.RentalId equals banano.AddressId
-                    where banano.BananoAddress == address
-                    select rental).SingleOrDefault();
+            return from rental in Context.Rentals
+                   join banano in Context.Addresses on rental.RentalId equals banano.AddressId
+                   where addresses.Contains(banano.BananoAddress)
+                   select rental;
+        }
+
+        public IEnumerable<Rental> GetRentalsByWaxAccount(string account)
+        {
+            return Context.Rentals.Where(rental => rental.TargetWaxAccount == account);
         }
 
         #endregion

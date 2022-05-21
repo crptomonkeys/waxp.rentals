@@ -1,36 +1,35 @@
 ﻿using System.Linq;
-using IronBarCode;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
-using static WaxRentalsWeb.Config.Constants;
+using WaxRentalsWeb.Data.Models;
+using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentalsWeb.Pages
 {
-    public class BananoModel : PageModel
+    public class RentalDetailsModel : PageModel
     {
 
         private readonly IDataFactory _data;
         private readonly IBananoAccountFactory _banano;
 
-        public BananoModel(IDataFactory data, IBananoAccountFactory banano)
+        public RentalDetailsModel(IDataFactory data, IBananoAccountFactory banano)
         {
             _data = data;
             _banano = banano;
         }
 
-        public IActionResult OnGet(string address)
+        public JsonResult OnGet(string address)
         {
-            if (!string.IsNullOrWhiteSpace(address))
+            // Filter invalid accounts.
+            if (!string.IsNullOrWhiteSpace(address) && Regex.IsMatch(address, Protocol.BananoAddressRegex))
             {
                 var rental = _data.Explore.GetRentalsByBananoAddresses(new string[] { address }).SingleOrDefault();
                 if (rental != null)
                 {
-                    var account = _banano.BuildAccount((uint)rental.RentalId);
-                    var link = account.BuildLink(rental.Banano);
-                    var qr = QRCodeWriter.CreateQrCodeWithLogo(link, Images.Logo, Images.Size);
-                    return File(qr.ToPngBinaryData(), "image/png");
+                    return new JsonResult(new RentalDetailModel(rental, _banano));
                 }
             }
             return null;
