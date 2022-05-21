@@ -29,6 +29,12 @@ namespace WaxRentals.Banano.Transact
             _factory = factory;
         }
 
+        public string BuildLink(decimal amount)
+        {
+            var raw = Amount.NanoToRaw(amount * 0.1m);
+            return $"banano:{Address}?amount={raw}";
+        }
+
         #region " Send "
 
         public async Task<string> Send(string target, BigDecimal banano)

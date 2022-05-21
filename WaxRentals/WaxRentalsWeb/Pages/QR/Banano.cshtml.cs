@@ -29,9 +29,8 @@ namespace WaxRentalsWeb.Pages
                 if (rental != null)
                 {
                     var account = _banano.BuildAccount((uint)rental.RentalId);
-                    var amount = Amount.NanoToRaw(rental.Banano * 0.1m);
-                    var value = $"banano:{account.Address}?amount={amount}";
-                    var qr = QRCodeWriter.CreateQrCodeWithLogo(value, Images.Logo, Images.Size);
+                    var link = account.BuildLink(rental.Banano);
+                    var qr = QRCodeWriter.CreateQrCodeWithLogo(link, Images.Logo, Images.Size);
                     return File(qr.ToPngBinaryData(), "image/png");
                 }
             }

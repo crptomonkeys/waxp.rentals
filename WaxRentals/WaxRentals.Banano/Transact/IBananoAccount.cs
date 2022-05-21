@@ -6,7 +6,8 @@ namespace WaxRentals.Banano.Transact
     public interface IBananoAccount
     {
 
-        public string Address { get; }
+        string Address { get; }
+        string BuildLink(decimal amount);
 
         Task<string> Send(string target, BigDecimal banano);
         Task<BigDecimal> Receive(bool verifyOnly);

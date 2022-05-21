@@ -9,8 +9,17 @@ body {
 }
 
 #menu-3 div.toggle-content {
-  height: 350px;
+  height: 400px;
   margin-bottom: 20px;
+}
+
+span.banano-address {
+  font-weight: bold;
+  word-wrap: break-word;
+}
+
+span.address-highlight {
+  color: #d8aa46;
 }
 
 @media (max-width: 767px) {

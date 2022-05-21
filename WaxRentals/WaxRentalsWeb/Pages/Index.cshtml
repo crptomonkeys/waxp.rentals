@@ -189,11 +189,11 @@
 
           <div id="menu-3" class="content">
             <div class="row">
-              <div class="col-md-6 col-sm-6 mobile-show" style="display: none;">
+              <div class="col-md-6 col-sm-6 mobile-show" style="display: none;" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Rental Details</h3>
+                  <h3>Pending Rental Details</h3>
                   <p>
-
+                    
                   </p>
                 </div>
               </div>
@@ -207,11 +207,17 @@
                 </div>
               </div>
 
-              <div class="col-md-6 col-sm-6 mobile-hide">
+              <div class="col-md-6 col-sm-6 mobile-hide" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Rental Details</h3>
+                  <h3>Pending Rental Details</h3>
                   <p>
-
+                    <a :href="detail.link">
+                      <img :src="'/qr/banano/' + detail.address.full" />
+                      <br>Tap to open Kalium
+                    </a>
+                    <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
+                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span>  <i class="fa fa-copy clipboard" :data-copy="detail.address.full"></i>.
+                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} days
                   </p>
                 </div>
               </div>
@@ -382,7 +388,20 @@
       el: '#menu-3',
       data() {
         return {
-          state: {}
+          state: {},
+          detail: {
+            address: {
+              full: 'ban_3pru4k1zzm3qqwbr9znnc9kbhd4z6yy6kgtcspwawe6sst953gq9ybmbqy5y',
+              start: 'ban_3pru4k1',
+              mid: 'zzm3qqwbr9znnc9kbhd4z6yy6kgtcspwawe6sst953gq9yb',
+              end: 'mbqy5y'
+            },
+            link: 'banano:ban_3pru4k1zzm3qqwbr9znnc9kbhd4z6yy6kgtcspwawe6sst953gq9ybmbqy5y?amount=1200000000000000000000000000000',
+            cpu: 3,
+            net: 1,
+            days: 3,
+            banano: 12
+          }
         }
       }
     });
