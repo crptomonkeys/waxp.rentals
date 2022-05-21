@@ -196,7 +196,7 @@
             <div class="row">
               <div class="col-md-6 col-sm-6 mobile-show" style="display: none;" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rental Details <a href="#"><i class="fa fa-times"></i></a></h3>
+                  <h3>Pending Rental Details <a class="pull-right" href="#" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
                   <p v-if="detail.loading">
                     <img class="text-center" src="/images/progress.gif" />
                   </p>
