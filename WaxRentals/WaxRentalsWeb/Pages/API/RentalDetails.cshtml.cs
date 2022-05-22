@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Banano.Transact;
+using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 using WaxRentalsWeb.Data.Models;
 using static WaxRentals.Waxp.Config.Constants;
@@ -27,7 +28,7 @@ namespace WaxRentalsWeb.Pages
             if (!string.IsNullOrWhiteSpace(address) && Regex.IsMatch(address, Protocol.BananoAddressRegex))
             {
                 var rental = _data.Explore.GetRentalsByBananoAddresses(new string[] { address }).SingleOrDefault();
-                if (rental != null)
+                if (rental?.Status == Status.New || rental?.Status == Status.Pending)
                 {
                     return new JsonResult(new RentalDetailModel(rental, _banano));
                 }

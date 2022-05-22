@@ -5,12 +5,16 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
+using WaxRentalsWeb.Config;
 using WaxRentalsWeb.Data;
+using WaxRentalsWeb.Data.Models;
 
 namespace WaxRentalsWeb.Pages
 {
     public class IndexModel : PageModel
     {
+
+        public PageLoadModel InitialPage { get; private set; }
 
         private readonly IDataCache _cache;
         private readonly IDataFactory _data;
@@ -25,7 +29,7 @@ namespace WaxRentalsWeb.Pages
 
         public void OnGet()
         {
-            // Just return the page.
+            InitialPage = TempData.Get<PageLoadModel>("InitialPage") ?? new PageLoadModel { Name = "default" };
         }
 
         public async Task<JsonResult> OnPostAsync(RentalInput input)

@@ -93,11 +93,7 @@ const load = {
 
   bananoAddress: function (address) {
     this._my.fetchRentals([address], false);
-    this._load();
-  },
-
-  bananoTransaction: function (hash) {
-
+    this._my.fetchRentalDetails(address);
     this._load();
   },
 
@@ -106,15 +102,7 @@ const load = {
     this._load();
   },
 
-  waxTransaction: function (hash) {
-
-    this._load();
-  },
-
-  details: function (address, saved) {
-    if (!saved) {
-      this._my.fetchRentals([address], false);
-    }
+  details: function (address) {
     this._my.fetchRentalDetails(address);
     this._load();
   },
