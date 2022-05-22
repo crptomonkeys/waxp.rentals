@@ -25,16 +25,18 @@ namespace WaxRentals.Waxp.Monitoring
                 result.Api = json.SelectTokens(Protocol.TransactionEndpoints)
                                .Select(token => token.Value<string>())
                                .Distinct(Comparer)
+                               .Where(endpoint => !Protocol.EndpointsBlacklist.Contains(endpoint, Comparer))
                                .ToList();
                 result.History = json.SelectTokens(Protocol.HistoryEndpoints)
                                    .Select(token => token.Value<string>())
                                    .Distinct(Comparer)
+                                   .Where(endpoint => !Protocol.EndpointsBlacklist.Contains(endpoint, Comparer))
                                    .ToList();
                 return true;
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                Factory.Log.Error(ex, context: Locations.Endpoints);
                 return false;
             }
         }

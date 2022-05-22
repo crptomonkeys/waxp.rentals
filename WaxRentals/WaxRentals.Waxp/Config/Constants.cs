@@ -13,6 +13,7 @@ namespace WaxRentals.Waxp.Config
 
             public const string TransactionEndpoints = "$..api_https2[*][1]";
             public const string HistoryEndpoints = "$..history_traditional_https[*][1]";
+            public static readonly string[] EndpointsBlacklist = new[] { "https://api-wax.eosarabia.net" }; // Geo-blocked.
 
             public const string TransferBlocks = "$.simple_actions[?(@.action=='transfer' && @.data.to=='" + Account + "')]";
 

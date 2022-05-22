@@ -20,8 +20,45 @@ namespace WaxRentals.Waxp.Transact
 
         #region " Endpoints "
 
-        private readonly IDictionary<string, Status> _api = new Dictionary<string, Status>();
-        private readonly IDictionary<string, Status> _history = new Dictionary<string, Status>();
+        // Start with defaults, just in case the endpoint list is down.
+        private readonly IDictionary<string, Status> _api = new Dictionary<string, Status>()
+        {
+            { "https://apiwax.3dkrender.com"          , new() },
+            { "https://query.3dkrender.com"           , new() },
+            { "https://api.wax.alohaeos.com"          , new() },
+            { "https://wax.eu.eosamsterdam.net"       , new() },
+            { "https://wax.blacklusion.io"            , new() },
+            { "https://hyperion.wax.blacklusion.io"   , new() },
+            { "https://api-wax-mainnet.wecan.dev"     , new() },
+            { "https://hyperion-wax-mainnet.wecan.dev", new() },
+            { "https://history-wax-mainnet.wecan.dev" , new() },
+            { "https://wax.dapplica.io"               , new() },
+            { "https://api-wax.eosauthority.com"      , new() },
+            { "https://wax.eosdac.io"                 , new() },
+            { "https://wax.eosdublin.io"              , new() },
+            { "https://wax.eoseoul.io"                , new() },
+            { "https://wax.eosphere.io"               , new() },
+            { "https://wax-public1.neftyblocks.com"   , new() },
+            { "https://wax-public2.neftyblocks.com"   , new() },
+            { "https://waxapi.ledgerwise.io"          , new() },
+            { "https://wax.api.eosnation.io"          , new() },
+            { "https://wax.dfuse.eosnation.io"        , new() },
+            { "https://wax.greymass.com"              , new() },
+            { "https://api.waxeastern.cn"             , new() },
+            { "https://api2.hivebp.io"                , new() },
+            { "https://wax-api.eosiomadrid.io"        , new() },
+            { "https://api.waxsweden.org"             , new() },
+            { "https://wax-bp.wizardsguild.one"       , new() }
+        };
+        private readonly IDictionary<string, Status> _history = new Dictionary<string, Status>()
+        {
+            { "https://apiwax.3dkrender.com"         , new() },
+            { "https://wax.eu.eosamsterdam.net"      , new() },
+            { "https://history-wax-mainnet.wecan.dev", new() },
+            { "https://api-wax.eosauthority.com"     , new() },
+            { "https://wax.eosdublin.io"             , new() },
+            { "https://api.waxeastern.cn"            , new() }
+        };
         private readonly Random _random = new();
 
         public ClientFactory(EndpointMonitor monitor, IDataFactory factory)
@@ -40,17 +77,20 @@ namespace WaxRentals.Waxp.Transact
 
         private void Update(IDictionary<string, Status> endpoints, IEnumerable<string> found)
         {
-            _locker.SafeWrite(() =>
+            if (found.Any())
             {
-                foreach (var endpoint in endpoints.Keys.Except(found, Comparer))
+                _locker.SafeWrite(() =>
                 {
-                    endpoints.Remove(endpoint);
-                }
-                foreach (var endpoint in found.Except(endpoints.Keys, Comparer))
-                {
-                    endpoints[endpoint] = new Status();
-                }
-            });
+                    foreach (var endpoint in endpoints.Keys.Except(found, Comparer))
+                    {
+                        endpoints.Remove(endpoint);
+                    }
+                    foreach (var endpoint in found.Except(endpoints.Keys, Comparer))
+                    {
+                        endpoints[endpoint] = new Status();
+                    }
+                });
+            }
         }
 
         private (string, Status) GetEndpoint(IDictionary<string, Status> endpoints)
