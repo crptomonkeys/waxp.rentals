@@ -1,7 +1,6 @@
 
 
-- rent => direct link into my rentals
-
+- rent => direct link into my rentals ---- not listing correctly
 
 
  -- test ui

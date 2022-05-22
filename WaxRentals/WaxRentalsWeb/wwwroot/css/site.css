@@ -3,6 +3,13 @@ body {
   overflow-y: scroll;
 }
 
+#error-alert {
+  position: fixed;
+  bottom: 0px;
+  right: 20px;
+  opacity: 0;
+}
+
 .align-middle {
   vertical-align: middle !important;
 }

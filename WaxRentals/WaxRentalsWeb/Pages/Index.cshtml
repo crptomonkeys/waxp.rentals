@@ -44,7 +44,6 @@
   <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
   <![endif]-->
 
-
   <div class="bg-overlay"></div>
 
   <div class="container-fluid">
@@ -100,7 +99,7 @@
               <div class="col-md-12">
                 <div class="contact-form">
                   <div class="row">
-                    <form action="/" method="post">
+                    <form id="open-rental" action="/" method="post">
                       <fieldset class="col-md-3">
                         <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.WaxAddressRegex" placeholder="WAX Account" required>
                       </fieldset>
@@ -114,7 +113,7 @@
                         <input type="number" name="days" id="days" min="1" step="1" placeholder="# Days" required>
                       </fieldset>
                       <fieldset class="col-md-12">
-                        <input class="button" type="submit" name="open" id="open" value="Start Staking">
+                        <input class="button" type="submit" name="open" id="open" value="Start Staking" @@click.prevent="submit">
                       </fieldset>
                     </form>
                   </div> <!-- /.row -->
@@ -423,9 +422,10 @@
     <div class="row">
       <div class="col-md-12 footer">
         <p id="footer-text">
-
           <a href="https://discord.gg/Wu5ge663mG" target="_blank">Need support?  Join the discord.</a>
-
+          <div id="error-alert" class="alert alert-danger">
+            <strong id="error-alert-text"></strong>
+          </div>
         </p>
       </div><!-- /.footer -->
     </div>
@@ -477,6 +477,28 @@
         data() {
           return {
             state: {}
+          }
+        },
+        methods: {
+          submit: function () {
+            const form = document.getElementById('open-rental');
+            if (form.reportValidity()) {
+              const data = $(form).serializeArray();
+              data[1].value = data[1].value || 0;
+              data[2].value = data[2].value || 0;
+
+              axios.post(form.action, $.param(data), { headers: { 'RequestVerificationToken': '@token' } })
+                .then(response => {
+                  if (response.data.success) {
+                    const address = response.data.address;
+                    storage.add(address);
+                    load.bananoAddress(address);
+                  } else {
+                    $('#error-alert-text').text(response.data.error);
+                    $('#error-alert').fadeTo(1000, 500).slideUp(1000);
+                  }
+                });
+            }
           }
         }
       });
