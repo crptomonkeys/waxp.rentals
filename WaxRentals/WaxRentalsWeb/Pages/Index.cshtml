@@ -220,24 +220,28 @@
                       <tr>
                         <th scope="col"></th>
                         <th scope="col" class="text-center">Account</th>
-                        <th scope="col" class="text-right">CPU</th>
-                        <th scope="col" class="text-right">NET</th>
-                        <th scope="col" class="text-right">Duration</th>
-                        <th scope="col" class="text-right">Cost</th>
+                        <th scope="col" class="text-center">CPU</th>
+                        <th scope="col" class="text-center">NET</th>
+                        <th scope="col" class="text-center">Duration</th>
+                        <th scope="col" class="text-center">Cost</th>
                         <th scope="col"></th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="rental in pending">
                         <td class="text-center">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)"><i class="fa fa-times" alt="Stop Tracking"></i></a>
-                          <a href="#" @@click.prevent="add(rental.bananoAddress)" v-else><i class="fa fa-plus" alt="Track"></i></a>
+                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                            <i class="fa fa-times" alt="Stop Tracking"></i>
+                          </a>
+                          <a href="#" @@click.prevent="add(rental)" v-else>
+                            <i class="fa fa-plus" alt="Track"></i>
+                          </a>
                         </td>
                         <td class="text-center">{{ rental.waxAccount }}</td>
-                        <td class="text-right">{{ rental.cpu }} WAX</td>
-                        <td class="text-right">{{ rental.net }} WAX</td>
-                        <td class="text-right">{{ days(rental.days) }}</td>
-                        <td class="text-right">{{ rental.banano }} BAN</td>
+                        <td class="text-center">{{ rental.cpu }} WAX</td>
+                        <td class="text-center">{{ rental.net }} WAX</td>
+                        <td class="text-center">{{ days(rental.days) }}</td>
+                        <td class="text-center">{{ rental.banano }} BAN</td>
                         <td class="text-center">
                           <a :href="'/ba/' + rental.bananoAddress" class="detail-link" @@click.prevent="fetchRentalDetails(rental.bananoAddress)">
                             <i class="fa fa-search-plus" alt="View"></i>
@@ -272,18 +276,76 @@
               <div class="col-md-6 col-sm-6">
                 <div class="toggle-content text-center">
                   <h3>Active Rentals</h3>
-                  <p>
-
-                  </p>
+                  <table class="table table-striped table-sm">
+                    <thead>
+                      <tr>
+                        <th scope="col"></th>
+                        <th scope="col" class="text-center">Account</th>
+                        <th scope="col" class="text-center">CPU</th>
+                        <th scope="col" class="text-center">NET</th>
+                        <th scope="col" class="text-center">Expires</th>
+                        <th scope="col"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="rental in active">
+                        <td class="text-center">
+                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                            <i class="fa fa-times" alt="Stop Tracking"></i>
+                          </a>
+                          <a href="#" @@click.prevent="add(rental)" v-else>
+                            <i class="fa fa-plus" alt="Track"></i>
+                          </a>
+                        </td>
+                        <td class="text-center">{{ rental.waxAccount }}</td>
+                        <td class="text-center">{{ rental.cpu }} WAX</td>
+                        <td class="text-center">{{ rental.net }} WAX</td>
+                        <td class="text-center">{{ localize(rental.expires) }}</td>
+                        <td class="text-center">
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
               <div class="col-md-6 col-sm-6">
                 <div class="toggle-content text-center">
                   <h3>Expired Rentals</h3>
-                  <p>
-
-                  </p>
+                  <table class="table table-striped table-sm">
+                    <thead>
+                      <tr>
+                        <th scope="col"></th>
+                        <th scope="col" class="text-center">Account</th>
+                        <th scope="col" class="text-center">WAX</th>
+                        <th scope="col" class="text-center">Opened</th>
+                        <th scope="col" class="text-center">Expired</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="rental in expired">
+                        <td class="text-center align-middle">
+                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                            <i class="fa fa-times" alt="Stop Tracking"></i>
+                          </a>
+                          <a href="#" @@click.prevent="add(rental)" v-else>
+                            <i class="fa fa-plus" alt="Track"></i>
+                          </a>
+                        </td>
+                        <td class="text-center align-middle">{{ rental.waxAccount }}</td>
+                        <td class="text-center align-middle">{{ rental.cpu + rental.net }} WAX</td>
+                        <td class="text-center align-middle">
+                          {{ localize(rental.paid) }}
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                        </td>
+                        <td class="text-center align-middle">
+                          {{ localize(rental.expires) }}
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.unstakeTransaction"></i>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
@@ -298,21 +360,21 @@
                   <table class="table table-striped table-sm">
                     <thead>
                       <tr>
-                        <th scope="col" class="text-right">Staked</th>
-                        <th scope="col" class="text-right">Duration</th>
-                        <th scope="col" class="text-right">Cost</th>
+                        <th scope="col" class="text-center">Staked</th>
+                        <th scope="col" class="text-center">Duration</th>
+                        <th scope="col" class="text-center">Cost</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="rental in recent.rentals">
-                        <td class="text-right">
+                        <td class="text-center">
                           {{ rental.cpu + rental.net }} WAX
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
                         </td>
-                        <td class="text-right">
+                        <td class="text-center">
                           {{ days(rental.days) }}
                         </td>
-                        <td class="text-right">
+                        <td class="text-center">
                           {{ rental.banano }} BAN
                           <i class="fa fa-external-link banano-address-link" :data-address="rental.bananoAddress"></i>
                         </td>
@@ -328,17 +390,17 @@
                   <table class="table table-dark table-striped table-sm">
                     <thead>
                       <tr>
-                        <th scope="col" class="text-right">Received</th>
-                        <th scope="col" class="text-right">Paid</th>
+                        <th scope="col" class="text-center">Received</th>
+                        <th scope="col" class="text-center">Paid</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr v-for="purchase in recent.purchases">
-                        <td class="text-right">
+                        <td class="text-center">
                           {{ purchase.wax }} WAX
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction"></i>
                         </td>
-                        <td class="text-right">
+                        <td class="text-center">
                           {{ purchase.banano }} BAN
                           <i class="fa fa-external-link banano-transaction-link" :data-hash="purchase.bananoTransaction"></i>
                         </td>
@@ -408,7 +470,7 @@
       //    VUE
       // ================
 
-      var rent = new Vue({
+      const rent = new Vue({
         el: '#menu-0',
         data() {
           return {
@@ -417,7 +479,7 @@
         }
       });
 
-      var sell = new Vue({
+      const sell = new Vue({
         el: '#menu-1',
         data() {
           return {
@@ -426,7 +488,7 @@
         }
       });
 
-      var my = new Vue({
+      const my = load._my = new Vue({
         el: '#menu-3',
         data() {
           return {
@@ -461,6 +523,10 @@
                 }
               });
           },
+          fetchWaxRentals: function (account) {
+            axios.get('/api/myrentals/' + account)
+              .then(response => this.display = response.data);
+          },
           fetchRentalDetails: function (address) {
             this.detail = { loading: true };
             axios.get('/api/rentaldetails/' + address)
@@ -474,24 +540,25 @@
           },
           remove: function (rental) {
             storage.remove(rental.bananoAddress);
-            [this.rentals.New, this.rentals.Pending, this.rentals.Processed, this.rentals.Closed].forEach(arr => {
-              if (arr && arr.includes(rental)) {
-                arr.splice(arr.indexOf(rental, 1));
-              }
-            });
+            var arr = this.rentals[rental.status];
+            arr.splice(arr.indexOf(rental), 1);
+            this.$forceUpdate();
           },
-          add: function (address) {
-            storage.add(address);
+          add: function (rental) {
+            storage.add(rental.bananoAddress);
+            this.rentals[rental.status].push(rental);
+            this.$forceUpdate();
+          },
+          localize: function (datetime) {
+            return new Date(datetime).toLocaleString();
           }
         },
         mounted() {
           this.fetchRentals(storage.addresses(), true);
-
-          setTimeout(() => $('.menu .show-0').click(), 500);
         }
       });
 
-      var recents = new Vue({
+      const recents = new Vue({
         el: '#menu-4',
         data() {
           return {
@@ -516,6 +583,11 @@
       _connection.start().catch(function (err) {
         return console.error(err.toString());
       });
+
+      _connection.on("Load", page => {
+        load[page.name](page.value);
+      });
+      load.details('ban_3pru4k1zzm3qqwbr9znnc9kbhd4z6yy6kgtcspwawe6sst953gq9ybmbqy5y', false);
 
       _connection.on("AppStateChanged", state => {
         rent.state = state;

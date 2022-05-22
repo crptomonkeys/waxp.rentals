@@ -49,7 +49,15 @@ namespace WaxRentalsWeb.Pages
                 var results = get();
                 var mapped = results.Select(rental => new TrackedRentalModel(rental, _banano));
                 var grouped = mapped.GroupBy(rental => rental.Status)
-                                    .ToDictionary(g => g.Key, g => g);
+                                    .ToDictionary(g => g.Key, g => g.AsEnumerable());
+                // Make sure every status is represented, because making new arrays in Vue messes things up.
+                foreach (var status in Enum.GetValues<Status>())
+                {
+                    if (!grouped.ContainsKey(status))
+                    {
+                        grouped.Add(status, Enumerable.Empty<TrackedRentalModel>());
+                    }
+                }
                 return new JsonResult(grouped);
             }
             catch (Exception ex)

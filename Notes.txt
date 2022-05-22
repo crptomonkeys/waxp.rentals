@@ -1,11 +1,7 @@
 
 
-- fill in my rentals page
 - direct links
-
-
-- browser local storage to keep trx for easy access to earlier trx for users
-- deep links somehow
+- rent => direct link into my rentals
 
 
 

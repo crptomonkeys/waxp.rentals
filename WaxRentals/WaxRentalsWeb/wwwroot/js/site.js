@@ -84,3 +84,52 @@ const storage = {
   }
 
 };
+
+// ================
+//    INITIAL LOAD
+// ================
+
+const load = {
+
+  bananoAddress: function (address) {
+    this._my.fetchRentals([address], false);
+    this._load();
+  },
+
+  bananoTransaction: function (hash) {
+
+    this._load();
+  },
+
+  waxAccount: function (account) {
+    this._my.fetchWaxRentals(account);
+    this._load();
+  },
+
+  waxTransaction: function (hash) {
+
+    this._load();
+  },
+
+  details: function (address, saved) {
+    if (!saved) {
+      this._my.fetchRentals([address], false);
+    }
+    this._my.fetchRentalDetails(address);
+    this._load();
+  },
+
+  default: function () {
+    this._load('.menu .show-0');
+  },
+
+  _load: tab => {
+    $(tab ?? '.menu .show-3').click();
+
+    $('.menu a.show-3').on('click', function clear() {
+      load._my.display = null;
+      load._my.detail = null;
+    });
+  }
+
+};

@@ -3,6 +3,10 @@ body {
   overflow-y: scroll;
 }
 
+.align-middle {
+  vertical-align: middle !important;
+}
+
 .clipboard,
 .fa-external-link {
   cursor: pointer;

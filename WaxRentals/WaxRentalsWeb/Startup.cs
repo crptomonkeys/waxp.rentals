@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +23,11 @@ namespace WaxRentalsWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages()
-                    .AddRazorRuntimeCompilation();
+                    .AddRazorRuntimeCompilation()
+                    .AddJsonOptions(opt =>
+                    {
+                        opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                    });
             services.AddSignalR();
             services.AddDependencies();
         }
