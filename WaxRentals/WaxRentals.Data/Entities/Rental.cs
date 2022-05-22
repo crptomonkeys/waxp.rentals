@@ -17,6 +17,7 @@ namespace WaxRentals.Data.Entities
 		public decimal NET { get; set; }
 
 		public decimal Banano { get; set; }
+		public string SweepBananoTransaction { get; set; }
 		public DateTime? Paid { get; set; }
 
 		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]

@@ -12,6 +12,7 @@ namespace WaxRentals.Data.Manager
     {
 
         private WaxRentalsContext Context { get; }
+        private DateTime Abandoned { get { return DateTime.UtcNow.AddDays(-1); } } // Abandon New Rentals after one day.
 
         public DataManager(WaxRentalsContext context)
         {
@@ -29,7 +30,8 @@ namespace WaxRentals.Data.Manager
                 rental.CPU == cpu &&
                 rental.NET == net &&
                 rental.Banano == banano &&
-                rental.StatusId == (int)Status.New);
+                rental.StatusId == (int)Status.New &&
+                rental.Inserted > Abandoned);
             if (existing != null)
             {
                 return existing.RentalId;
@@ -81,9 +83,9 @@ namespace WaxRentals.Data.Manager
         {
             // If the rental hasn't been funded within 24 hours, assume it's abandoned.
             // If it needs to be reactivated, change the Inserted date in the database.
-            var abandoned = DateTime.UtcNow.AddDays(-1);
+            // But probably, the user will just make a new one.
             IEnumerable<Rental> rentals = Context.Rentals.Where(
-                rental => rental.StatusId == (int)Status.New && rental.Inserted > abandoned
+                rental => rental.StatusId == (int)Status.New && rental.Inserted > Abandoned
             ).ToList();
             return Task.FromResult(rentals);
         }
@@ -253,13 +255,14 @@ namespace WaxRentals.Data.Manager
         {
             return from rental in Context.Rentals
                    join banano in Context.Addresses on rental.RentalId equals banano.AddressId
-                   where addresses.Contains(banano.BananoAddress)
+                   where addresses.Contains(banano.BananoAddress) && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned)
                    select rental;
         }
 
         public IEnumerable<Rental> GetRentalsByWaxAccount(string account)
         {
-            return Context.Rentals.Where(rental => rental.TargetWaxAccount == account);
+            return Context.Rentals.Where(rental =>
+                rental.TargetWaxAccount == account && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned));
         }
 
         #endregion

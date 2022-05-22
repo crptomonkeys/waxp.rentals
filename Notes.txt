@@ -2,3 +2,10 @@
 
  -- test rental end to end
     - split new=>pending and pending=>processed, and add a SweepTransaction field for Rentals and use that to sweep balances into main acct
+      - RentalOpenProcessor
+      - RentalStakeProcessor
+      - RentalSweepProcessor
+
+
+Need an errored status if we're splitting. Or just check balances (have it receive on balance
+check?) and use that, then we can look for specific transactions (stake, sweep, unstake)
