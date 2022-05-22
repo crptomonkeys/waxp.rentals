@@ -492,7 +492,7 @@
                   if (response.data.success) {
                     const address = response.data.address;
                     storage.add(address);
-                    load.bananoAddress(address);
+                    load.details(address);
                   } else {
                     $('#error-alert-text').text(response.data.error);
                     $('#error-alert').fadeTo(1000, 500).slideUp(1000);

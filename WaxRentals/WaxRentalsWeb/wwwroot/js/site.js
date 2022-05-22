@@ -103,6 +103,7 @@ const load = {
   },
 
   details: function (address) {
+    this._my.fetchRentals(storage.addresses(), true);
     this._my.fetchRentalDetails(address);
     this._load();
   },

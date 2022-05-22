@@ -1,7 +1,4 @@
 
 
-- direct link into my rentals not listing correctly
-
-
  -- test ui
  -- test rental
