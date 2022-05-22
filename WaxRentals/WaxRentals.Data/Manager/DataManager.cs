@@ -91,7 +91,7 @@ namespace WaxRentals.Data.Manager
 
         public async Task ProcessRentalPayment(int rentalId)
         {
-            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
+            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.New);
             rental.Paid = DateTime.UtcNow;
             rental.Status = Status.Pending;
             await Context.SaveChangesAsync();

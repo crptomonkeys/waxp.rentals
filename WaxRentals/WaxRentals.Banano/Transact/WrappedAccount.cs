@@ -81,7 +81,8 @@ namespace WaxRentals.Banano.Transact
 
             if (!verifyOnly && _index > 0 && result > 0)
             {
-                await Send(Protocol.Address, result / Math.Pow(10, Protocol.Decimals));
+                var balance = await GetBalance();
+                await Send(Protocol.Address, balance * (1 / Math.Pow(10, Protocol.Decimals)));
             }
 
             return result;

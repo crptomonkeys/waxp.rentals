@@ -1,4 +1,4 @@
 
 
- -- test ui
- -- test rental
+ -- test rental end to end
+    - split new=>pending and pending=>processed, and add a SweepTransaction field for Rentals and use that to sweep balances into main acct

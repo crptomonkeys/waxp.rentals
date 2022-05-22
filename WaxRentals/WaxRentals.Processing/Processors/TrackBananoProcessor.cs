@@ -28,7 +28,7 @@ namespace WaxRentals.Processing.Processors
         protected override Func<Task<BigDecimal>> Get => () => Banano.Receive(verifyOnly: false);
         protected override Task Process(BigDecimal received)
         {
-            received /= Math.Pow(10, Protocol.Decimals);
+            received *= (1 / Math.Pow(10, Protocol.Decimals));
             if (received > 0)
             {
                 var converted = decimal.Parse(received.ToString()); // If we just do (decimal)received, we can only get whole numbers.
