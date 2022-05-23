@@ -21,6 +21,8 @@ COPY --from=build-env /app/WaxRentals/WaxRentalsWeb/out .
 WORKDIR /app/processors
 COPY --from=build-env /app/WaxRentals/WaxRentals.Processing/out .
 
+WORKDIR /app
+
 RUN apt-get update && apt-get install curl -y
 
 ENTRYPOINT [ "dotnet" ]
