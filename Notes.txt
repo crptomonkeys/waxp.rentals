@@ -1,4 +1,4 @@
 
 
- -- test rental and purchase end to end
+ -- test rental end to end
 

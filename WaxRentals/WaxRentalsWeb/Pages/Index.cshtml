@@ -492,6 +492,7 @@
                   if (response.data.success) {
                     const address = response.data.address;
                     storage.add(address);
+                    $(form).trigger('reset');
                     load.details(address);
                   } else {
                     $('#error-alert-text').text(response.data.error);

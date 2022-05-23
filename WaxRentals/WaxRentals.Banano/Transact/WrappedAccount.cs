@@ -117,17 +117,23 @@ namespace WaxRentals.Banano.Transact
         {
             if (_index > 0)
             {
+                // Storage account receive happens elsewhere for tracking purposes.
                 await Receive();
             }
 
-            var info = await _rpc.Node.AccountInfoAsync(
-                Address,
-                confirmed: true,
-                representative: false,
-                pending: false,
-                weight: false);
-            var balance = BigDecimal.Parse(info.Balance);
-            return Scale(balance);
+            await _rpc.Node.UpdateAccountAsync(_account);
+            if (_account.Opened)
+            {
+                var info = await _rpc.Node.AccountInfoAsync(
+                    Address,
+                    confirmed: true,
+                    representative: false,
+                    pending: false,
+                    weight: false);
+                var balance = BigDecimal.Parse(info.Balance);
+                return Scale(balance);
+            }
+            return 0;
         }
 
         #endregion
