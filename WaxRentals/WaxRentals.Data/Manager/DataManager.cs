@@ -99,6 +99,14 @@ namespace WaxRentals.Data.Manager
             await Context.SaveChangesAsync();
         }
 
+        public Task<IEnumerable<Rental>> PullPaidRentalsToStake()
+        {
+            IEnumerable<Rental> rentals = Context.Rentals.Where(
+                rental => rental.StatusId == (int)Status.Pending && rental.StakeWaxTransaction == null
+            ).ToList();
+            return Task.FromResult(rentals);
+        }
+
         public async Task ProcessRentalStaking(int rentalId, string source, string transaction)
         {
             var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
@@ -108,16 +116,32 @@ namespace WaxRentals.Data.Manager
             await Context.SaveChangesAsync();
         }
 
+        public Task<IEnumerable<Rental>> PullSweepableRentals()
+        {
+            IEnumerable<Rental> rentals = Context.Rentals.Where(
+                rental => rental.StatusId == (int)Status.Processed && rental.SweepBananoTransaction == null
+            ).ToList();
+            return Task.FromResult(rentals);
+        }
+
+        public async Task ProcessRentalSweep(int rentalId, string transaction)
+        {
+            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Processed);
+            rental.SweepBananoTransaction = transaction;
+            await Context.SaveChangesAsync();
+        }
 
         public Task<Rental> PullNextClosingRental()
         {
-            var rental = Context.Rentals.FirstOrDefault(rental => rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
+            var rental = Context.Rentals.FirstOrDefault(rental =>
+                rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
             return Task.FromResult(rental);
         }
 
         public async Task ProcessRentalClosing(int rentalId, string transaction)
         {
-            var rental = Context.Rentals.FirstOrDefault(rental => rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
+            var rental = Context.Rentals.FirstOrDefault(rental =>
+                rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
             rental.UnstakeWaxTransaction = transaction;
             rental.Status = Status.Closed;
             await Context.SaveChangesAsync();

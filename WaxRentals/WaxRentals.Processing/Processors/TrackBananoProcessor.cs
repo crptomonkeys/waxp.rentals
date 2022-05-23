@@ -25,7 +25,7 @@ namespace WaxRentals.Processing.Processors
             Prices = prices;
         }
 
-        protected override Func<Task<BigDecimal>> Get => () => Banano.Receive(verifyOnly: false);
+        protected override Func<Task<BigDecimal>> Get => () => Banano.Receive();
         protected override Task Process(BigDecimal received)
         {
             received *= (1 / Math.Pow(10, Protocol.Decimals));

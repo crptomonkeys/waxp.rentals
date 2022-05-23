@@ -9,7 +9,12 @@ namespace WaxRentals.Data.Manager
 
         Task<IEnumerable<Rental>> PullNewRentals();
         Task ProcessRentalPayment(int rentalId);
+        
+        Task<IEnumerable<Rental>> PullPaidRentalsToStake();
         Task ProcessRentalStaking(int rentalId, string source, string transaction);
+
+        Task<IEnumerable<Rental>> PullSweepableRentals();
+        Task ProcessRentalSweep(int rentalId, string transaction);
 
         Task<Rental> PullNextClosingRental();
         Task ProcessRentalClosing(int rentalId, string transaction);

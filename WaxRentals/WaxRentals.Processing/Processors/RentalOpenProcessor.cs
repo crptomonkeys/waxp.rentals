@@ -5,23 +5,20 @@ using System.Threading.Tasks;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
-using WaxRentals.Waxp.Transact;
 using static WaxRentals.Banano.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class RentalProcessor : Processor<IEnumerable<Rental>>
+    internal class RentalOpenProcessor : Processor<IEnumerable<Rental>>
     {
 
         protected override bool ProcessMultiplePerTick => false;
 
-        private IWaxAccounts Wax { get; }
         private IBananoAccountFactory Banano { get; }
 
-        public RentalProcessor(IDataFactory factory, IWaxAccounts wax, IBananoAccountFactory banano)
+        public RentalOpenProcessor(IDataFactory factory, IBananoAccountFactory banano)
             : base(factory)
         {
-            Wax = wax;
             Banano = banano;
         }
 
@@ -37,27 +34,11 @@ namespace WaxRentals.Processing.Processors
             try
             {
                 var account = Banano.BuildAccount((uint)rental.RentalId);
-                var pending = await account.Receive(verifyOnly: true);
-                pending /= Math.Pow(10, Protocol.Decimals);
-                if (pending >= rental.Banano)
+                var balance = await account.GetBalance();
+                balance *= 1 / Math.Pow(10, Protocol.Decimals);
+                if (balance >= rental.Banano)
                 {
                     await Factory.Process.ProcessRentalPayment(rental.RentalId);
-
-                    // Fund the source account.
-                    var source = Wax.GetAccount(rental.RentalDays);
-                    var wax = rental.CPU + rental.NET;
-                    var balance = (await source.GetBalances()).Available;
-                    if (balance < wax)
-                    {
-                        await Wax.Today.Send(source.Account, wax - balance);
-                    }
-
-                    var (success, hash) = await source.Stake(rental.TargetWaxAccount, rental.CPU, rental.NET);
-                    if (success)
-                    {
-                        await Factory.Process.ProcessRentalStaking(rental.RentalId, source.Account, hash);
-                        await account.Receive(verifyOnly: false);
-                    }
                 }
             }
             catch (Exception ex)

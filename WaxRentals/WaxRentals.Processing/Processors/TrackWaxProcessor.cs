@@ -38,7 +38,6 @@ namespace WaxRentals.Processing.Processors
             {
                 var last = Factory.TrackWax.GetLastHistoryCheck()?.AddMilliseconds(1);
                 var history = await client.GetStringAsync(Protocol.HistoryBasePath + last?.ToString("s"));
-                Factory.TrackWax.SetLastHistoryCheck(DateTime.UtcNow);
 
                 foreach (var block in JObject.Parse(history).SelectTokens(Protocol.TransferBlocks))
                 {
@@ -47,7 +46,14 @@ namespace WaxRentals.Processing.Processors
                     blocks.Add(block.ToObject<TransferBlock>());
                 }
             });
-            return success ? blocks.Select(Map) : Enumerable.Empty<Transfer>();
+
+            if (success)
+            {
+                var result = blocks.Select(Map);
+                Factory.TrackWax.SetLastHistoryCheck(DateTime.UtcNow);
+                return result;
+            }
+            return Enumerable.Empty<Transfer>();
         }
 
         protected async override Task Process(IEnumerable<Transfer> transfers)

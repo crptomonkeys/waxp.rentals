@@ -54,7 +54,7 @@ namespace WaxRentals.Banano.Transact
 
         #region " Receive "
 
-        public async Task<BigDecimal> Receive(bool verifyOnly)
+        public async Task<BigDecimal> Receive()
         {
             var blocks = await PullReceivableBlocks();
             BigDecimal result = 0;
@@ -62,13 +62,10 @@ namespace WaxRentals.Banano.Transact
             {
                 try
                 {
-                    if (!verifyOnly)
-                    {
-                        await _rpc.Node.UpdateAccountAsync(_account);
-                        var work = await GenerateWork();
-                        var receive = Block.CreateReceiveBlock(_account, block, work);
-                        var response = await _rpc.Node.ProcessAsync(receive);
-                    }
+                    await _rpc.Node.UpdateAccountAsync(_account);
+                    var work = await GenerateWork();
+                    var receive = Block.CreateReceiveBlock(_account, block, work);
+                    var response = await _rpc.Node.ProcessAsync(receive);
                     
                     var amount = BigInteger.Parse(block.Amount);
                     result += amount;
@@ -78,13 +75,6 @@ namespace WaxRentals.Banano.Transact
                     await _factory.Log.Error(ex, context: block);
                 }
             }
-
-            if (!verifyOnly && _index > 0 && result > 0)
-            {
-                var balance = await GetBalance();
-                await Send(Protocol.Address, balance * (1 / Math.Pow(10, Protocol.Decimals)));
-            }
-
             return result;
         }
 
@@ -121,6 +111,11 @@ namespace WaxRentals.Banano.Transact
 
         public async Task<BigDecimal> GetBalance()
         {
+            if (_index > 0)
+            {
+                await Receive();
+            }
+
             var info = await _rpc.Node.AccountInfoAsync(
                 Address,
                 confirmed: true,

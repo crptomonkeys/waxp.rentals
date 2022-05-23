@@ -10,7 +10,7 @@ namespace WaxRentals.Banano.Transact
         string BuildLink(decimal amount);
 
         Task<string> Send(string target, BigDecimal banano);
-        Task<BigDecimal> Receive(bool verifyOnly);
+        Task<BigDecimal> Receive();
         Task<BigDecimal> GetBalance();
 
         Task<string> GenerateWork();
