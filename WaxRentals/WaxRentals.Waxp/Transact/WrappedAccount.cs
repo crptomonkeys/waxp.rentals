@@ -73,7 +73,7 @@ namespace WaxRentals.Waxp.Transact
         {
             try
             {
-                var json = JObject.Parse(await new WebClient().DownloadStringTaskAsync(new Uri(url)));
+                var json = JObject.Parse(await new QuickTimeoutWebClient().DownloadStringTaskAsync(url, TimeSpan.FromSeconds(5)));
                 double result = 0;
                 foreach (var selector in selectors)
                 {

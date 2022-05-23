@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring;
@@ -21,7 +22,7 @@ namespace WaxRentals.Waxp.Monitoring
             result = new Endpoints();
             try
             {
-                var json = JObject.Parse(new WebClient().DownloadString(Locations.Endpoints));
+                var json = JObject.Parse(new QuickTimeoutWebClient().DownloadString(Locations.Endpoints, TimeSpan.FromSeconds(5)));
                 result.Api = json.SelectTokens(Protocol.TransactionEndpoints)
                                .Select(token => token.Value<string>())
                                .Distinct(Comparer)
