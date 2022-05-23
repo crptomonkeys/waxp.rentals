@@ -118,6 +118,7 @@ const load = {
     $('.menu a.show-3').on('click', function clear() {
       load._my.display = null;
       load._my.detail = null;
+      load._my.fetchRentals(storage.addresses(), true);
     });
   }
 

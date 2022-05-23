@@ -555,7 +555,13 @@
           fetchRentalDetails: function (address) {
             this.detail = { loading: true };
             axios.get('/api/rentaldetails/' + address)
-              .then(response => this.detail = response.data);
+              .then(response => {
+                this.detail = response.data;
+                if (!response.data) {
+                  // Refresh, since we're obviously out of sync.
+                  this.fetchRentals(storage.addresses(), true);
+                }
+              });
           },
           days: function (days) {
             return days + (days === 1 ? ' day' : ' days');
@@ -592,6 +598,11 @@
               rentals: [],
               purchases: []
             }
+          }
+        },
+        methods: {
+          days: function (days) {
+            return days + (days === 1 ? ' day' : ' days');
           }
         }
       });
