@@ -1,8 +1,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0 as build-env
+
 WORKDIR /app
 COPY ./ ./
+
 WORKDIR /app/WaxRentals
 RUN dotnet restore
+
+WORKDIR /app/WaxRentals/WaxRentalsWeb
+RUN dotnet publish -c Release -o out
+
+WORKDIR /app/WaxRentals/WaxRentals.Processing
 RUN dotnet publish -c Release -o out
 
 
