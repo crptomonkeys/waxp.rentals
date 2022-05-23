@@ -35,7 +35,6 @@ namespace WaxRentals.Processing.Processors
             {
                 var account = Banano.BuildAccount((uint)rental.RentalId);
                 var balance = await account.GetBalance();
-                balance *= 1 / Math.Pow(10, Protocol.Decimals);
                 if (balance >= rental.Banano)
                 {
                     await Factory.Process.ProcessRentalPayment(rental.RentalId);

@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Nano.Net.Numbers;
 
 namespace WaxRentals.Banano.Transact
 {
@@ -9,9 +8,9 @@ namespace WaxRentals.Banano.Transact
         string Address { get; }
         string BuildLink(decimal amount);
 
-        Task<string> Send(string target, BigDecimal banano);
-        Task<BigDecimal> Receive();
-        Task<BigDecimal> GetBalance();
+        Task<string> Send(string target, decimal banano);
+        Task<decimal> Receive();
+        Task<decimal> GetBalance();
 
         Task<string> GenerateWork();
 

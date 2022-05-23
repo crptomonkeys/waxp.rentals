@@ -37,14 +37,14 @@ namespace WaxRentals.Banano.Transact
 
         #region " Send "
 
-        public async Task<string> Send(string target, BigDecimal banano)
+        public async Task<string> Send(string target, decimal banano)
         {
             await _rpc.Node.UpdateAccountAsync(_account);
             var work = await GenerateWork();
             var send = Block.CreateSendBlock(
                 _account,
                 target,
-                Amount.FromNano(BananoToNano(banano).ToString()),
+                Amount.FromNano((banano * 0.1m).ToString()), // Nano has one more order of magnitude from raw to nano.
                 work);
             var response = await _rpc.Node.ProcessAsync(send);
             return response.Hash;
@@ -54,7 +54,7 @@ namespace WaxRentals.Banano.Transact
 
         #region " Receive "
 
-        public async Task<BigDecimal> Receive()
+        public async Task<decimal> Receive()
         {
             var blocks = await PullReceivableBlocks();
             BigDecimal result = 0;
@@ -75,7 +75,7 @@ namespace WaxRentals.Banano.Transact
                     await _factory.Log.Error(ex, context: block);
                 }
             }
-            return result;
+            return Scale(result);
         }
 
         private async Task<IEnumerable<ReceivableBlock>> PullReceivableBlocks()
@@ -109,7 +109,7 @@ namespace WaxRentals.Banano.Transact
 
         #region " Balance "
 
-        public async Task<BigDecimal> GetBalance()
+        public async Task<decimal> GetBalance()
         {
             if (_index > 0)
             {
@@ -122,7 +122,8 @@ namespace WaxRentals.Banano.Transact
                 representative: false,
                 pending: false,
                 weight: false);
-            return BigDecimal.Parse(info.Balance);
+            var balance = BigDecimal.Parse(info.Balance);
+            return Scale(balance);
         }
 
         #endregion
@@ -141,16 +142,14 @@ namespace WaxRentals.Banano.Transact
 
         #endregion
 
-        private BigDecimal BananoToNano(BigDecimal banano)
+        #region " Scale "
+
+        private decimal Scale(BigDecimal value)
         {
-            return banano * 0.1;
+            return (decimal)(value * (1 / Math.Pow(10, Protocol.Decimals)));
         }
 
-        private decimal RawToDecimal(BigInteger raw)
-        {
-            var banano = BananoToNano(Amount.RawToNano(raw));
-            return (decimal)banano;
-        }
+        #endregion
 
     }
 }

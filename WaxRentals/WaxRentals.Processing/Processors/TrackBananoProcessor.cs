@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Nano.Net.Numbers;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Logging;
 using WaxRentals.Monitoring.Prices;
-using static WaxRentals.Banano.Config.Constants;
 using static WaxRentals.Monitoring.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class TrackBananoProcessor : Processor<BigDecimal>
+    internal class TrackBananoProcessor : Processor<decimal>
     {
 
         protected override bool ProcessMultiplePerTick => false;
@@ -25,10 +23,9 @@ namespace WaxRentals.Processing.Processors
             Prices = prices;
         }
 
-        protected override Func<Task<BigDecimal>> Get => () => Banano.Receive();
-        protected override Task Process(BigDecimal received)
+        protected override Func<Task<decimal>> Get => () => Banano.Receive();
+        protected override Task Process(decimal received)
         {
-            received *= (1 / Math.Pow(10, Protocol.Decimals));
             if (received > 0)
             {
                 var converted = decimal.Parse(received.ToString()); // If we just do (decimal)received, we can only get whole numbers.

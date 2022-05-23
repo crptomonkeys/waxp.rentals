@@ -43,7 +43,7 @@ namespace WaxRentalsWeb.Data
 
             _banano.Updated += (_, balance) =>
             {
-                AppState.BananoBalance.Value = Math.Round((decimal)(balance / Math.Pow(10, Protocol.Decimals)), 4);
+                AppState.BananoBalance.Value = Math.Round(balance, 4);
                 RaiseAppStateEvent();
             };
 

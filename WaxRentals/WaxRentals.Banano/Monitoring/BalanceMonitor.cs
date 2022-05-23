@@ -6,7 +6,7 @@ using WaxRentals.Monitoring;
 
 namespace WaxRentals.Banano.Monitoring
 {
-    public class BalanceMonitor : Monitor<BigDecimal>
+    public class BalanceMonitor : Monitor<decimal>
     {
 
         private readonly IBananoAccount _account;
@@ -17,9 +17,9 @@ namespace WaxRentals.Banano.Monitoring
             _account = account;
         }
 
-        private BigDecimal _balance;
+        private decimal _balance;
 
-        protected override bool Tick(out BigDecimal balance)
+        protected override bool Tick(out decimal balance)
         {
             balance = _account.GetBalance().GetAwaiter().GetResult();
             if (_balance != balance)
