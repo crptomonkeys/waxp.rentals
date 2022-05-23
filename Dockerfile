@@ -1,13 +1,14 @@
 FROM mcr.microsoft.com/dotnet/sdk:5.0 as build-env
 WORKDIR /app
 COPY ./ ./
+WORKDIR /app/WaxRentals
 RUN dotnet restore
 RUN dotnet publish -c Release -o out
 
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 WORKDIR /app
-COPY --from=build-env /app/out .
+COPY --from=build-env /app/WaxRentals/out .
 
 RUN apt-get update && apt-get install curl -y
 
