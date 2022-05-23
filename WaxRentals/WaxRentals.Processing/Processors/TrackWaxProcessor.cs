@@ -21,6 +21,7 @@ namespace WaxRentals.Processing.Processors
 
         private IClientFactory Client { get; }
         private IPriceMonitor Prices { get; }
+        private decimal PayRate { get { return SafeDivide(Prices.Wax, Prices.Banano); } }
 
         public TrackWaxProcessor(IDataFactory factory, IClientFactory client, IPriceMonitor prices)
             : base(factory)
@@ -33,25 +34,29 @@ namespace WaxRentals.Processing.Processors
 
         internal async Task<IEnumerable<Transfer>> PullHistory()
         {
-            List<TransferBlock> blocks = new();
-            var success = await Client.ProcessHistory(async client =>
+            // Only bother if we have a pay rate.  Otherwise, wait until we have one.
+            if (PayRate > 0)
             {
-                var last = Factory.TrackWax.GetLastHistoryCheck()?.AddMilliseconds(1);
-                var history = await client.GetStringAsync(Protocol.HistoryBasePath + last?.ToString("s"));
-
-                foreach (var block in JObject.Parse(history).SelectTokens(Protocol.TransferBlocks))
+                List<TransferBlock> blocks = new();
+                var success = await Client.ProcessHistory(async client =>
                 {
+                    var last = Factory.TrackWax.GetLastHistoryCheck()?.AddMilliseconds(1);
+                    var history = await client.GetStringAsync(Protocol.HistoryBasePath + last?.ToString("s"));
+
+                    foreach (var block in JObject.Parse(history).SelectTokens(Protocol.TransferBlocks))
+                    {
                     // Can't do this in a Select for some reason.
                     // Error: The expression cannot be evaluated.  A common cause of this error is attempting to pass a lambda into a delegate.
                     blocks.Add(block.ToObject<TransferBlock>());
-                }
-            });
+                    }
+                });
 
-            if (success)
-            {
-                var result = blocks.Select(Map);
-                Factory.TrackWax.SetLastHistoryCheck(DateTime.UtcNow);
-                return result;
+                if (success)
+                {
+                    var result = blocks.Select(Map);
+                    Factory.TrackWax.SetLastHistoryCheck(DateTime.UtcNow);
+                    return result;
+                }
             }
             return Enumerable.Empty<Transfer>();
         }
@@ -62,7 +67,7 @@ namespace WaxRentals.Processing.Processors
             {
                 var address = IsBananoAddress(transfer.Memo) ? transfer.Memo : null;
                 var skip = address == null || transfer.Amount < Protocol.MinimumTransaction;
-                var banano = transfer.Amount * SafeDivide(Prices.Wax, Prices.Banano);
+                var banano = transfer.Amount * PayRate;
                 if (await Factory.Insert.OpenPurchase(transfer.Amount, transfer.Hash, address, banano, skip ? Status.Processed : Status.New))
                 {
                     Tracker.Track("Received WAX", transfer.Amount, Coins.Wax, earned: transfer.Amount * Prices.Wax);
