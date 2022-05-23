@@ -25,7 +25,7 @@ namespace WaxRentalsWeb.Data.Models
         public decimal WaxMinimumBuy { get { return WaxConstants.MinimumTransaction; } }
         public decimal WaxMaximumBuy { get { return SafeDivide(BananoBalance.Value, WaxBuyPriceInBanano * 2); } }
 
-        private decimal SafeDivide(decimal numerator, decimal denominator)
+        private static decimal SafeDivide(decimal numerator, decimal denominator)
         {
             if (numerator == 0 || denominator == 0)
             {

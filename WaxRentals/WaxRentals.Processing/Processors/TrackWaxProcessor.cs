@@ -75,6 +75,8 @@ namespace WaxRentals.Processing.Processors
             }
         }
 
+        #region " Static Helper Methods "
+
         private static Transfer Map(TransferBlock block)
         {
             return new Transfer
@@ -90,7 +92,7 @@ namespace WaxRentals.Processing.Processors
             return Regex.IsMatch(memo ?? "", Protocol.BananoAddressRegex, RegexOptions.IgnoreCase);
         }
 
-        private decimal SafeDivide(decimal numerator, decimal denominator)
+        private static decimal SafeDivide(decimal numerator, decimal denominator)
         {
             if (numerator == 0 || denominator == 0)
             {
@@ -99,7 +101,11 @@ namespace WaxRentals.Processing.Processors
             return numerator / denominator;
         }
 
+        #endregion
+
     }
+
+    #region " Intermediate Classes "
 
     internal class Transfer
     {
@@ -120,5 +126,7 @@ namespace WaxRentals.Processing.Processors
         public decimal amount { get; set; }
         public string memo { get; set; }
     }
+
+    #endregion
 
 }
