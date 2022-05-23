@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 -- Solution Items", "1 -- Solution Items", "{35DB5FCD-A3E4-4043-BB9C-578169103AA3}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
+		Dockerfile = Dockerfile
 		..\Notes.txt = ..\Notes.txt
 	EndProjectSection
 EndProject
