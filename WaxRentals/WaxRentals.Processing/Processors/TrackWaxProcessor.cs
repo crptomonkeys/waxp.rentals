@@ -62,7 +62,7 @@ namespace WaxRentals.Processing.Processors
             {
                 var address = IsBananoAddress(transfer.Memo) ? transfer.Memo : null;
                 var skip = address == null || transfer.Amount < Protocol.MinimumTransaction;
-                var banano = transfer.Amount * (Prices.Wax / Prices.Banano);
+                var banano = transfer.Amount * SafeDivide(Prices.Wax, Prices.Banano);
                 if (await Factory.Insert.OpenPurchase(transfer.Amount, transfer.Hash, address, banano, skip ? Status.Processed : Status.New))
                 {
                     Tracker.Track("Received WAX", transfer.Amount, Coins.Wax, earned: transfer.Amount * Prices.Wax);
@@ -83,6 +83,15 @@ namespace WaxRentals.Processing.Processors
         private static bool IsBananoAddress(string memo)
         {
             return Regex.IsMatch(memo ?? "", Protocol.BananoAddressRegex, RegexOptions.IgnoreCase);
+        }
+
+        private decimal SafeDivide(decimal numerator, decimal denominator)
+        {
+            if (numerator == 0 || denominator == 0)
+            {
+                return 0;
+            }
+            return numerator / denominator;
         }
 
     }

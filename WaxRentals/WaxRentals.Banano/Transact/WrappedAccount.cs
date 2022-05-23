@@ -39,15 +39,19 @@ namespace WaxRentals.Banano.Transact
 
         public async Task<string> Send(string target, decimal banano)
         {
-            await _rpc.Node.UpdateAccountAsync(_account);
-            var work = await GenerateWork();
-            var send = Block.CreateSendBlock(
-                _account,
-                target,
-                Amount.FromNano((banano * 0.1m).ToString()), // Nano has one more order of magnitude from raw to nano.
-                work);
-            var response = await _rpc.Node.ProcessAsync(send);
-            return response.Hash;
+            if (banano > 0)
+            {
+                await _rpc.Node.UpdateAccountAsync(_account);
+                var work = await GenerateWork();
+                var send = Block.CreateSendBlock(
+                    _account,
+                    target,
+                    Amount.FromNano((banano * 0.1m).ToString()), // Nano has one more order of magnitude from raw to nano.
+                    work);
+                var response = await _rpc.Node.ProcessAsync(send);
+                return response.Hash;
+            }
+            return null;
         }
 
         #endregion
