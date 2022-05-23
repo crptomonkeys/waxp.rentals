@@ -8,7 +8,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Manager;
 using static WaxRentals.Waxp.Config.Constants;
-using WebClient = System.Net.WebClient;
 
 namespace WaxRentals.Waxp.Transact
 {
