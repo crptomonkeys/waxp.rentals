@@ -150,7 +150,10 @@ namespace WaxRentals.Banano.Transact
 
         private decimal Scale(BigDecimal value)
         {
-            return (decimal)(value * (1 / Math.Pow(10, Protocol.Decimals)));
+            // Converting implicitly to decimal uses the full Mantissa rather
+            // than the scaled value, so have to use string in between.
+            var scaled = value * (1 / Math.Pow(10, Protocol.Decimals));
+            return decimal.Parse(scaled.ToString());
         }
 
         #endregion
