@@ -14,8 +14,12 @@ RUN dotnet publish -c Release -o out
 
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
-WORKDIR /app
-COPY --from=build-env /app/WaxRentals/out .
+
+WORKDIR /app/web
+COPY --from=build-env /app/WaxRentals/WaxRentalsWeb/out .
+
+WORKDIR /app/processors
+COPY --from=build-env /app/WaxRentals/WaxRentals.Processing/out .
 
 RUN apt-get update && apt-get install curl -y
 
