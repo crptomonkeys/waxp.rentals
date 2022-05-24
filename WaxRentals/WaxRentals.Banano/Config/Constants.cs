@@ -22,7 +22,7 @@ namespace WaxRentals.Banano.Config
 #if DEBUG
             public const string Node = "http://host-x86-01:17072";
 #else
-            public const string Node = "http://node:7072";
+            public const string Node = "http://banano_node:7072";
 #endif
         }
 
