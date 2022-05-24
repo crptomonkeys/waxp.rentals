@@ -193,7 +193,7 @@
 
           <div id="menu-3" class="content">
             <div class="row">
-              <div class="col-md-6 col-sm-6 mobile-show" style="display: none;" v-if="detail">
+              <div class="col-md-6 col-sm-6 mobile-show" v-if="detail">
                 <div class="toggle-content text-center">
                   <h3>Pending Rental Details <a class="pull-right" href="#" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
                   <p v-if="detail.loading">
@@ -219,8 +219,9 @@
                       <tr>
                         <th scope="col"></th>
                         <th scope="col" class="text-center">Account</th>
-                        <th scope="col" class="text-center">CPU</th>
-                        <th scope="col" class="text-center">NET</th>
+                        <th scope="col" class="text-center mobile-hide">CPU</th>
+                        <th scope="col" class="text-center mobile-hide">NET</th>
+                        <th scope="col" class="text-center mobile-show">WAX</th>
                         <th scope="col" class="text-center">Duration</th>
                         <th scope="col" class="text-center">Cost</th>
                         <th scope="col"></th>
@@ -228,7 +229,7 @@
                     </thead>
                     <tbody>
                       <tr v-for="rental in pending">
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                           <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
@@ -236,12 +237,13 @@
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
-                        <td class="text-center">{{ rental.waxAccount }}</td>
-                        <td class="text-center">{{ rental.cpu }} WAX</td>
-                        <td class="text-center">{{ rental.net }} WAX</td>
-                        <td class="text-center">{{ days(rental.days) }}</td>
-                        <td class="text-center">{{ rental.banano }} BAN</td>
-                        <td class="text-center">
+                        <td class="text-center align-middle">{{ rental.waxAccount }}</td>
+                        <td class="text-center align-middle mobile-hide">{{ rental.cpu }} WAX</td>
+                        <td class="text-center align-middle mobile-hide">{{ rental.net }} WAX</td>
+                        <td class="text-center align-middle mobile-show">{{ rental.cpu }} CPU<br />{{ rental.net }} NET</td>
+                        <td class="text-center align-middle">{{ days(rental.days) }}</td>
+                        <td class="text-center align-middle">{{ rental.banano }} BAN</td>
+                        <td class="text-center align-middle">
                           <a :href="'/direct/ba/' + rental.bananoAddress" class="detail-link" @@click.prevent="fetchRentalDetails(rental.bananoAddress)">
                             <i class="fa fa-search-plus" alt="View"></i>
                           </a>
@@ -288,7 +290,7 @@
                     </thead>
                     <tbody>
                       <tr v-for="rental in active">
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                           <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
@@ -296,11 +298,11 @@
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
-                        <td class="text-center">{{ rental.waxAccount }}</td>
-                        <td class="text-center">{{ rental.cpu }} WAX</td>
-                        <td class="text-center">{{ rental.net }} WAX</td>
-                        <td class="text-center">{{ localize(rental.expires) }}</td>
-                        <td class="text-center">
+                        <td class="text-center align-middle">{{ rental.waxAccount }}</td>
+                        <td class="text-center align-middle">{{ rental.cpu }} WAX</td>
+                        <td class="text-center align-middle">{{ rental.net }} WAX</td>
+                        <td class="text-center align-middle">{{ localize(rental.expires) }}</td>
+                        <td class="text-center align-middle">
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
                         </td>
                       </tr>

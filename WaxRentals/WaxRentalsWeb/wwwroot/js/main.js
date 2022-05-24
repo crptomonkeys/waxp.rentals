@@ -24,7 +24,7 @@
 	});
 
   
-  var hideMenuOnClick = false;
+	var hideMenuOnClick = $(window).width() <= 769;
   
 	$(window).resize(function(){
     hideMenuOnClick = $(window).width() <= 769;

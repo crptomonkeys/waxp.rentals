@@ -38,6 +38,16 @@ span.address-highlight {
   }
 }
 
+@media (min-width: 767px) {
+  .mobile-show {
+    display: none !important;
+  }
+
+  .mobile-hide {
+    display: block !important;
+  }
+}
+
 @media (max-width: 767px) {
   .mobile-show {
     display: block !important;
@@ -46,4 +56,14 @@ span.address-highlight {
   .mobile-hide {
     display: none !important;
   }
+
+  .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td
+  {
+    padding: 8px 4px;
+  }
+
+  .toggle-content {
+    padding: 30px 20px;
+  }
 }
+

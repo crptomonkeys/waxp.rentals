@@ -25,7 +25,6 @@ RUN apt-get update && apt-get install -y curl libgdiplus
 ENTRYPOINT [ "dotnet" ]
 
 #ENV ASPNETCORE_URLS=http://+:2022
-#HEALTHCHECK CMD curl --fail http://localhost:2022/ || exit 1
 #CMD [ "WaxRentalsWeb.dll" ]
 
 #CMD [ "WaxRentals.Processing.dll" ]
