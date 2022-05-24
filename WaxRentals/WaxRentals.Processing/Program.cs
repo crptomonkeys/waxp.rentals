@@ -42,7 +42,7 @@ namespace WaxRentals.Processing
             };
             Console.WriteLine("Processors running.  Press any key to shut down.");
             
-            Console.ReadKey();
+            Console.Read(); // Read instead of ReadKey because ReadKey isn't available when running in a container.
             Console.WriteLine("Shutting down; please wait.");
             var complete = processors.Select(processor => processor.Stop());
             while (complete.Any(mres => !mres.IsSet))
