@@ -43,14 +43,26 @@ span.address-highlight {
     display: none !important;
   }
 
-  .mobile-hide {
+  :not(td).mobile-hide,
+  :not(th).mobile-hide {
     display: block !important;
+  }
+
+  td.mobile-hide,
+  th.mobile-hide {
+    display: table-cell !important;
   }
 }
 
 @media (max-width: 767px) {
-  .mobile-show {
+  :not(td).mobile-show,
+  :not(th).mobile-show {
     display: block !important;
+  }
+
+  td.mobile-show,
+  th.mobile-show {
+    display: table-cell !important;
   }
 
   .mobile-hide {
