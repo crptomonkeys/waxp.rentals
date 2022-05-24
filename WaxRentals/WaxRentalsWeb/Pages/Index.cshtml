@@ -130,7 +130,7 @@
                   <h3>Sell WAX</h3>
                   <p>
                     <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">
-                      <img src="/qr/wax" />
+                      <img src="/qr/wax" width="150" height="150" />
                       <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@WaxRentals.Waxp.Config.Constants.Protocol.Account</strong> <i class="fa fa-copy clipboard" data-copy="@WaxRentals.Waxp.Config.Constants.Protocol.Account"></i> and <strong>include your BAN address as the memo</strong>.
                     </span>
                     <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
@@ -242,7 +242,7 @@
                         <td class="text-center">{{ days(rental.days) }}</td>
                         <td class="text-center">{{ rental.banano }} BAN</td>
                         <td class="text-center">
-                          <a :href="'/ba/' + rental.bananoAddress" class="detail-link" @@click.prevent="fetchRentalDetails(rental.bananoAddress)">
+                          <a :href="'/direct/ba/' + rental.bananoAddress" class="detail-link" @@click.prevent="fetchRentalDetails(rental.bananoAddress)">
                             <i class="fa fa-search-plus" alt="View"></i>
                           </a>
                         </td>

@@ -1,14 +1,12 @@
 ﻿using System.Linq;
-using IronBarCode;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
-using static WaxRentalsWeb.Config.Constants;
+using WaxRentalsWeb.Pages.QR;
 
 namespace WaxRentalsWeb.Pages
 {
-    public class BananoModel : PageModel
+    public class BananoModel : QRPageModel
     {
 
         private readonly IDataFactory _data;
@@ -29,8 +27,7 @@ namespace WaxRentalsWeb.Pages
                 {
                     var account = _banano.BuildAccount((uint)rental.RentalId);
                     var link = account.BuildLink(rental.Banano);
-                    var qr = QRCodeWriter.CreateQrCodeWithLogo(link, Images.Logo, Images.Size);
-                    return File(qr.ToPngBinaryData(), "image/png");
+                    return GenerateQRCode(link);
                 }
             }
             return null;
