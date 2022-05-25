@@ -260,7 +260,7 @@ namespace WaxRentals.Data.Manager
         public IEnumerable<Rental> GetRecentRentals()
         {
             return Context.Rentals
-                          .Where(rental => rental.StatusId == (int)Status.Processed)
+                          .Where(rental => rental.StatusId == (int)Status.Processed || rental.StatusId == (int)Status.Closed)
                           .OrderByDescending(rental => rental.RentalId)
                           .Take(10)
                           .ToArray();
