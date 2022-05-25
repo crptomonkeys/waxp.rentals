@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using WaxRentals.Processing.Processors;
 using BananoDependencies = WaxRentals.Banano.Config.Dependencies;
@@ -40,9 +41,12 @@ namespace WaxRentals.Processing
                 // This is just for tracking purposes; don't have to check that often.
                 provider.BuildProcessor<TrackBananoProcessor>(TimeSpan.FromMinutes(1)),
             };
-            Console.WriteLine("Processors running.  Press any key to shut down.");
-            
-            Console.Read(); // Read instead of ReadKey because ReadKey isn't available when running in a container.
+
+            var stop = new ManualResetEventSlim();
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => stop.Set();
+            Console.WriteLine("Processors running.  Awaiting SIGTERM.");
+
+            stop.Wait();
             Console.WriteLine("Shutting down; please wait.");
             var complete = processors.Select(processor => processor.Stop());
             while (complete.Any(mres => !mres.IsSet))
