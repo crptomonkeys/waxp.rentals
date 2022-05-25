@@ -164,7 +164,7 @@ namespace WaxRentals.Waxp.Transact
 
         #region " Not Used "
 
-        private async Task<(bool, string)> BuyRam(string account, int bytes)
+        public async Task<(bool, string)> BuyRam(string account, int bytes)
         {
             return await Process(
                 new BuyRamAction
@@ -180,7 +180,7 @@ namespace WaxRentals.Waxp.Transact
             );
         }
 
-        private async Task<(bool, string)> CreateAccount(string account, int ram, decimal cpu, decimal net)
+        public async Task<(bool, string)> CreateAccount(string account, int ram, decimal cpu, decimal net)
         {
             return await Process(
                 new NewAccountAction
