@@ -112,6 +112,10 @@ const load = {
     this._load('.menu .show-0');
   },
 
+  sell: function () {
+    this._load('.menu .show-1');
+  },
+
   _load: tab => {
     $(tab ?? '.menu .show-3').click();
 
