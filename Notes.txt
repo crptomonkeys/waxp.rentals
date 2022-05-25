@@ -1,5 +1,4 @@
 
-- deploy processing
 - figure out cloudflare
 - update channel description in discord
 - announce alpha
