@@ -91,7 +91,7 @@
                   <p>
                     <strong>Stake CPU and NET to your WAX account for {{ state.waxRentPriceInBanano }} BAN per WAX per day.</strong>
                     <br><br>Currently staked: <strong>{{ state.waxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.waxBalanceAvailable }}</strong> WAX
-                    <br>Available tomorrow: <strong>{{ state.waxBalanceUnstaking }}</strong> WAX
+                    <span v-if="state.waxBalanceUnstaking > 0"><br>Available tomorrow: <strong>+{{ state.waxBalanceUnstaking }}</strong> WAX</span>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
