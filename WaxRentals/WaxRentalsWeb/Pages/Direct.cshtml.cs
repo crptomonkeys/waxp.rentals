@@ -29,6 +29,13 @@ namespace WaxRentalsWeb.Pages
             );
         }
 
+        public IActionResult OnGetOpen()
+        {
+            return Process(
+                new PageLoadModel { Name = "open" }
+            );
+        }
+
         private IActionResult Process(PageLoadModel page)
         {
             TempData.Put("InitialPage", page);

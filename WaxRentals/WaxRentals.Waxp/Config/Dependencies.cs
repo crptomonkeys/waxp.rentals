@@ -43,6 +43,13 @@ namespace WaxRentals.Waxp.Config
                     provider.GetRequiredService<IWaxAccounts>()
                 )
             );
+
+            services.AddSingleton(provider =>
+                new NftsMonitor(
+                    TimeSpan.FromMinutes(1),
+                    provider.GetRequiredService<IDataFactory>()
+                )
+            );
         }
 
     }

@@ -6,7 +6,6 @@ using Newtonsoft.Json.Linq;
 using WaxRentals.Banano.Monitoring;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring;
 using static WaxRentals.Banano.Config.Constants;
 
 namespace WaxRentals.Banano.Config
@@ -16,12 +15,6 @@ namespace WaxRentals.Banano.Config
 
         public static void AddDependencies(this IServiceCollection services)
         {
-            services.AddSingleton(provider =>
-                JObject.Parse(
-                    File.ReadAllText(Locations.Seed)
-                ).ToObject<BananoSeed>()
-            );
-            
             services.AddSingleton(provider =>
                 new RpcClients
                 {
@@ -38,11 +31,29 @@ namespace WaxRentals.Banano.Config
                 )
             );
 
-            services.AddSingleton<StorageAccount>();
+            var seed = JObject.Parse(File.ReadAllText(Locations.Seed)).ToObject<BananoSeed>();
+            var welcomeSeed = JObject.Parse(File.ReadAllText(Locations.WelcomeSeed)).ToObject<BananoSeed>();
+
+            services.AddSingleton(provider =>
+                new StorageAccount(
+                    seed,
+                    provider.GetRequiredService<RpcClients>(),
+                    provider.GetRequiredService<IDataFactory>()
+                )
+            );
+
             services.AddSingleton<IBananoAccount, StorageAccount>(provider =>
                 provider.GetRequiredService<StorageAccount>()
             );
-            services.AddSingleton<IBananoAccountFactory, BananoAccountFactory>();
+
+            services.AddSingleton<IBananoAccountFactory>(provider =>
+                new BananoAccountFactory(
+                    seed,
+                    welcomeSeed,
+                    provider.GetRequiredService<RpcClients>(),
+                    provider.GetRequiredService<IDataFactory>()
+                )
+            );
         }
 
     }

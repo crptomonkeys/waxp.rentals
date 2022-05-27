@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using WaxRentals.Banano.Monitoring;
 using WaxRentals.Monitoring.Prices;
 using WaxRentals.Monitoring.Recents;
 using WaxRentals.Waxp.Monitoring;
 using WaxRentalsWeb.Data.Models;
-using static WaxRentals.Banano.Config.Constants;
 
 namespace WaxRentalsWeb.Data
 {
@@ -18,17 +18,20 @@ namespace WaxRentalsWeb.Data
         private readonly IPriceMonitor _prices;
         private readonly BalanceMonitor _banano;
         private readonly BalancesMonitor _wax;
+        private readonly NftsMonitor _nfts;
 
         public event EventHandler RecentsChanged;
         public Recents Recents { get; } = new();
 
         private readonly IRecentMonitor _recent;
 
-        public DataCache(IPriceMonitor prices, BalanceMonitor banano, BalancesMonitor wax, IRecentMonitor recent)
+        public DataCache(IPriceMonitor prices, BalanceMonitor banano, BalancesMonitor wax, NftsMonitor nfts, IRecentMonitor recent)
         {
             _prices = prices;
             _banano = banano;
             _wax = wax;
+            _nfts = nfts;
+
             _recent = recent;
         }
 
@@ -55,16 +58,28 @@ namespace WaxRentalsWeb.Data
                 RaiseAppStateEvent();
             };
 
-            _recent.Updated += (_, _) =>
+            _nfts.Updated += (_, nfts) =>
             {
-                Recents.Rentals = _recent.Rentals;
-                Recents.Purchases = _recent.Purchases;
-                RaiseRecentsEvent();
+                var updated = AppState.WelcomePackageNftsAvailable != nfts.Any();
+                if (updated)
+                {
+                    AppState.WelcomePackageNftsAvailable = nfts.Any();
+                    RaiseAppStateEvent();
+                }
             };
 
             _prices.Initialize();
             _banano.Initialize();
             _wax.Initialize();
+            _nfts.Initialize();
+
+            _recent.Updated += (_, _) =>
+            {
+                Recents.Rentals = _recent.Rentals;
+                Recents.Purchases = _recent.Purchases;
+                Recents.WelcomePackages = _recent.WelcomePackages;
+                RaiseRecentsEvent();
+            };
             _recent.Initialize();
         }
 

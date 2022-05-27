@@ -8,6 +8,7 @@ namespace WaxRentalsWeb.Data.Models
 
         public IEnumerable<Rental> Rentals { get; set; }
         public IEnumerable<Purchase> Purchases { get; set; }
+        public IEnumerable<WelcomePackage> WelcomePackages { get; set; }
 
     }
 }

@@ -7,12 +7,14 @@ namespace WaxRentals.Banano.Transact
     {
 
         private readonly BananoSeed _seed;
+        private readonly BananoSeed _welcomeSeed;
         private readonly RpcClients _rpc;
         private readonly IDataFactory _factory;
 
-        public BananoAccountFactory(BananoSeed seed, RpcClients rpc, IDataFactory factory)
+        public BananoAccountFactory(BananoSeed seed, BananoSeed welcomeSeed, RpcClients rpc, IDataFactory factory)
         {
             _seed = seed;
+            _welcomeSeed = welcomeSeed;
             _rpc = rpc;
             _factory = factory;
         }
@@ -20,6 +22,11 @@ namespace WaxRentals.Banano.Transact
         public IBananoAccount BuildAccount(uint index)
         {
             return new WrappedAccount(_seed, index, _rpc, _factory);
+        }
+
+        public IBananoAccount BuildWelcomeAccount(uint index)
+        {
+            return new WrappedAccount(_welcomeSeed, index, _rpc, _factory);
         }
 
     }

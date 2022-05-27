@@ -8,6 +8,14 @@ namespace FillDatabaseAddresses
     {
         static void Main(string[] args)
         {
+            var targets = new
+            {
+                Addresses = new { Table = "Address", Seed = args[1] },
+                WelcomeAddresses = new { Table = "welcome.Address", Seed = args[2] }
+            };
+
+            var target = targets.WelcomeAddresses;
+
             using (var connection = new SqlConnection(args[0]))
             {
                 connection.Open();
@@ -15,11 +23,11 @@ namespace FillDatabaseAddresses
                 uint max = 0;
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = "SELECT MAX(AddressId) FROM Address";
+                    command.CommandText = $"SELECT MAX(AddressId) FROM {target.Table}";
                     var result = command.ExecuteScalar();
                     if (!(result is DBNull))
                     {
-                        max = (uint)result;
+                        max = Convert.ToUInt32(result);
                     }
                 }
 
@@ -27,11 +35,11 @@ namespace FillDatabaseAddresses
                 {
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = "INSERT INTO Address (AddressId, Address) VALUES ";
+                        command.CommandText = $"INSERT INTO {target.Table} (AddressId, Address) VALUES ";
                         for (uint inner = 1; inner <= 1000; inner++)
                         {
                             var id = max + (1000 * outer) + inner;
-                            var account = new Account(args[1], id, "ban");
+                            var account = new Account(target.Seed, id, "ban");
                             command.CommandText += $"({id}, '{account.Address}'), ";
                         }
                         command.CommandText = command.CommandText.TrimEnd(' ', ',');

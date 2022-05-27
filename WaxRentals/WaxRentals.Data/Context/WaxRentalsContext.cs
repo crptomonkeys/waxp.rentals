@@ -12,6 +12,9 @@ namespace WaxRentals.Data.Context
         public DbSet<Purchase> Purchases { get; set; }
         public DbSet<Rental> Rentals { get; set; }
 
+        public DbSet<WelcomeAddress> WelcomeAddresses { get; set; }
+        public DbSet<WelcomePackage> WelcomePackages { get; set; }
+
         public DbSet<WaxHistory> WaxHistory { get; set; }
 
         public DbSet<Error> Errors { get; set; }

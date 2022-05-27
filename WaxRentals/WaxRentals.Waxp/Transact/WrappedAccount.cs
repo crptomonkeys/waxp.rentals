@@ -143,7 +143,7 @@ namespace WaxRentals.Waxp.Transact
             );
         }
 
-        public async Task<(bool, string)> Send(string account, decimal wax)
+        public async Task<(bool, string)> Send(string account, decimal wax, string memo = null)
         {
             return await Process(
                 new TransferAction
@@ -154,7 +154,25 @@ namespace WaxRentals.Waxp.Transact
                     {
                         From = new Name(Account),
                         To = new Name(account),
-                        Quantity = new LongCurrency($"{wax} WAX")
+                        Quantity = new LongCurrency($"{wax} WAX"),
+                        Memo = memo
+                    }
+                }
+            );
+        }
+
+        public async Task<(bool, string)> SendAsset(string account, string asset, string memo)
+        {
+            return await Process(
+                new TransferAssetsAction
+                {
+                    Authorization = _authorization,
+                    Data = new TransferAssetsData
+                    {
+                        From = new Name(Account),
+                        To = new Name(account),
+                        AssetIds = new string[] { asset },
+                        Memo = memo
                     }
                 }
             );
@@ -239,6 +257,11 @@ namespace WaxRentals.Waxp.Transact
 
         private async Task<(bool, string)> Process(params IAction[] actions)
         {
+            if (!actions.Any())
+            {
+                return (false, null);
+            }
+
             Transaction transaction = null;
             var success = await _client.ProcessApi(async client =>
                 transaction = await client.CreateTransaction(actions.ToList())
@@ -289,6 +312,27 @@ namespace WaxRentals.Waxp.Transact
         {
             public override Name Account => "eosio";
             public override Name Name => "refund";
+        }
+
+        private class TransferAssetsData
+        {
+            [JsonProperty("from")]
+            public Name From { get; set; }
+
+            [JsonProperty("to")]
+            public Name To { get; set; }
+
+            [JsonProperty("asset_ids")]
+            public string[] AssetIds { get; set; }
+
+            [JsonProperty("memo")]
+            public string Memo { get; set; }
+        }
+
+        private class TransferAssetsAction : Eos.Models.Action<TransferAssetsData>
+        {
+            public override Name Account => "atomicassets";
+            public override Name Name => "transfer";
         }
 
         #endregion

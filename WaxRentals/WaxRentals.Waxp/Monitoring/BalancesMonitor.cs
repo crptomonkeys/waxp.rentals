@@ -37,10 +37,12 @@ namespace WaxRentals.Waxp.Monitoring
         {
             var tasks = _wax.Transact.ToDictionary(account => account, account => account.GetBalances());
             await Task.WhenAll(tasks.Values);
+            var today = await tasks[_wax.Today];
+            var tomorrow = await tasks[_wax.Tomorrow];
 
             var balances = new AccountBalances();
-            balances.Available = (await tasks[_wax.Today]).Available;
-            balances.Unstaking = (await tasks[_wax.Tomorrow]).Unstaking;
+            balances.Available = today.Available;
+            balances.Unstaking = tomorrow.Unstaking + tomorrow.Available;
             foreach (var kvp in tasks)
             {
                 balances.Staked += (await kvp.Value).Staked;

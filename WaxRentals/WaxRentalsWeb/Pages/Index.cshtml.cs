@@ -84,15 +84,8 @@ namespace WaxRentalsWeb.Pages
             return (true, null);
         }
 
-        private JsonResult Fail(string error)
-        {
-            return new JsonResult(RentalResult.Fail(error));
-        }
-
-        private JsonResult Succeed(string address)
-        {
-            return new JsonResult(RentalResult.Succeed(address));
-        }
+        private JsonResult Succeed(string address) => new JsonResult(RentalResult.Succeed(address));
+        private JsonResult Fail(string error) => new JsonResult(RentalResult.Fail(error));
 
     }
 }

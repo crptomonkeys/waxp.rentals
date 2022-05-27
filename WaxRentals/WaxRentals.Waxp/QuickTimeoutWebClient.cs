@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WaxRentals.Waxp
 {
-    internal class QuickTimeoutWebClient : WebClient
+    public class QuickTimeoutWebClient : WebClient
     {
 
         public string DownloadString(string address, TimeSpan timeout)

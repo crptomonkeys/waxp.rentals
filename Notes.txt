@@ -1,6 +1,4 @@
 
-- update channel description in discord
-- announce alpha
 - let run for a few weeks
 - announce beta
 - let run for a few weeks

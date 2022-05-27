@@ -1,4 +1,6 @@
-﻿using BananoConstants = WaxRentals.Banano.Config.Constants.Protocol;
+﻿using System;
+using WaxRentals.Monitoring.Utilities;
+using BananoConstants = WaxRentals.Banano.Config.Constants.Protocol;
 using Calculations = WaxRentals.Data.Config.Constants.Calculations;
 using WaxConstants = WaxRentals.Waxp.Config.Constants.Protocol;
 
@@ -6,6 +8,8 @@ namespace WaxRentalsWeb.Data.Models
 {
     public class AppState
     {
+
+        public bool WelcomePackageNftsAvailable { get; set; }
 
         public VolatileDecimal BananoBalance { get; } = new();
         public VolatileDecimal WaxBalanceAvailable { get; } = new();
@@ -15,24 +19,18 @@ namespace WaxRentalsWeb.Data.Models
         public VolatileDecimal BananoPrice { get; } = new();
         public VolatileDecimal WaxPrice { get; } = new();
 
-        public decimal WaxRentPriceInBanano { get { return Calculations.BananoPerWaxPerDay; } }
-        public decimal WaxBuyPriceInBanano { get { return SafeDivide(WaxPrice.Value, BananoPrice.Value); } }
+        public decimal WaxRentPriceInBanano => Calculations.BananoPerWaxPerDay;
+        public decimal WaxBuyPriceInBanano => Safe.Divide(WaxPrice.Value, BananoPrice.Value);
 
-        public decimal BananoMinimumCredit { get { return BananoConstants.Minimum; } }
+        public decimal BananoMinimumCredit => BananoConstants.Minimum;
         // No BananoMaximumCredit because it's based on time, not number of WAX.
-        public decimal WaxMinimumRent { get { return WaxConstants.MinimumTransaction; } }
-        public decimal WaxMaximumRent { get { return WaxBalanceAvailable.Value >= (WaxMinimumRent * 2) ? (WaxBalanceAvailable.Value / 2) : WaxMinimumRent; } }
-        public decimal WaxMinimumBuy { get { return WaxConstants.MinimumTransaction; } }
-        public decimal WaxMaximumBuy { get { return SafeDivide(BananoBalance.Value, WaxBuyPriceInBanano * 2); } }
+        public decimal WaxMinimumRent => WaxConstants.MinimumTransaction;
+        public decimal WaxMaximumRent => WaxBalanceAvailable.Value >= (WaxMinimumRent * 2) ? (WaxBalanceAvailable.Value / 2) : WaxMinimumRent;
+        public decimal WaxMinimumBuy => WaxConstants.MinimumTransaction;
+        public decimal WaxMaximumBuy => Safe.Divide(BananoBalance.Value, WaxBuyPriceInBanano * 2);
 
-        private static decimal SafeDivide(decimal numerator, decimal denominator)
-        {
-            if (numerator == 0 || denominator == 0)
-            {
-                return 0;
-            }
-            return numerator / denominator;
-        }
+        public decimal BananoWelcomePackagePrice => Math.Ceiling(WaxConstants.NewUserCharge * Safe.Divide(WaxPrice.Value, BananoPrice.Value));
+        public decimal WaxWelcomePackageMinimumAvailable => WaxConstants.NewUserWax;
 
     }
 }

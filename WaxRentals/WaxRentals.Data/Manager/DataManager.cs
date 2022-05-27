@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -12,7 +13,7 @@ namespace WaxRentals.Data.Manager
     {
 
         private WaxRentalsContext Context { get; }
-        private DateTime Abandoned { get { return DateTime.UtcNow.AddDays(-1); } } // Abandon New Rentals after one day.
+        private static DateTime Abandoned { get { return DateTime.UtcNow.AddDays(-1); } } // Abandon New Rentals after one day.
 
         public DataManager(WaxRentalsContext context)
         {
@@ -75,9 +76,40 @@ namespace WaxRentals.Data.Manager
             return false;
         }
 
+        public async Task<int> OpenWelcomePackage(string account, string memo, decimal wax, decimal banano)
+        {
+            // Prevent spamming of the same unpaid package info.
+            var existing = Context.WelcomePackages.SingleOrDefault(package =>
+                package.TargetWaxAccount == account &&
+                package.Memo == memo &&
+                package.Inserted > Abandoned);
+            if (existing != null)
+            {
+                existing.Wax = wax;
+                existing.Banano = banano;
+                await Context.SaveChangesAsync();
+                return existing.PackageId;
+            }
+
+            var package = Context.WelcomePackages.Add(
+                new WelcomePackage
+                {
+                    TargetWaxAccount = account,
+                    Memo = memo,
+                    Wax = wax,
+                    Banano = banano,
+                    Status = Status.New
+                }
+            );
+            await Context.SaveChangesAsync();
+            return package.PackageId;
+        }
+
         #endregion
 
         #region " IProcess "
+
+        #region " Rentals "
 
         public Task<IEnumerable<Rental>> PullNewRentals()
         {
@@ -90,13 +122,15 @@ namespace WaxRentals.Data.Manager
             return Task.FromResult(rentals);
         }
 
-
         public async Task ProcessRentalPayment(int rentalId)
         {
-            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.New);
-            rental.Paid = DateTime.UtcNow;
-            rental.Status = Status.Pending;
-            await Context.SaveChangesAsync();
+            var rental = Context.Rentals.SingleOrDefault(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.New);
+            if (rental != null)
+            {
+                rental.Paid = DateTime.UtcNow;
+                rental.Status = Status.Pending;
+                await Context.SaveChangesAsync();
+            }
         }
 
         public Task<IEnumerable<Rental>> PullPaidRentalsToStake()
@@ -109,11 +143,14 @@ namespace WaxRentals.Data.Manager
 
         public async Task ProcessRentalStaking(int rentalId, string source, string transaction)
         {
-            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
-            rental.SourceWaxAccount = source;
-            rental.StakeWaxTransaction = transaction;
-            rental.Status = Status.Processed;
-            await Context.SaveChangesAsync();
+            var rental = Context.Rentals.SingleOrDefault(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
+            if (rental != null)
+            {
+                rental.SourceWaxAccount = source;
+                rental.StakeWaxTransaction = transaction;
+                rental.Status = Status.Processed;
+                await Context.SaveChangesAsync();
+            }
         }
 
         public Task<IEnumerable<Rental>> PullSweepableRentals()
@@ -147,6 +184,9 @@ namespace WaxRentals.Data.Manager
             await Context.SaveChangesAsync();
         }
 
+        #endregion
+
+        #region " Purchases "
 
         public async Task<Purchase> PullNextPurchase()
         {
@@ -162,6 +202,66 @@ namespace WaxRentals.Data.Manager
             purchase.Status = Status.Processed;
             await Context.SaveChangesAsync();
         }
+
+        #endregion
+
+        #region " Welcome Packages "
+
+        public async Task<IEnumerable<WelcomePackage>> PullNewWelcomePackages()
+        {
+            // If the package hasn't been funded within 24 hours, assume it's abandoned.
+            // If it needs to be reactivated, change the Inserted date in the database.
+            // But probably, the user will just make a new one.
+            return await (from package in Context.WelcomePackages
+                          where package.StatusId == (int)Status.New && package.Inserted > Abandoned
+                          select package).ToArrayAsync();
+        }
+
+        public async Task ProcessWelcomePackagePayment(int packageId)
+        {
+            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.New);
+            if (package != null)
+            {
+                package.Paid = DateTime.UtcNow;
+                package.Status = Status.Pending;
+                await Context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<WelcomePackage>> PullPaidWelcomePackagesToFund()
+        {
+            return await (from package in Context.WelcomePackages
+                          where package.StatusId == (int)Status.Pending && package.FundTransaction == null
+                          select package).ToArrayAsync();
+        }
+
+        public async Task ProcessWelcomePackageFunding(int packageId, string fundTransaction, string nftTransaction)
+        {
+            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.Pending);
+            if (package != null)
+            {
+                package.FundTransaction = fundTransaction;
+                package.NftTransaction = nftTransaction;
+                package.Status = Status.Processed;
+                await Context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<WelcomePackage>> PullSweepableWelcomePackages()
+        {
+            return await (from package in Context.WelcomePackages
+                          where package.StatusId == (int)Status.Processed && package.SweepBananoTransaction == null
+                          select package).ToArrayAsync();
+        }
+
+        public async Task ProcessWelcomePackageSweep(int packageId, string transaction)
+        {
+            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.Processed);
+            package.SweepBananoTransaction = transaction;
+            await Context.SaveChangesAsync();
+        }
+
+        #endregion
 
         #endregion
 
@@ -275,6 +375,15 @@ namespace WaxRentals.Data.Manager
                           .ToArray();
         }
 
+        public IEnumerable<WelcomePackage> GetRecentWelcomePackages()
+        {
+            return Context.WelcomePackages
+                          .Where(package => package.StatusId == (int)Status.Processed)
+                          .OrderByDescending(package => package.PackageId)
+                          .Take(10)
+                          .ToArray();
+        }
+
         public IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses)
         {
             return from rental in Context.Rentals
@@ -287,6 +396,14 @@ namespace WaxRentals.Data.Manager
         {
             return Context.Rentals.Where(rental =>
                 rental.TargetWaxAccount == account && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned));
+        }
+
+        public IEnumerable<WelcomePackage> GetWelcomePackagesByBananoAddresses(IEnumerable<string> addresses)
+        {
+            return from package in Context.WelcomePackages
+                   join banano in Context.WelcomeAddresses on package.PackageId equals banano.AddressId
+                   where addresses.Contains(banano.BananoAddress) && (package.StatusId != (int)Status.New || package.Inserted > Abandoned)
+                   select package;
         }
 
         #endregion
