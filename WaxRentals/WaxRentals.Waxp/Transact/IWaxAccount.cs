@@ -11,7 +11,8 @@ namespace WaxRentals.Waxp.Transact
         Task<(bool, string)> Stake(string account, decimal cpu, decimal net);
         Task<(bool, string)> Unstake(string account, decimal cpu, decimal net);
         Task<(bool, string)> ClaimRefund();
-        Task<(bool, string)> Send(string account, decimal wax);
+        Task<(bool, string)> Send(string account, decimal wax, string memo = null);
+        Task<(bool, string)> SendAsset(string account, string asset, string memo);
 
     }
 }

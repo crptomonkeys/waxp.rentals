@@ -8,8 +8,11 @@ namespace WaxRentals.Data.Manager
 
         IEnumerable<Rental> GetRecentRentals();
         IEnumerable<Purchase> GetRecentPurchases();
+        IEnumerable<WelcomePackage> GetRecentWelcomePackages();
+
         IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses);
         IEnumerable<Rental> GetRentalsByWaxAccount(string account);
+        IEnumerable<WelcomePackage> GetWelcomePackagesByBananoAddresses(IEnumerable<string> addresses);
 
     }
 }

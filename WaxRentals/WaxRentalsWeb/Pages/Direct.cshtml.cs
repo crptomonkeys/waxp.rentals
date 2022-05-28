@@ -10,25 +10,35 @@ namespace WaxRentalsWeb.Pages
 
         public IActionResult OnGetBA(string id)
         {
-            TempData.Put("InitialPage",
-                new PageLoadModel
-                {
-                    Name = "bananoAddress",
-                    Value = id
-                }
+            return Process(
+                new PageLoadModel { Name = "bananoAddress", Value = id }
             );
-            return Redirect("/");
         }
 
         public IActionResult OnGetWA(string id)
         {
-            TempData.Put("InitialPage",
-                new PageLoadModel
-                {
-                    Name = "waxAccount",
-                    Value = id
-                }
+            return Process(
+                new PageLoadModel { Name = "waxAccount", Value = id }
             );
+        }
+
+        public IActionResult OnGetSell()
+        {
+            return Process(
+                new PageLoadModel { Name = "sell" }
+            );
+        }
+
+        public IActionResult OnGetOpen()
+        {
+            return Process(
+                new PageLoadModel { Name = "open" }
+            );
+        }
+
+        private IActionResult Process(PageLoadModel page)
+        {
+            TempData.Put("InitialPage", page);
             return Redirect("/");
         }
 

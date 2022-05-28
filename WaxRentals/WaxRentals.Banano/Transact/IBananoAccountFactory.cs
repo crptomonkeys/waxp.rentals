@@ -4,6 +4,7 @@
     {
 
         IBananoAccount BuildAccount(uint index);
+        IBananoAccount BuildWelcomeAccount(uint index);
 
     }
 }

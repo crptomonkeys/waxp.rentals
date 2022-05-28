@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
-using static WaxRentals.Banano.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {

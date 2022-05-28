@@ -8,6 +8,7 @@ using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Logging;
 using WaxRentals.Monitoring.Prices;
+using WaxRentals.Monitoring.Utilities;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
@@ -21,7 +22,7 @@ namespace WaxRentals.Processing.Processors
 
         private IClientFactory Client { get; }
         private IPriceMonitor Prices { get; }
-        private decimal PayRate { get { return SafeDivide(Prices.Wax, Prices.Banano); } }
+        private decimal PayRate { get { return Safe.Divide(Prices.Wax, Prices.Banano); } }
 
         public TrackWaxProcessor(IDataFactory factory, IClientFactory client, IPriceMonitor prices)
             : base(factory)
@@ -90,15 +91,6 @@ namespace WaxRentals.Processing.Processors
         private static bool IsBananoAddress(string memo)
         {
             return Regex.IsMatch(memo ?? "", Protocol.BananoAddressRegex, RegexOptions.IgnoreCase);
-        }
-
-        private static decimal SafeDivide(decimal numerator, decimal denominator)
-        {
-            if (numerator == 0 || denominator == 0)
-            {
-                return 0;
-            }
-            return numerator / denominator;
         }
 
         #endregion

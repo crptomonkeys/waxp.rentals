@@ -22,6 +22,8 @@ namespace WaxRentals.Processing
                 provider.BuildProcessor<RentalOpenProcessor>(TimeSpan.FromSeconds(10)),
                 provider.BuildProcessor<RentalStakeProcessor>(TimeSpan.FromSeconds(10)),
                 provider.BuildProcessor<PurchaseProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<WelcomePackageOpenProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<WelcomePackageFundingProcessor>(TimeSpan.FromSeconds(10)),
 
                 // Be responsive on credits but don't annoy the node operators.
                 provider.BuildProcessor<TrackWaxProcessor>(TimeSpan.FromSeconds(30)),
@@ -37,6 +39,7 @@ namespace WaxRentals.Processing
 
                 // Don't have to be that quick on sweeping transactions.
                 provider.BuildProcessor<RentalSweepProcessor>(TimeSpan.FromMinutes(1)),
+                provider.BuildProcessor<WelcomePackageSweepProcessor>(TimeSpan.FromMinutes(1)),
                 
                 // This is just for tracking purposes; don't have to check that often.
                 provider.BuildProcessor<TrackBananoProcessor>(TimeSpan.FromMinutes(1)),
@@ -78,6 +81,9 @@ namespace WaxRentals.Processing
             services.AddSingleton<DayChangeProcessor>();
             services.AddSingleton<TrackBananoProcessor>();
             services.AddSingleton<TrackWaxProcessor>();
+            services.AddSingleton<WelcomePackageOpenProcessor>();
+            services.AddSingleton<WelcomePackageFundingProcessor>();
+            services.AddSingleton<WelcomePackageSweepProcessor>();
 
             return services.BuildServiceProvider();
         }

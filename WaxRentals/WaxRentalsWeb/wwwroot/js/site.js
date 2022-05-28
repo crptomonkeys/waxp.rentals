@@ -32,6 +32,13 @@
     }
   });
 
+  $('body').on('click', '.external-link', function open() {
+    const url = $(this).data('url');
+    if (url) {
+      window.open(url);
+    }
+  });
+
 })(jQuery);
 
 // ================
@@ -112,6 +119,14 @@ const load = {
     this._load('.menu .show-0');
   },
 
+  sell: function () {
+    this._load('.menu .show-1');
+  },
+
+  open: function () {
+    this._load('.menu .show-5');
+  },
+
   _load: tab => {
     $(tab ?? '.menu .show-3').click();
 
@@ -119,6 +134,11 @@ const load = {
       load._my.display = null;
       load._my.detail = null;
       load._my.fetchRentals(storage.addresses(), true);
+    });
+
+    $('.menu a.show-5').on('click', function clear() {
+      load._open.package = null;
+      load._open.loading = false;
     });
   }
 

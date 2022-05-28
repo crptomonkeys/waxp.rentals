@@ -19,6 +19,10 @@ namespace WaxRentals.Monitoring.Recents
         private IEnumerable<Purchase> _purchases;
         public IEnumerable<Purchase> Purchases { get { return _purchasesLock.SafeRead(() => _purchases); } }
 
+        private readonly ReaderWriterLockSlim _packagesLock = new();
+        private IEnumerable<WelcomePackage> _packages;
+        public IEnumerable<WelcomePackage> WelcomePackages { get { return _packagesLock.SafeRead(() => _packages); } }
+
         public RecentMonitor(TimeSpan interval, IDataFactory factory)
             : base(interval, factory)
         {
@@ -33,12 +37,14 @@ namespace WaxRentals.Monitoring.Recents
             {
                 var rentals = Factory.Explore.GetRecentRentals();
                 var purchases = Factory.Explore.GetRecentPurchases();
+                var packages = Factory.Explore.GetRecentWelcomePackages();
 
-                if (_rentals == null || _purchases == null)
+                if (_rentals == null || _purchases == null || packages == null)
                 {
                     update = true;
                     _rentalsLock.SafeWrite(() => _rentals = rentals);
                     _purchasesLock.SafeWrite(() => _purchases = purchases);
+                    _packagesLock.SafeWrite(() => _packages = packages);
                 }
                 else
                 {
@@ -52,6 +58,12 @@ namespace WaxRentals.Monitoring.Recents
                     {
                         update = true;
                         _purchasesLock.SafeWrite(() => _purchases = purchases);
+                    }
+
+                    if (Differ(_packages, packages, package => package.PackageId))
+                    {
+                        update = true;
+                        _packagesLock.SafeWrite(() => _packages = packages);
                     }
                 }
             }

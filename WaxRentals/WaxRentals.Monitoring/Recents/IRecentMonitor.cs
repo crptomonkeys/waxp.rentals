@@ -12,6 +12,7 @@ namespace WaxRentals.Monitoring.Recents
 
         IEnumerable<Rental> Rentals { get; }
         IEnumerable<Purchase> Purchases { get; }
+        IEnumerable<WelcomePackage> WelcomePackages { get; }
 
     }
 }

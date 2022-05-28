@@ -9,7 +9,7 @@ namespace VanityAddressGenerator
     {
         static void Main(string[] args)
         {
-            var vanity = "rentwax";
+            var vanity = "open";
             var filename = $"{vanity}.seed.txt";
 
             var sw = new Stopwatch();
