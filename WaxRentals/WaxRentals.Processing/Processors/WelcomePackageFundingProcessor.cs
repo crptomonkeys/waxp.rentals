@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
+using WaxRentals.Monitoring.Prices;
+using WaxRentals.Processing.Tracking;
 using WaxRentals.Waxp;
 using WaxRentals.Waxp.Transact;
+using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
@@ -18,11 +21,15 @@ namespace WaxRentals.Processing.Processors
         protected override bool ProcessMultiplePerTick => false;
 
         private IWaxAccounts Wax { get; }
+        private IPriceMonitor Prices { get; }
+        private ITracker Tracker { get; }
         
-        public WelcomePackageFundingProcessor(IDataFactory factory, IWaxAccounts wax)
+        public WelcomePackageFundingProcessor(IDataFactory factory, IWaxAccounts wax, IPriceMonitor prices, ITracker tracker)
             : base(factory)
         {
             Wax = wax;
+            Prices = prices;
+            Tracker = tracker;
         }
 
         protected override Func<Task<IEnumerable<WelcomePackage>>> Get => Factory.Process.PullPaidWelcomePackagesToFund;
@@ -44,6 +51,7 @@ namespace WaxRentals.Processing.Processors
                     var (success, fund) = await Wax.Today.Send(package.TargetWaxAccount, package.Wax, package.Memo);
                     if (success)
                     {
+                        Tracker.Track("Sent WAX", package.Wax, Coins.Wax, spent: package.Wax * Prices.Wax);
                         string nft = null;
                         if (nfts.TryTake(out Nft starter))
                         {
