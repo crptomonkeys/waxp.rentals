@@ -19,7 +19,7 @@ namespace WaxRentals.Banano.Config
         {
             public const string Seed = "/run/secrets/banano.seed";
             public const string WelcomeSeed = "/run/secrets/welcome.banano.seed";
-            public const string WorkServer = "http://work-server-01:7077";
+            public const string WorkServer = "http://work-server-01.squeakers.space:7077";
 #if DEBUG
             public const string Node = "http://host-x86-01:17072";
 #else
