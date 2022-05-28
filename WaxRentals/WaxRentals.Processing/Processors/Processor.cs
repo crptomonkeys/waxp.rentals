@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Timers;
+using Microsoft.Extensions.DependencyInjection;
 using WaxRentals.Data.Manager;
 using ManualResetEventSlim = System.Threading.ManualResetEventSlim;
 
@@ -118,5 +119,16 @@ namespace WaxRentals.Processing.Processors
 
         #endregion
 
+    }
+
+    internal static class IServiceProviderExtensions
+    {
+        public static T BuildProcessor<T>(this IServiceProvider @this, TimeSpan interval)
+            where T : IProcessor
+        {
+            var processor = @this.GetRequiredService<T>();
+            processor.Start(interval);
+            return processor;
+        }
     }
 }

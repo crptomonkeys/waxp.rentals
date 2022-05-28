@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Logging;
 using WaxRentals.Monitoring.Prices;
+using WaxRentals.Processing.Tracking;
 using static WaxRentals.Monitoring.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
@@ -15,12 +15,14 @@ namespace WaxRentals.Processing.Processors
 
         private IBananoAccount Banano { get; }
         private IPriceMonitor Prices { get; }
+        private ITracker Tracker { get; }
 
-        public TrackBananoProcessor(IDataFactory factory, IBananoAccount banano, IPriceMonitor prices)
+        public TrackBananoProcessor(IDataFactory factory, IBananoAccount banano, IPriceMonitor prices, ITracker tracker)
             : base(factory)
         {
             Banano = banano;
             Prices = prices;
+            Tracker = tracker;
         }
 
         protected override Func<Task<decimal>> Get => () => Banano.Receive();

@@ -6,6 +6,7 @@ using WaxRentals.Processing.Processors;
 using BananoDependencies = WaxRentals.Banano.Config.Dependencies;
 using DataDependencies = WaxRentals.Data.Config.Dependencies;
 using MonitoringDependencies = WaxRentals.Monitoring.Config.Dependencies;
+using ProcessingDependencies = WaxRentals.Processing.Config.Dependencies;
 using WaxDependencies = WaxRentals.Waxp.Config.Dependencies;
 
 namespace WaxRentals.Processing
@@ -71,32 +72,9 @@ namespace WaxRentals.Processing
             BananoDependencies.AddDependencies(services);
             WaxDependencies.AddDependencies(services);
             MonitoringDependencies.AddDependencies(services);
-
-            services.AddSingleton<RentalOpenProcessor>();
-            services.AddSingleton<RentalStakeProcessor>();
-            services.AddSingleton<RentalSweepProcessor>();
-            services.AddSingleton<PurchaseProcessor>();
-            services.AddSingleton<RentalClosingProcessor>();
-            //services.AddSingleton<WorkProcessor>();
-            services.AddSingleton<DayChangeProcessor>();
-            services.AddSingleton<TrackBananoProcessor>();
-            services.AddSingleton<TrackWaxProcessor>();
-            services.AddSingleton<WelcomePackageOpenProcessor>();
-            services.AddSingleton<WelcomePackageFundingProcessor>();
-            services.AddSingleton<WelcomePackageSweepProcessor>();
+            ProcessingDependencies.AddDependencies(services);
 
             return services.BuildServiceProvider();
-        }
-    }
-
-    internal static class IServiceProviderExtensions
-    {
-        public static T BuildProcessor<T>(this IServiceProvider @this, TimeSpan interval)
-            where T : IProcessor
-        {
-            var processor = @this.GetRequiredService<T>();
-            processor.Start(interval);
-            return processor;
         }
     }
 }
