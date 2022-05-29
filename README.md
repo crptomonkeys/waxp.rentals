@@ -5,9 +5,9 @@ To stand up your own version of this site, you'll need a few things:
 - [Docker-Compose File](README.md#docker-compose-file)
 - [Secrets Files](README.md#secrets-files)
 - [.env for Database](README.md#env-for-database)
-- [Docker Networks](README#docker-networks)
-- [tracking.csv (optional)](README#trackingcsv-optional)
-- [Constants files](README#constants-files)
+- [Docker Networks](README.md#docker-networks)
+- [tracking.csv (optional)](README.md#trackingcsv-optional)
+- [Constants files](README.md#constants-files)
 
 # Docker-Compose File
 
