@@ -137,7 +137,7 @@ You will need a handful of Docker Secrets to provide the private keys and connec
 
 # .env for Database
 
-The SA_PASSWORD should only be necessary on initial startup -- after that, the database has been set up with the SA password.  DATABASE_NAME continues to be necessary for dacpac processing.
+The `SA_PASSWORD` should only be necessary on initial startup -- after that, the database has been set up with the SA password.  `DATABASE_NAME` continues to be necessary for dacpac processing.
 
 ```
 DATABASE_NAME=WaxRentals
