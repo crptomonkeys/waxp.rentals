@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Logging;
 using WaxRentals.Monitoring.Prices;
 using WaxRentals.Monitoring.Utilities;
+using WaxRentals.Processing.Tracking;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
@@ -22,13 +22,16 @@ namespace WaxRentals.Processing.Processors
 
         private IClientFactory Client { get; }
         private IPriceMonitor Prices { get; }
+        private ITracker Tracker { get; }
+
         private decimal PayRate { get { return Safe.Divide(Prices.Wax, Prices.Banano); } }
 
-        public TrackWaxProcessor(IDataFactory factory, IClientFactory client, IPriceMonitor prices)
+        public TrackWaxProcessor(IDataFactory factory, IClientFactory client, IPriceMonitor prices, ITracker tracker)
             : base(factory)
         {
             Client = client;
             Prices = prices;
+            Tracker = tracker;
         }
 
         protected override Func<Task<IEnumerable<Transfer>>> Get => PullHistory;

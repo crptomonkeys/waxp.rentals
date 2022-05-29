@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Logging;
 using WaxRentals.Monitoring.Prices;
+using WaxRentals.Processing.Tracking;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
 using BananoAccount = WaxRentals.Banano.Transact.IBananoAccount;
@@ -16,13 +16,15 @@ namespace WaxRentals.Processing.Processors
         private BananoAccount Banano { get; }
         private IWaxAccounts Wax { get; }
         private IPriceMonitor Prices { get; }
+        private ITracker Tracker { get; }
 
-        public PurchaseProcessor(IDataFactory factory, BananoAccount banano, IWaxAccounts wax, IPriceMonitor prices)
+        public PurchaseProcessor(IDataFactory factory, BananoAccount banano, IWaxAccounts wax, IPriceMonitor prices, ITracker tracker)
             : base(factory)
         {
             Banano = banano;
             Wax = wax;
             Prices = prices;
+            Tracker = tracker;
         }
 
         protected override Func<Task<Purchase>> Get => Factory.Process.PullNextPurchase;
