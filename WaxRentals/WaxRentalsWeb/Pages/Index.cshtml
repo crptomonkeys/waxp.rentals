@@ -49,6 +49,11 @@
   <div class="container-fluid">
     <div class="row">
 
+      <div class="site-alert" style="display: none;">
+        <div class="message"></div>
+        <div class="spacing mobile-show"></div>
+      </div>
+
       <div class="col-md-4 col-sm-12">
         <div class="sidebar-menu">
 
@@ -478,7 +483,7 @@
                 <div class="contact-form" v-if="state.waxBalanceAvailable >= state.waxWelcomePackageMinimumAvailable">
                   <div class="row">
                     <form id="open-welcome-package" action="/api/WelcomePackage" method="post">
-                      
+
                       <fieldset class="col-md-3">
                         <input type="text" name="memo" id="memo" minlength="1" maxlength="20" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.NewUserMemoRegex" placeholder="Memo" required>
                       </fieldset>
@@ -750,6 +755,14 @@
         my.state = state;
         recents.state = state;
         open.state = state;
+
+        if (state.siteMessage) {
+          $('.site-alert').show();
+          $('.site-alert .message').text(state.siteMessage);
+        } else {
+          $('.site-alert').hide();
+          $('.site-alert .message').text('');
+        }
       });
 
       _connection.on("RecentsChanged", recent => {

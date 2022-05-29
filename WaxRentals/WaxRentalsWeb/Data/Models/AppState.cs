@@ -9,6 +9,7 @@ namespace WaxRentalsWeb.Data.Models
     public class AppState
     {
 
+        public string SiteMessage { get; set; }
         public bool WelcomePackageNftsAvailable { get; set; }
 
         public VolatileDecimal BananoBalance { get; } = new();

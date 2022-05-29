@@ -19,6 +19,7 @@
         public decimal BananoWelcomePackagePrice { get; }
         public decimal WaxWelcomePackageMinimumAvailable { get; }
         public bool WelcomePackageNftsAvailable { get; }
+        public string SiteMessage { get; }
 
         public AppStateModel(AppState state)
         {
@@ -38,6 +39,7 @@
             BananoWelcomePackagePrice         = decimal.Round(state.BananoWelcomePackagePrice        , 0);
             WaxWelcomePackageMinimumAvailable = decimal.Round(state.WaxWelcomePackageMinimumAvailable, 0);
             WelcomePackageNftsAvailable       =               state.WelcomePackageNftsAvailable          ;
+            SiteMessage                       =               state.SiteMessage                          ;
         }
 
     }

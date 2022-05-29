@@ -3,6 +3,20 @@ body {
   overflow-y: scroll;
 }
 
+.message {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: 10px;
+  height: 40px;
+  background: #d8aa46;
+  text-align: center;
+  font-weight: bold;
+  color: #000;
+  z-index: 999;
+}
+
 #error-alert {
   position: fixed;
   bottom: 0px;
@@ -67,6 +81,12 @@ span.address-highlight {
 
   .mobile-hide {
     display: none !important;
+  }
+
+  .message {
+    display: flex;
+    align-items: center;
+    height: 50px;
   }
 
   .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td
