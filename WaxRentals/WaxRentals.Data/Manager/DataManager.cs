@@ -360,6 +360,7 @@ namespace WaxRentals.Data.Manager
         public IEnumerable<Rental> GetRecentRentals()
         {
             return Context.Rentals
+                          .Where(rental => rental.RentalId > 5) // Filter out test transactions.
                           .Where(rental => rental.StatusId == (int)Status.Processed || rental.StatusId == (int)Status.Closed)
                           .OrderByDescending(rental => rental.RentalId)
                           .Take(10)
@@ -369,6 +370,7 @@ namespace WaxRentals.Data.Manager
         public IEnumerable<Purchase> GetRecentPurchases()
         {
             return Context.Purchases
+                          //.Where(purchase => purchase.PurchaseId > 5) // Filter out test transactions.
                           .Where(purchase => purchase.StatusId == (int)Status.Processed && purchase.BananoTransaction != null)
                           .OrderByDescending(purchase => purchase.PurchaseId)
                           .Take(10)
@@ -378,6 +380,7 @@ namespace WaxRentals.Data.Manager
         public IEnumerable<WelcomePackage> GetRecentWelcomePackages()
         {
             return Context.WelcomePackages
+                          .Where(package => package.PackageId > 1) // Filter out test transactions.
                           .Where(package => package.StatusId == (int)Status.Processed)
                           .OrderByDescending(package => package.PackageId)
                           .Take(10)

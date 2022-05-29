@@ -304,7 +304,7 @@
                         <td class="text-center align-middle">{{ rental.net }} WAX</td>
                         <td class="text-center align-middle">{{ localize(rental.expires) }}</td>
                         <td class="text-center align-middle">
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -339,11 +339,11 @@
                         <td class="text-center align-middle">{{ rental.cpu + rental.net }} WAX</td>
                         <td class="text-center align-middle">
                           {{ localize(rental.paid) }}
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
                         </td>
                         <td class="text-center align-middle">
                           {{ localize(rental.expires) }}
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.unstakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.unstakeTransaction" v-if="rental.unstakeTransaction"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -371,7 +371,7 @@
                       <tr v-for="rental in recent.rentals">
                         <td class="text-center">
                           {{ rental.cpu + rental.net }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
                         </td>
                         <td class="text-center">
                           {{ days(rental.days) }}
@@ -400,11 +400,11 @@
                       <tr v-for="purchase in recent.purchases">
                         <td class="text-center">
                           {{ purchase.wax }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction" v-if="purchase.waxTransaction"></i>
                         </td>
                         <td class="text-center">
                           {{ purchase.banano }} BAN
-                          <i class="fa fa-external-link banano-transaction-link" :data-hash="purchase.bananoTransaction"></i>
+                          <i class="fa fa-external-link banano-transaction-link" :data-hash="purchase.bananoTransaction" v-if="purchase.bananoTransaction"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -431,7 +431,7 @@
                         </td>
                         <td class="text-center">
                           {{ package.wax }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.fundTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.fundTransaction" v-if="package.fundTransaction"></i>
                         </td>
                         <td class="text-center">
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="package.nftTransaction" v-if="package.nftTransaction"></i>
