@@ -51,13 +51,14 @@ namespace WaxRentals.Processing.Processors
                     var (success, fund) = await Wax.Today.Send(package.TargetWaxAccount, package.Wax, package.Memo);
                     if (success)
                     {
-                        Tracker.Track("Sent WAX", package.Wax, Coins.Wax, spent: package.Wax * Prices.Wax);
                         string nft = null;
                         if (nfts.TryTake(out Nft starter))
                         {
                             nft = await SendNft(package.Memo, starter);
                         }
-                        await Factory.Process.ProcessWelcomePackageFunding(package.PackageId, fund, nft);
+                        var task = Factory.Process.ProcessWelcomePackageFunding(package.PackageId, fund, nft);
+                        Tracker.Track("Sent WAX", package.Wax, Coins.Wax, spent: package.Wax * Prices.Wax);
+                        await task;
                     }
                 }
             }

@@ -370,7 +370,7 @@ namespace WaxRentals.Data.Manager
         public IEnumerable<Purchase> GetRecentPurchases()
         {
             return Context.Purchases
-                          //.Where(purchase => purchase.PurchaseId > 5) // Filter out test transactions.
+                          //.Where(purchase => purchase.PurchaseId > 14) // Filter out test transactions and early NFT transfers.
                           .Where(purchase => purchase.StatusId == (int)Status.Processed && purchase.BananoTransaction != null)
                           .OrderByDescending(purchase => purchase.PurchaseId)
                           .Take(10)
