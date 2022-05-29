@@ -49,9 +49,9 @@ namespace WaxRentals.Processing.Processors
 
                     foreach (var block in JObject.Parse(history).SelectTokens(Protocol.TransferBlocks))
                     {
-                    // Can't do this in a Select for some reason.
-                    // Error: The expression cannot be evaluated.  A common cause of this error is attempting to pass a lambda into a delegate.
-                    blocks.Add(block.ToObject<TransferBlock>());
+                        // Can't do this in a Select for some reason.
+                        // Error: The expression cannot be evaluated.  A common cause of this error is attempting to pass a lambda into a delegate.
+                        blocks.Add(block.ToObject<TransferBlock>());
                     }
                 });
 
