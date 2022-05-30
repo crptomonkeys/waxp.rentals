@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
+using WaxRentals.Monitoring.Notifications;
 using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Data.Models;
 using static WaxRentals.Waxp.Config.Constants;
@@ -18,12 +19,14 @@ namespace WaxRentalsWeb.Pages
         private readonly IDataCache _cache;
         private readonly IDataFactory _data;
         private readonly IBananoAccountFactory _banano;
+        private readonly ITelegramNotifier _telegram;
 
-        public WelcomePackageModel(IDataCache cache, IDataFactory data, IBananoAccountFactory banano)
+        public WelcomePackageModel(IDataCache cache, IDataFactory data, IBananoAccountFactory banano, ITelegramNotifier telegram)
         {
             _cache = cache;
             _data = data;
             _banano = banano;
+            _telegram = telegram;
         }
 
         public async Task<JsonResult> OnPostAsync(string memo)
@@ -44,6 +47,7 @@ namespace WaxRentalsWeb.Pages
 
                 var id = await _data.Insert.OpenWelcomePackage(Protocol.NewUserAccount, memo, Protocol.NewUserWax, cost);
                 var account = _banano.BuildWelcomeAccount((uint)id);
+                _telegram.Send($"Starting welcome package process for {memo}.");
                 return Succeed(new WelcomePackageDetail
                 {
                     Address = new BananoAddressModel(account.Address),

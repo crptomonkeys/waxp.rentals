@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
+using WaxRentals.Monitoring.Notifications;
 using WaxRentalsWeb.Config;
 using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Data.Models;
@@ -19,12 +20,14 @@ namespace WaxRentalsWeb.Pages
         private readonly IDataCache _cache;
         private readonly IDataFactory _data;
         private readonly IBananoAccountFactory _banano;
+        private readonly ITelegramNotifier _telegram;
 
-        public IndexModel(IDataCache cache, IDataFactory data, IBananoAccountFactory banano)
+        public IndexModel(IDataCache cache, IDataFactory data, IBananoAccountFactory banano, ITelegramNotifier telegram)
         {
             _cache = cache;
             _data = data;
             _banano = banano;
+            _telegram = telegram;
         }
 
         public void OnGet()
@@ -45,6 +48,7 @@ namespace WaxRentalsWeb.Pages
                 var cost = (input.CPU + input.NET) * input.Days * _cache.AppState.WaxRentPriceInBanano;
                 var id = await _data.Insert.OpenRental(input.Account, (int)input.Days, input.CPU, input.NET, decimal.Round(cost, 4));
                 var account = _banano.BuildAccount((uint)id);
+                _telegram.Send($"Starting rental process for {input.Account}.");
                 return Succeed(account.Address);
             }
             catch (Exception ex)

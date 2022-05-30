@@ -30,6 +30,7 @@ services:
       - welcome.banano.seed
       - wax.key
       - wax.db
+      - telegram.waxp.rentals
     environment:
       - ASPNETCORE_URLS=http://+:2022
     volumes:
@@ -58,6 +59,7 @@ services:
       - welcome.banano.seed
       - wax.key
       - wax.db
+      - telegram.waxp.rentals
     volumes:
       - '/run/rentwax/output:/run/output'
     networks:
@@ -100,6 +102,8 @@ secrets:
     external: true
   wax.db:
     external: true
+  telegram.waxp.rentals:
+    external: true
 ```
 
 # Secrets Files
@@ -135,6 +139,15 @@ You will need a handful of Docker Secrets to provide the private keys and connec
 ```
 {
   "ConnectionString": "your connection string to the WaxRentals db here"
+}
+```
+
+## telegram.waxp.rentals
+
+```
+{
+  "token": "bot token here",
+  "targetChat": target chat id here
 }
 ```
 

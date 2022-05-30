@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
+using WaxRentals.Monitoring.Notifications;
 using WaxRentals.Monitoring.Prices;
 using WaxRentals.Processing.Tracking;
 using WaxRentals.Waxp;
@@ -23,13 +24,16 @@ namespace WaxRentals.Processing.Processors
         private IWaxAccounts Wax { get; }
         private IPriceMonitor Prices { get; }
         private ITracker Tracker { get; }
-        
-        public WelcomePackageFundingProcessor(IDataFactory factory, IWaxAccounts wax, IPriceMonitor prices, ITracker tracker)
+        private ITelegramNotifier Telegram { get; }
+
+
+        public WelcomePackageFundingProcessor(IDataFactory factory, IWaxAccounts wax, IPriceMonitor prices, ITracker tracker, ITelegramNotifier telegram)
             : base(factory)
         {
             Wax = wax;
             Prices = prices;
             Tracker = tracker;
+            Telegram = telegram;
         }
 
         protected override Func<Task<IEnumerable<WelcomePackage>>> Get => Factory.Process.PullPaidWelcomePackagesToFund;
@@ -58,6 +62,7 @@ namespace WaxRentals.Processing.Processors
                         }
                         var task = Factory.Process.ProcessWelcomePackageFunding(package.PackageId, fund, nft);
                         Tracker.Track("Sent WAX", package.Wax, Coins.Wax, spent: package.Wax * Prices.Wax);
+                        Telegram.Send($"Received welcome package payment for {package.Memo}.");
                         await task;
                     }
                 }

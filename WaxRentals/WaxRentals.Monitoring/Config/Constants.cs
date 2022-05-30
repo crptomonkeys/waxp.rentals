@@ -13,5 +13,10 @@ namespace WaxRentals.Monitoring.Config
             public const string Wax = "wax";
         }
 
+        public static class Secrets
+        {
+            public const string TelegramInfo = "/run/secrets/telegram.waxp.rentals";
+        }
+
     }
 }
