@@ -97,5 +97,9 @@ span.address-highlight {
   .toggle-content {
     padding: 30px 20px;
   }
+
+  .g-item span {
+    font-size: 42px;
+  }
 }
 

@@ -169,7 +169,7 @@ This allows access for communications within the project -- specifically, connec
 
 # tracking.csv (optional)
 
-This file lives in /run/output and tracks transactions for tax purposes.  The headers follow:
+This file lives in `/run/output` and tracks transactions for tax purposes.  The headers follow:
 
 ```
 Date,Event,Coins,Earned,Spent
@@ -177,7 +177,7 @@ Date,Event,Coins,Earned,Spent
 
 # site-message
 
-This file lives in /run/files and provides the ability to set a site message to be displayed at the top of the site for announcements.
+This file lives in `/run/files` and provides the ability to set a site message to be displayed at the top of the site for announcements.
 
 # Constants files
 
