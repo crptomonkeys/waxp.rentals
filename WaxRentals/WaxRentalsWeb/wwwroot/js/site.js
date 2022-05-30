@@ -123,6 +123,18 @@ const load = {
     this._load('.menu .show-1');
   },
 
+  get: function () {
+    this._load('.menu .show-2');
+  },
+
+  my: function () {
+    this._load('.menu .show-3');
+  },
+
+  recents: function () {
+    this._load('.menu .show-4');
+  },
+
   open: function () {
     this._load('.menu .show-5');
   },
