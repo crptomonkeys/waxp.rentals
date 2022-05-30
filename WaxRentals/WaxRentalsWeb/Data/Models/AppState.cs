@@ -10,6 +10,7 @@ namespace WaxRentalsWeb.Data.Models
     {
 
         public string SiteMessage { get; set; }
+        public string WaxAccountToday { get; set; }
         public bool WelcomePackageNftsAvailable { get; set; }
 
         public VolatileDecimal BananoBalance { get; } = new();

@@ -18,6 +18,13 @@
     }
   });
 
+  $('body').on('click', '.wax-account-link', function open() {
+    const account = $(this).data('account');
+    if (account) {
+      window.open('https://wax.bloks.io/account/' + account);
+    }
+  });
+
   $('body').on('click', '.banano-transaction-link', function open() {
     const hash = $(this).data('hash');
     if (hash) {

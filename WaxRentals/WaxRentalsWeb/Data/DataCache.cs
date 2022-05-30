@@ -65,6 +65,7 @@ namespace WaxRentalsWeb.Data
                 AppState.WaxBalanceAvailable.Value = Math.Round(balances.Available, 4);
                 AppState.WaxBalanceStaked.Value = Math.Round(balances.Staked, 4);
                 AppState.WaxBalanceUnstaking.Value = Math.Round(balances.Unstaking, 4);
+                AppState.WaxAccountToday = balances.Today;
                 RaiseAppStateEvent();
             };
 
