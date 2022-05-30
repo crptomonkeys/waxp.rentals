@@ -75,7 +75,7 @@
               <li><a class="show-4" href="/direct/recents">Recent Transactions</a></li>
               <li><a class="show-5" href="/direct/open">New Wallet</a></li>
             </ul> <!-- /.menu -->
-            <a href="#" class="toggle-menu"><i class="fa fa-bars"></i></a>
+            <a href="/" class="toggle-menu"><i class="fa fa-bars"></i></a>
           </div> <!-- /.menu-wrapper -->
           <!--Arrow Navigation-->
           <a id="prevslide" class="load-item"><i class="fa fa-angle-left"></i></a>
@@ -156,7 +156,7 @@
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
                   <img src="images/coins/wax.png" alt="WAX">
-                  <a class="overlay buy-wax" href="#">
+                  <a class="overlay buy-wax" href="/direct/sell">
                     <span>WAX</span>
                   </a>
                 </div> <!-- /.g-item -->
@@ -201,7 +201,7 @@
             <div class="row">
               <div class="col-lg-6 mobile-show" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rental Details <a class="pull-right" href="#" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
+                  <h3>Pending Rental Details <a class="pull-right" href="/direct/my" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
                   <p v-if="detail.loading">
                     <img class="text-center" src="/images/progress.gif" />
                   </p>
@@ -236,10 +236,10 @@
                     <tbody>
                       <tr v-for="rental in pending">
                         <td class="text-center align-middle">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
-                          <a href="#" @@click.prevent="add(rental)" v-else>
+                          <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
@@ -262,7 +262,7 @@
 
               <div class="col-lg-6 mobile-hide" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rental Details <a class="pull-right" href="#" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
+                  <h3>Pending Rental Details <a class="pull-right" href="/direct/my" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
                   <p v-if="detail.loading">
                     <img class="text-center" src="/images/progress.gif" />
                   </p>
@@ -297,10 +297,10 @@
                     <tbody>
                       <tr v-for="rental in active">
                         <td class="text-center align-middle">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
-                          <a href="#" @@click.prevent="add(rental)" v-else>
+                          <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
@@ -333,10 +333,10 @@
                     <tbody>
                       <tr v-for="rental in expired">
                         <td class="text-center align-middle">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
-                          <a href="#" @@click.prevent="add(rental)" v-else>
+                          <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
@@ -454,7 +454,7 @@
 
               <div class="col-md-12" v-if="package">
                 <div class="toggle-content text-center">
-                  <h3>New Wallet <a class="pull-right" href="#" @@click.prevent="package = null"><i class="fa fa-times"></i></a></h3>
+                  <h3>New Wallet <a class="pull-right" href="/direct/open" @@click.prevent="package = null"><i class="fa fa-times"></i></a></h3>
                   <p>
                     <a :href="package.link">
                       <img :src="'/qr/banano/welcome/' + package.address.full" width="150" height="150" />
