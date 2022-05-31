@@ -36,7 +36,8 @@ namespace WaxRentals.Waxp.Config
                 public const string Account = "newuser.wax";
                 public const decimal OpenWax = 5;
                 public const decimal ChargeWax = 7;
-                public const string MemoRegex = @"^[A-Za-z1-5\.]{1,14}DOTwam$";
+                public const string MemoRegex = @"^([a-z1-5.]|DOT){1,8}(\.wam|DOTwam)$";
+                public const string MemoRefundOnExists = ":refund_on_exists";
                 public const int FreeRentalDays = 1;
                 public const int FreeCpu = 10;
                 public const int FreeNet = 1;

@@ -9,6 +9,7 @@ using WaxRentals.Monitoring.Prices;
 using WaxRentals.Processing.Tracking;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
+using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -46,7 +47,10 @@ namespace WaxRentals.Processing.Processors
                 var balance = (await Wax.Today.GetBalances()).Available;
                 if (balance > package.Wax)
                 {
-                    var (success, fund) = await Wax.Today.Send(package.TargetWaxAccount, package.Wax, package.Memo);
+                    var (success, fund) = await Wax.Today.Send(
+                        package.TargetWaxAccount,
+                        package.Wax,
+                        $"{package.Memo}{Protocol.NewUser.MemoRefundOnExists}");
                     if (success)
                     {
                         var task = Factory.Process.ProcessWelcomePackageFunding(package.PackageId, fund);
