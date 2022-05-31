@@ -25,7 +25,8 @@ namespace WaxRentals.Waxp.Monitoring
             balances = GetBalances().GetAwaiter().GetResult();
             if (_balances.Available != balances.Available ||
                 _balances.Staked != balances.Staked ||
-                _balances.Unstaking != balances.Unstaking)
+                _balances.Unstaking != balances.Unstaking ||
+                !string.Equals(_balances.Today, balances.Today, StringComparison.OrdinalIgnoreCase))
             {
                 _balances = balances;
                 return true;
@@ -47,6 +48,7 @@ namespace WaxRentals.Waxp.Monitoring
             {
                 balances.Staked += (await kvp.Value).Staked;
             }
+            balances.Today = _wax.Today.Account;
             return balances;
         }
 

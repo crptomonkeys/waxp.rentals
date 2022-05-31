@@ -29,6 +29,27 @@ namespace WaxRentalsWeb.Pages
             );
         }
 
+        public IActionResult OnGetGet()
+        {
+            return Process(
+                new PageLoadModel { Name = "get" }
+            );
+        }
+
+        public IActionResult OnGetMy()
+        {
+            return Process(
+                new PageLoadModel { Name = "my" }
+            );
+        }
+
+        public IActionResult OnGetRecents()
+        {
+            return Process(
+                new PageLoadModel { Name = "recents" }
+            );
+        }
+
         public IActionResult OnGetOpen()
         {
             return Process(

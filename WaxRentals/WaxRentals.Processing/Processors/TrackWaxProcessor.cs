@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
+using WaxRentals.Monitoring.Notifications;
 using WaxRentals.Monitoring.Prices;
 using WaxRentals.Monitoring.Utilities;
 using WaxRentals.Processing.Tracking;
@@ -23,15 +24,17 @@ namespace WaxRentals.Processing.Processors
         private IClientFactory Client { get; }
         private IPriceMonitor Prices { get; }
         private ITracker Tracker { get; }
+        private ITelegramNotifier Telegram { get; }
 
         private decimal PayRate { get { return Safe.Divide(Prices.Wax, Prices.Banano); } }
 
-        public TrackWaxProcessor(IDataFactory factory, IClientFactory client, IPriceMonitor prices, ITracker tracker)
+        public TrackWaxProcessor(IDataFactory factory, IClientFactory client, IPriceMonitor prices, ITracker tracker, ITelegramNotifier telegram)
             : base(factory)
         {
             Client = client;
             Prices = prices;
             Tracker = tracker;
+            Telegram = telegram;
         }
 
         protected override Func<Task<IEnumerable<Transfer>>> Get => PullHistory;
@@ -49,9 +52,9 @@ namespace WaxRentals.Processing.Processors
 
                     foreach (var block in JObject.Parse(history).SelectTokens(Protocol.TransferBlocks))
                     {
-                    // Can't do this in a Select for some reason.
-                    // Error: The expression cannot be evaluated.  A common cause of this error is attempting to pass a lambda into a delegate.
-                    blocks.Add(block.ToObject<TransferBlock>());
+                        // Can't do this in a Select for some reason.
+                        // Error: The expression cannot be evaluated.  A common cause of this error is attempting to pass a lambda into a delegate.
+                        blocks.Add(block.ToObject<TransferBlock>());
                     }
                 });
 
@@ -75,6 +78,7 @@ namespace WaxRentals.Processing.Processors
                 if (await Factory.Insert.OpenPurchase(transfer.Amount, transfer.Hash, address, banano, skip ? Status.Processed : Status.New))
                 {
                     Tracker.Track("Received WAX", transfer.Amount, Coins.Wax, earned: transfer.Amount * Prices.Wax);
+                    Telegram.Send($"Bought {transfer.Amount} {Coins.Wax}.");
                 }
             }
         }

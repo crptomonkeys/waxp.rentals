@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 -- Solution Items", "1 --
 		..\.gitignore = ..\.gitignore
 		..\Dockerfile = ..\Dockerfile
 		..\Notes.txt = ..\Notes.txt
+		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VanityAddressGenerator", "VanityAddressGenerator\VanityAddressGenerator.csproj", "{2A0C7705-C25C-49E0-9A6B-A337F5ADB8E8}"

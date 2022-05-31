@@ -49,6 +49,11 @@
   <div class="container-fluid">
     <div class="row">
 
+      <div class="site-alert" style="display: none;">
+        <div class="message"></div>
+        <div class="spacing mobile-show"></div>
+      </div>
+
       <div class="col-md-4 col-sm-12">
         <div class="sidebar-menu">
 
@@ -63,14 +68,14 @@
 
           <div class="menu-wrapper">
             <ul class="menu">
-              <li><a class="show-0" href="#">Rent WAX</a></li>
-              <li><a class="show-1" href="#">Sell WAX</a></li>
-              <li><a class="show-2" href="#">Get Banano</a></li>
-              <li><a class="show-3" href="#">My Rentals</a></li>
-              <li><a class="show-4" href="#">Recent Transactions</a></li>
-              <li><a class="show-5" href="#">New Wallet</a></li>
+              <li><a class="show-0" href="/">Rent WAX</a></li>
+              <li><a class="show-1" href="/direct/sell">Sell WAX</a></li>
+              <li><a class="show-2" href="/direct/get">Get Banano</a></li>
+              <li><a class="show-3" href="/direct/my">My Rentals</a></li>
+              <li><a class="show-4" href="/direct/recents">Recent Transactions</a></li>
+              <li><a class="show-5" href="/direct/open">New Wallet</a></li>
             </ul> <!-- /.menu -->
-            <a href="#" class="toggle-menu"><i class="fa fa-bars"></i></a>
+            <a href="/" class="toggle-menu"><i class="fa fa-bars"></i></a>
           </div> <!-- /.menu-wrapper -->
           <!--Arrow Navigation-->
           <a id="prevslide" class="load-item"><i class="fa fa-angle-left"></i></a>
@@ -91,7 +96,7 @@
                   <h3>Rent WAX</h3>
                   <p>
                     <strong>Stake CPU and NET to your WAX account for {{ state.waxRentPriceInBanano }} BAN per WAX per day.</strong>
-                    <br><br>Currently staked: <strong>{{ state.waxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.waxBalanceAvailable }}</strong> WAX
+                    <br><br>Currently staked: <strong>{{ state.waxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.waxBalanceAvailable }}</strong> WAX <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i>
                     <span v-if="state.waxBalanceUnstaking > 0"><br>Available tomorrow: <strong>+{{ state.waxBalanceUnstaking }}</strong> WAX</span>
                   </p>
                 </div>
@@ -137,7 +142,7 @@
                     <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
                     <br><br>WAX price: <strong>${{ state.waxPrice }}</strong> | BAN price: <strong>${{ state.bananoPrice }}</strong>
                     <br>Currently paying <strong>{{ state.waxBuyPriceInBanano }} BAN</strong> per WAX
-                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong>
+                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@WaxRentals.Banano.Config.Constants.Protocol.Address"></i>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -151,7 +156,7 @@
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
                   <img src="images/coins/wax.png" alt="WAX">
-                  <a class="overlay buy-wax" href="#">
+                  <a class="overlay buy-wax" href="/direct/sell">
                     <span>WAX</span>
                   </a>
                 </div> <!-- /.g-item -->
@@ -196,7 +201,7 @@
             <div class="row">
               <div class="col-lg-6 mobile-show" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rental Details <a class="pull-right" href="#" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
+                  <h3>Pending Rental Details <a class="pull-right" href="/direct/my" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
                   <p v-if="detail.loading">
                     <img class="text-center" src="/images/progress.gif" />
                   </p>
@@ -231,10 +236,10 @@
                     <tbody>
                       <tr v-for="rental in pending">
                         <td class="text-center align-middle">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
-                          <a href="#" @@click.prevent="add(rental)" v-else>
+                          <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
@@ -257,7 +262,7 @@
 
               <div class="col-lg-6 mobile-hide" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rental Details <a class="pull-right" href="#" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
+                  <h3>Pending Rental Details <a class="pull-right" href="/direct/my" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
                   <p v-if="detail.loading">
                     <img class="text-center" src="/images/progress.gif" />
                   </p>
@@ -292,10 +297,10 @@
                     <tbody>
                       <tr v-for="rental in active">
                         <td class="text-center align-middle">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
-                          <a href="#" @@click.prevent="add(rental)" v-else>
+                          <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
@@ -304,7 +309,7 @@
                         <td class="text-center align-middle">{{ rental.net }} WAX</td>
                         <td class="text-center align-middle">{{ localize(rental.expires) }}</td>
                         <td class="text-center align-middle">
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -328,10 +333,10 @@
                     <tbody>
                       <tr v-for="rental in expired">
                         <td class="text-center align-middle">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
-                          <a href="#" @@click.prevent="add(rental)" v-else>
+                          <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
@@ -339,11 +344,11 @@
                         <td class="text-center align-middle">{{ rental.cpu + rental.net }} WAX</td>
                         <td class="text-center align-middle">
                           {{ localize(rental.paid) }}
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
                         </td>
                         <td class="text-center align-middle">
                           {{ localize(rental.expires) }}
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.unstakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.unstakeTransaction" v-if="rental.unstakeTransaction"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -371,14 +376,19 @@
                       <tr v-for="rental in recent.rentals">
                         <td class="text-center">
                           {{ rental.cpu + rental.net }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
                         </td>
                         <td class="text-center">
                           {{ days(rental.days) }}
                         </td>
                         <td class="text-center">
-                          {{ rental.banano }} BAN
-                          <i class="fa fa-external-link banano-address-link" :data-address="rental.bananoAddress"></i>
+                          <span v-if="rental.banano">
+                            {{ rental.banano }} BAN
+                            <i class="fa fa-external-link banano-address-link" :data-address="rental.bananoAddress"></i>
+                          </span>
+                          <span v-else>
+                            FREE
+                          </span>
                         </td>
                       </tr>
                     </tbody>
@@ -400,11 +410,11 @@
                       <tr v-for="purchase in recent.purchases">
                         <td class="text-center">
                           {{ purchase.wax }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction" v-if="purchase.waxTransaction"></i>
                         </td>
                         <td class="text-center">
                           {{ purchase.banano }} BAN
-                          <i class="fa fa-external-link banano-transaction-link" :data-hash="purchase.bananoTransaction"></i>
+                          <i class="fa fa-external-link banano-transaction-link" :data-hash="purchase.bananoTransaction" v-if="purchase.bananoTransaction"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -421,6 +431,7 @@
                         <th scope="col" class="text-center">Received</th>
                         <th scope="col" class="text-center">Sent</th>
                         <th scope="col" class="text-center">NFT</th>
+                        <th scope="col" class="text-center">Rental</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -431,10 +442,13 @@
                         </td>
                         <td class="text-center">
                           {{ package.wax }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.fundTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.fundTransaction" v-if="package.fundTransaction"></i>
                         </td>
                         <td class="text-center">
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="package.nftTransaction" v-if="package.nftTransaction"></i>
+                        </td>
+                        <td class="text-center">
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.stakeTransaction" v-if="package.stakeTransaction"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -449,7 +463,7 @@
 
               <div class="col-md-12" v-if="package">
                 <div class="toggle-content text-center">
-                  <h3>New Wallet <a class="pull-right" href="#" @@click.prevent="package = null"><i class="fa fa-times"></i></a></h3>
+                  <h3>New Wallet <a class="pull-right" href="/direct/open" @@click.prevent="package = null"><i class="fa fa-times"></i></a></h3>
                   <p>
                     <a :href="package.link">
                       <img :src="'/qr/banano/welcome/' + package.address.full" width="150" height="150" />
@@ -467,9 +481,11 @@
                   <h3>New Wallet</h3>
                   <p>
                     Open a new <a rel="nofollow" href="https://all-access.wax.io/" target="_blank"><strong>WAX Cloud Wallet</strong></a>.
-                    <br>We will send 5 WAX to <strong>newuser.wax</strong> for you, and we will send you a starter NFT if we have one available.
-                    <br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
-                    <br><br>Welcome package price: <strong>{{ state.bananoWelcomePackagePrice }} BAN</strong> | NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link external-link" data-url="https://wax.bloks.io/account/rentwaxp4ban#nfts"></i></span><span v-else><strong>Unavailable</strong></span>
+                    <br>We will send 5 WAX to <strong>newuser.wax</strong> for you.
+                    <br>We will also send you a starter NFT, <strong>and</strong> we will provide a free @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeCpu CPU / @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeNet NET rental to get you started.*
+                    <br><br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
+                    <br><br>Welcome package price: <strong>{{ state.bananoWelcomePackagePrice }} BAN</strong> | NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@WaxRentals.Waxp.Config.Constants.Protocol.Account#nfts"></i></span><span v-else><strong>Delayed</strong></span>
+                    <br><br><small>* NFT and rental will arrive as long as supplies are available.  If you don't receive your NFT or rental right away, you will receive them once supplies replenish.</small>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -478,9 +494,9 @@
                 <div class="contact-form" v-if="state.waxBalanceAvailable >= state.waxWelcomePackageMinimumAvailable">
                   <div class="row">
                     <form id="open-welcome-package" action="/api/WelcomePackage" method="post">
-                      
+
                       <fieldset class="col-md-3">
-                        <input type="text" name="memo" id="memo" minlength="1" maxlength="20" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.NewUserMemoRegex" placeholder="Memo" required>
+                        <input type="text" name="memo" id="memo" minlength="1" maxlength="30" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.NewUser.MemoRegex" placeholder="Memo" required>
                       </fieldset>
 
                       <fieldset class="col-md-12" v-if="loading">
@@ -750,6 +766,14 @@
         my.state = state;
         recents.state = state;
         open.state = state;
+
+        if (state.siteMessage) {
+          $('.site-alert').show();
+          $('.site-alert .message').text(state.siteMessage);
+        } else {
+          $('.site-alert').hide();
+          $('.site-alert .message').text('');
+        }
       });
 
       _connection.on("RecentsChanged", recent => {

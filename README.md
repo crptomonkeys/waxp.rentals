@@ -7,6 +7,7 @@ To stand up your own version of this site, you'll need a few things:
 - [.env for Database](README.md#env-for-database)
 - [Docker Networks](README.md#docker-networks)
 - [tracking.csv (optional)](README.md#trackingcsv-optional)
+- [site-message](README.md#site-message)
 - [Constants files](README.md#constants-files)
 
 # Docker-Compose File
@@ -29,8 +30,11 @@ services:
       - welcome.banano.seed
       - wax.key
       - wax.db
+      - telegram.waxp.rentals
     environment:
       - ASPNETCORE_URLS=http://+:2022
+    volumes:
+      - '/run/rentwax/files:/run/files'
     networks:
       - traefik
       - banano
@@ -55,6 +59,7 @@ services:
       - welcome.banano.seed
       - wax.key
       - wax.db
+      - telegram.waxp.rentals
     volumes:
       - '/run/rentwax/output:/run/output'
     networks:
@@ -97,6 +102,8 @@ secrets:
     external: true
   wax.db:
     external: true
+  telegram.waxp.rentals:
+    external: true
 ```
 
 # Secrets Files
@@ -135,6 +142,15 @@ You will need a handful of Docker Secrets to provide the private keys and connec
 }
 ```
 
+## telegram.waxp.rentals
+
+```
+{
+  "token": "bot token here",
+  "targetChat": target chat id here
+}
+```
+
 # .env for Database
 
 The `SA_PASSWORD` should only be necessary on initial startup -- after that, the database has been set up with the SA password.  `DATABASE_NAME` continues to be necessary for dacpac processing.
@@ -166,11 +182,15 @@ This allows access for communications within the project -- specifically, connec
 
 # tracking.csv (optional)
 
-This file tracks transactions for tax purposes.  The headers follow:
+This file lives in `/run/output` and tracks transactions for tax purposes.  The headers follow:
 
 ```
 Date,Event,Coins,Earned,Spent
 ```
+
+# site-message
+
+This file lives in `/run/files` and provides the ability to set a site message to be displayed at the top of the site for announcements.
 
 # Constants files
 

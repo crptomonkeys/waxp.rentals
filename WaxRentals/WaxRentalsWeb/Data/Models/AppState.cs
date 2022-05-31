@@ -9,6 +9,8 @@ namespace WaxRentalsWeb.Data.Models
     public class AppState
     {
 
+        public string SiteMessage { get; set; }
+        public string WaxAccountToday { get; set; }
         public bool WelcomePackageNftsAvailable { get; set; }
 
         public VolatileDecimal BananoBalance { get; } = new();
@@ -29,8 +31,8 @@ namespace WaxRentalsWeb.Data.Models
         public decimal WaxMinimumBuy => WaxConstants.MinimumTransaction;
         public decimal WaxMaximumBuy => Safe.Divide(BananoBalance.Value, WaxBuyPriceInBanano * 2);
 
-        public decimal BananoWelcomePackagePrice => Math.Ceiling(WaxConstants.NewUserCharge * Safe.Divide(WaxPrice.Value, BananoPrice.Value));
-        public decimal WaxWelcomePackageMinimumAvailable => WaxConstants.NewUserWax;
+        public decimal BananoWelcomePackagePrice => Math.Ceiling(WaxConstants.NewUser.ChargeWax * Safe.Divide(WaxPrice.Value, BananoPrice.Value));
+        public decimal WaxWelcomePackageMinimumAvailable => WaxConstants.NewUser.OpenWax;
 
     }
 }

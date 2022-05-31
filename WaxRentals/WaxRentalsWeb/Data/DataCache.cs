@@ -2,10 +2,12 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using WaxRentals.Banano.Monitoring;
+using WaxRentals.Monitoring;
 using WaxRentals.Monitoring.Prices;
 using WaxRentals.Monitoring.Recents;
 using WaxRentals.Waxp.Monitoring;
 using WaxRentalsWeb.Data.Models;
+using WaxRentalsWeb.Files;
 
 namespace WaxRentalsWeb.Data
 {
@@ -19,18 +21,26 @@ namespace WaxRentalsWeb.Data
         private readonly BalanceMonitor _banano;
         private readonly BalancesMonitor _wax;
         private readonly NftsMonitor _nfts;
+        private readonly FileMonitor _siteMessage;
 
         public event EventHandler RecentsChanged;
         public Recents Recents { get; } = new();
 
         private readonly IRecentMonitor _recent;
 
-        public DataCache(IPriceMonitor prices, BalanceMonitor banano, BalancesMonitor wax, NftsMonitor nfts, IRecentMonitor recent)
+        public DataCache(
+            IPriceMonitor prices,
+            BalanceMonitor banano,
+            BalancesMonitor wax,
+            NftsMonitor nfts,
+            SiteMessageMonitor siteMessage,
+            IRecentMonitor recent)
         {
             _prices = prices;
             _banano = banano;
             _wax = wax;
             _nfts = nfts;
+            _siteMessage = siteMessage;
 
             _recent = recent;
         }
@@ -55,6 +65,7 @@ namespace WaxRentalsWeb.Data
                 AppState.WaxBalanceAvailable.Value = Math.Round(balances.Available, 4);
                 AppState.WaxBalanceStaked.Value = Math.Round(balances.Staked, 4);
                 AppState.WaxBalanceUnstaking.Value = Math.Round(balances.Unstaking, 4);
+                AppState.WaxAccountToday = balances.Today;
                 RaiseAppStateEvent();
             };
 
@@ -68,10 +79,17 @@ namespace WaxRentalsWeb.Data
                 }
             };
 
+            _siteMessage.Updated += (_, message) =>
+            {
+                AppState.SiteMessage = message;
+                RaiseAppStateEvent();
+            };
+
             _prices.Initialize();
             _banano.Initialize();
             _wax.Initialize();
             _nfts.Initialize();
+            _siteMessage.Initialize();
 
             _recent.Updated += (_, _) =>
             {
@@ -80,6 +98,7 @@ namespace WaxRentalsWeb.Data
                 Recents.WelcomePackages = _recent.WelcomePackages;
                 RaiseRecentsEvent();
             };
+
             _recent.Initialize();
         }
 

@@ -15,7 +15,7 @@ namespace WaxRentals.Waxp.Config
             public const string HistoryEndpoints = "$..history_traditional_https[*][1]";
             public static readonly string[] EndpointsBlacklist = new[] { "https://api-wax.eosarabia.net" }; // Geo-blocked.
 
-            public const string TransferBlocks = "$.simple_actions[?(@.action=='transfer' && @.data.to=='" + Account + "')]";
+            public const string TransferBlocks = "$.simple_actions[?(@.action=='transfer' && @.data.to=='" + Account + "' && @.data.amount>'0')]";
 
             public const decimal MinimumTransaction = Calculations.BananoPerWaxPerDay;
 
@@ -29,12 +29,19 @@ namespace WaxRentals.Waxp.Config
                 "$.delegated_to[?(@.account_name!='{0}')].net_weight"
             };
 
-            public const string NewUserAccount = "newuser.wax";
-            public const decimal NewUserWax = 5;
-            public const decimal NewUserCharge = 7;
-            public const string NewUserMemoRegex = @"^[A-Za-z1-5\.]{1,14}DOTwam$";
-
             public const string Assets = "$.data[?(@.is_transferable==true)]";
+
+            public static class NewUser
+            {
+                public const string Account = "newuser.wax";
+                public const decimal OpenWax = 5;
+                public const decimal ChargeWax = 7;
+                public const string MemoRegex = @"^([a-z1-5.]|DOT){1,8}(\.wam|DOTwam)$";
+                public const string MemoRefundOnExists = ":refund_on_exists";
+                public const int FreeRentalDays = 1;
+                public const int FreeCpu = 10;
+                public const int FreeNet = 1;
+            }
         }
 
         public static class Locations

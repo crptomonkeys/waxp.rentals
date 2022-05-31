@@ -20,7 +20,7 @@ namespace WaxRentals.Waxp.Monitoring
             result = new Endpoints();
             try
             {
-                var json = JObject.Parse(new QuickTimeoutWebClient().DownloadString(Locations.Endpoints, TimeSpan.FromSeconds(5)));
+                var json = JObject.Parse(new QuickTimeoutWebClient().DownloadString(Locations.Endpoints, QuickTimeout));
                 result.Api = json.SelectTokens(Protocol.TransactionEndpoints)
                                .Select(token => token.Value<string>())
                                .Distinct(Comparer)

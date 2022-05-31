@@ -7,6 +7,7 @@ using Eos.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Manager;
+using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Waxp.Transact
@@ -72,7 +73,7 @@ namespace WaxRentals.Waxp.Transact
         {
             try
             {
-                var json = JObject.Parse(await new QuickTimeoutWebClient().DownloadStringTaskAsync(url, TimeSpan.FromSeconds(5)));
+                var json = JObject.Parse(await new QuickTimeoutWebClient().DownloadStringTaskAsync(url, QuickTimeout));
                 double result = 0;
                 foreach (var selector in selectors)
                 {

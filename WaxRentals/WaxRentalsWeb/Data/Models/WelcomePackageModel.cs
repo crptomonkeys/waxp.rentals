@@ -11,14 +11,16 @@ namespace WaxRentalsWeb.Data.Models
         public decimal Wax { get; }
         public string FundTransaction { get; }
         public string NftTransaction { get; }
+        public string StakeTransaction { get; }
 
         public WelcomePackageModel(WelcomePackage package, IBananoAccountFactory banano)
         {
-            Banano          = package.Banano;
-            BananoAddress   = banano.BuildWelcomeAccount((uint)package.PackageId).Address;
-            Wax             = package.Wax;
-            FundTransaction = package.FundTransaction;
-            NftTransaction  = package.NftTransaction;
+            Banano           = package.Banano;
+            BananoAddress    = banano.BuildWelcomeAccount((uint)package.PackageId).Address;
+            Wax              = package.Wax;
+            FundTransaction  = package.FundTransaction;
+            NftTransaction   = package.NftTransaction;
+            StakeTransaction = package.Rental?.StakeWaxTransaction;
         }
 
     }

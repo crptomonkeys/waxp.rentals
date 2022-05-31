@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
+using WaxRentals.Monitoring.Notifications;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -14,11 +15,13 @@ namespace WaxRentals.Processing.Processors
         protected override bool ProcessMultiplePerTick => false;
 
         private IBananoAccountFactory Banano { get; }
+        private ITelegramNotifier Telegram { get; }
 
-        public RentalOpenProcessor(IDataFactory factory, IBananoAccountFactory banano)
+        public RentalOpenProcessor(IDataFactory factory, IBananoAccountFactory banano, ITelegramNotifier telegram)
             : base(factory)
         {
             Banano = banano;
+            Telegram = telegram;
         }
 
         protected override Func<Task<IEnumerable<Rental>>> Get => Factory.Process.PullNewRentals;
@@ -37,6 +40,7 @@ namespace WaxRentals.Processing.Processors
                 if (balance >= rental.Banano)
                 {
                     await Factory.Process.ProcessRentalPayment(rental.RentalId);
+                    Telegram.Send($"Received rental payment for {rental.TargetWaxAccount}.");
                 }
             }
             catch (Exception ex)
