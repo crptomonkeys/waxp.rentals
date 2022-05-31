@@ -21,16 +21,13 @@ namespace WaxRentals.Processing.Processors
         private IWaxAccounts Wax { get; }
         private IPriceMonitor Prices { get; }
         private ITracker Tracker { get; }
-        private ITelegramNotifier Telegram { get; }
-
-
-        public WelcomePackageFundingProcessor(IDataFactory factory, IWaxAccounts wax, IPriceMonitor prices, ITracker tracker, ITelegramNotifier telegram)
+        
+        public WelcomePackageFundingProcessor(IDataFactory factory, IWaxAccounts wax, IPriceMonitor prices, ITracker tracker)
             : base(factory)
         {
             Wax = wax;
             Prices = prices;
             Tracker = tracker;
-            Telegram = telegram;
         }
 
         protected override Func<Task<IEnumerable<WelcomePackage>>> Get => Factory.Process.PullPaidWelcomePackagesToFund;
@@ -55,7 +52,6 @@ namespace WaxRentals.Processing.Processors
                     {
                         var task = Factory.Process.ProcessWelcomePackageFunding(package.PackageId, fund);
                         Tracker.Track("Sent WAX", package.Wax, Coins.Wax, spent: package.Wax * Prices.Wax);
-                        Telegram.Send($"Received welcome package payment for {package.Memo}.");
                         await task;
                     }
                 }
