@@ -31,8 +31,8 @@ namespace WaxRentalsWeb.Data.Models
         public decimal WaxMinimumBuy => WaxConstants.MinimumTransaction;
         public decimal WaxMaximumBuy => Safe.Divide(BananoBalance.Value, WaxBuyPriceInBanano * 2);
 
-        public decimal BananoWelcomePackagePrice => Math.Ceiling(WaxConstants.NewUserCharge * Safe.Divide(WaxPrice.Value, BananoPrice.Value));
-        public decimal WaxWelcomePackageMinimumAvailable => WaxConstants.NewUserWax;
+        public decimal BananoWelcomePackagePrice => Math.Ceiling(WaxConstants.NewUser.ChargeWax * Safe.Divide(WaxPrice.Value, BananoPrice.Value));
+        public decimal WaxWelcomePackageMinimumAvailable => WaxConstants.NewUser.OpenWax;
 
     }
 }

@@ -34,7 +34,7 @@ namespace WaxRentalsWeb.Pages
             try
             {
                 // Filter invalid memos.
-                if (string.IsNullOrWhiteSpace(memo) || !Regex.IsMatch(memo, Protocol.NewUserMemoRegex))
+                if (string.IsNullOrWhiteSpace(memo) || !Regex.IsMatch(memo, Protocol.NewUser.MemoRegex))
                 {
                     return Fail("Please check that the memo provided is correct.");
                 }
@@ -45,14 +45,14 @@ namespace WaxRentalsWeb.Pages
                     return Fail("Something went wrong; please try again in a few minutes.");
                 }
 
-                var id = await _data.Insert.OpenWelcomePackage(Protocol.NewUserAccount, memo, Protocol.NewUserWax, cost);
+                var id = await _data.Insert.OpenWelcomePackage(Protocol.NewUser.Account, memo, Protocol.NewUser.OpenWax, cost);
                 var account = _banano.BuildWelcomeAccount((uint)id);
                 _telegram.Send($"Starting welcome package process for {memo}.");
                 return Succeed(new WelcomePackageDetail
                 {
                     Address = new BananoAddressModel(account.Address),
                     Link = account.BuildLink(cost),
-                    Account = Protocol.NewUserAccount,
+                    Account = Protocol.NewUser.Account,
                     Memo = memo
                 });
             }

@@ -25,6 +25,9 @@ namespace WaxRentals.Data.Entities
 		public string FundTransaction { get; set; }
 		public string NftTransaction { get; set; }
 
+		public int? RentalId { get; set; }
+		public virtual Rental Rental { get; set; }
+
 		[NotMapped]
 		public Status Status
 		{

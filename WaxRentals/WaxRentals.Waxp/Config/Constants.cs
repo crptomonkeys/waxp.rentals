@@ -29,12 +29,18 @@ namespace WaxRentals.Waxp.Config
                 "$.delegated_to[?(@.account_name!='{0}')].net_weight"
             };
 
-            public const string NewUserAccount = "newuser.wax";
-            public const decimal NewUserWax = 5;
-            public const decimal NewUserCharge = 7;
-            public const string NewUserMemoRegex = @"^[A-Za-z1-5\.]{1,14}DOTwam$";
-
             public const string Assets = "$.data[?(@.is_transferable==true)]";
+
+            public static class NewUser
+            {
+                public const string Account = "newuser.wax";
+                public const decimal OpenWax = 5;
+                public const decimal ChargeWax = 7;
+                public const string MemoRegex = @"^[A-Za-z1-5\.]{1,14}DOTwam$";
+                public const int FreeRentalDays = 1;
+                public const int FreeCpu = 10;
+                public const int FreeNet = 1;
+            }
         }
 
         public static class Locations

@@ -96,8 +96,8 @@
                   <h3>Rent WAX</h3>
                   <p>
                     <strong>Stake CPU and NET to your WAX account for {{ state.waxRentPriceInBanano }} BAN per WAX per day.</strong>
-                    <br><br>Currently staked: <strong>{{ state.waxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.waxBalanceAvailable }}</strong> WAX
-                    <span v-if="state.waxBalanceUnstaking > 0"><br>Available tomorrow: <strong>+{{ state.waxBalanceUnstaking }}</strong> WAX</span> <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i>
+                    <br><br>Currently staked: <strong>{{ state.waxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.waxBalanceAvailable }}</strong> WAX <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i>
+                    <span v-if="state.waxBalanceUnstaking > 0"><br>Available tomorrow: <strong>+{{ state.waxBalanceUnstaking }}</strong> WAX</span>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -382,8 +382,13 @@
                           {{ days(rental.days) }}
                         </td>
                         <td class="text-center">
-                          {{ rental.banano }} BAN
-                          <i class="fa fa-external-link banano-address-link" :data-address="rental.bananoAddress"></i>
+                          <span v-if="rental.banano">
+                            {{ rental.banano }} BAN
+                            <i class="fa fa-external-link banano-address-link" :data-address="rental.bananoAddress"></i>
+                          </span>
+                          <span v-else>
+                            FREE
+                          </span>
                         </td>
                       </tr>
                     </tbody>
@@ -426,6 +431,7 @@
                         <th scope="col" class="text-center">Received</th>
                         <th scope="col" class="text-center">Sent</th>
                         <th scope="col" class="text-center">NFT</th>
+                        <th scope="col" class="text-center">Rental</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -440,6 +446,9 @@
                         </td>
                         <td class="text-center">
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="package.nftTransaction" v-if="package.nftTransaction"></i>
+                        </td>
+                        <td class="text-center">
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.stakeTransaction" v-if="package.stakeTransaction"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -472,9 +481,11 @@
                   <h3>New Wallet</h3>
                   <p>
                     Open a new <a rel="nofollow" href="https://all-access.wax.io/" target="_blank"><strong>WAX Cloud Wallet</strong></a>.
-                    <br>We will send 5 WAX to <strong>newuser.wax</strong> for you, and we will send you a starter NFT if we have one available.
-                    <br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
-                    <br><br>Welcome package price: <strong>{{ state.bananoWelcomePackagePrice }} BAN</strong> | NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@WaxRentals.Waxp.Config.Constants.Protocol.Account#nfts"></i></span><span v-else><strong>Unavailable</strong></span>
+                    <br>We will send 5 WAX to <strong>newuser.wax</strong> for you.
+                    <br>We will also send you a starter NFT, <strong>and</strong> we will provide a free @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeCpu CPU / @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeNet NET rental to get you started.*
+                    <br><br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
+                    <br><br>Welcome package price: <strong>{{ state.bananoWelcomePackagePrice }} BAN</strong> | NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@WaxRentals.Waxp.Config.Constants.Protocol.Account#nfts"></i></span><span v-else><strong>Delayed</strong></span>
+                    <br><br><small>* NFT and rental will arrive as long as supplies are available.  If you don't receive your NFT or rental right away, you will receive them once supplies replenish.</small>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -485,7 +496,7 @@
                     <form id="open-welcome-package" action="/api/WelcomePackage" method="post">
 
                       <fieldset class="col-md-3">
-                        <input type="text" name="memo" id="memo" minlength="1" maxlength="20" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.NewUserMemoRegex" placeholder="Memo" required>
+                        <input type="text" name="memo" id="memo" minlength="1" maxlength="20" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.NewUser.MemoRegex" placeholder="Memo" required>
                       </fieldset>
 
                       <fieldset class="col-md-12" v-if="loading">

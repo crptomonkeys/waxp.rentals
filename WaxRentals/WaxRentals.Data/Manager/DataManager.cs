@@ -22,7 +22,7 @@ namespace WaxRentals.Data.Manager
 
         #region " IInsert "
 
-        public async Task<int> OpenRental(string account, int days, decimal cpu, decimal net, decimal banano)
+        public async Task<int> OpenRental(string account, int days, decimal cpu, decimal net, decimal banano, Status status = Status.New)
         {
             // Prevent spamming of the same unpaid account info.
             var existing = Context.Rentals.SingleOrDefault(rental =>
@@ -31,7 +31,7 @@ namespace WaxRentals.Data.Manager
                 rental.CPU == cpu &&
                 rental.NET == net &&
                 rental.Banano == banano &&
-                rental.StatusId == (int)Status.New &&
+                rental.StatusId == (int)status &&
                 rental.Inserted > Abandoned);
             if (existing != null)
             {
@@ -156,7 +156,7 @@ namespace WaxRentals.Data.Manager
         public Task<IEnumerable<Rental>> PullSweepableRentals()
         {
             IEnumerable<Rental> rentals = Context.Rentals.Where(
-                rental => rental.StatusId == (int)Status.Processed && rental.SweepBananoTransaction == null
+                rental => rental.StatusId == (int)Status.Processed && rental.SweepBananoTransaction == null && rental.Banano > 0 // Filter out free rentals.
             ).ToList();
             return Task.FromResult(rentals);
         }
@@ -235,14 +235,47 @@ namespace WaxRentals.Data.Manager
                           select package).ToArrayAsync();
         }
 
-        public async Task ProcessWelcomePackageFunding(int packageId, string fundTransaction, string nftTransaction)
+        public async Task ProcessWelcomePackageFunding(int packageId, string fundTransaction)
         {
             var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.Pending);
             if (package != null)
             {
                 package.FundTransaction = fundTransaction;
-                package.NftTransaction = nftTransaction;
                 package.Status = Status.Processed;
+                await Context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<WelcomePackage>> PullFundedWelcomePackagesMissingNft()
+        {
+            return await (from package in Context.WelcomePackages
+                          where package.StatusId == (int)Status.Processed && package.NftTransaction == null
+                          select package).ToArrayAsync();
+        }
+
+        public async Task ProcessWelcomePackageNft(int packageId, string nftTransaction)
+        {
+            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.Processed);
+            if (package != null)
+            {
+                package.NftTransaction = nftTransaction;
+                await Context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<IEnumerable<WelcomePackage>> PullFundedWelcomePackagesMissingRental()
+        {
+            return await (from package in Context.WelcomePackages
+                          where package.StatusId == (int)Status.Processed && package.RentalId == null
+                          select package).ToArrayAsync();
+        }
+
+        public async Task ProcessWelcomePackageRental(int packageId, int rentalId)
+        {
+            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.Processed);
+            if (package != null)
+            {
+                package.RentalId = rentalId;
                 await Context.SaveChangesAsync();
             }
         }

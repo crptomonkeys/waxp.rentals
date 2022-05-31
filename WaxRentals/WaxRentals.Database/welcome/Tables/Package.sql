@@ -13,6 +13,7 @@
 															  
 	,FundTransaction        CHAR(64)                       NULL CONSTRAINT CK_welcome_Package__FundTransaction        CHECK   (LEN(FundTransaction)         = 64)
 	,NftTransaction         CHAR(64)                       NULL CONSTRAINT CK_welcome_Package__NftTransaction         CHECK   (LEN(NftTransaction)          = 64)
+	,RentalId               INT                            NULL CONSTRAINT FK_welcome_Package__Rental                 FOREIGN KEY REFERENCES dbo.Rental (RentalId)
 
 	,StatusId               INT                        NOT NULL CONSTRAINT FK_welcome_Package__Status                 FOREIGN KEY REFERENCES dbo.Status (StatusId)
 	                                                            CONSTRAINT DF_welcome_Package__StatusId               DEFAULT 1

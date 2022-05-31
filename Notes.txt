@@ -1,6 +1,5 @@
 
 - let run for a few weeks
-- initial stake?  10CPU 1NET for 1day?
 - announce beta
 - let run for a few weeks
 - announce live

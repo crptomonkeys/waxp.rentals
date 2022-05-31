@@ -25,6 +25,8 @@ namespace WaxRentals.Processing
                 provider.BuildProcessor<PurchaseProcessor>(TimeSpan.FromSeconds(10)),
                 provider.BuildProcessor<WelcomePackageOpenProcessor>(TimeSpan.FromSeconds(10)),
                 provider.BuildProcessor<WelcomePackageFundingProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<WelcomePackageNftProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<WelcomePackageRentalProcessor>(TimeSpan.FromSeconds(10)),
 
                 // Be responsive on credits but don't annoy the node operators.
                 provider.BuildProcessor<TrackWaxProcessor>(TimeSpan.FromSeconds(30)),
