@@ -205,7 +205,8 @@ namespace WaxRentals.Waxp.Transact
         private NodeApiClient BuildApiClient(string endpoint)
         {
             var client = new NodeApiClient(endpoint);
-            var httpClient = (HttpMessageInvoker)HttpClientField.GetValue(client);
+            var httpClient = (HttpClient)HttpClientField.GetValue(client);
+            httpClient.Timeout = QuickTimeout;
             var handler = (HttpClientHandler)HandlerField.GetValue(httpClient);
             HandlerField.SetValue(httpClient, new MessageHandler(handler, Factory));
             return client;
@@ -214,7 +215,7 @@ namespace WaxRentals.Waxp.Transact
         private HttpClient BuildHttpClient(string endpoint)
         {
             var handler = new MessageHandler(new HttpClientHandler(), Factory);
-            return new HttpClient(handler) { BaseAddress = new Uri(endpoint) };
+            return new HttpClient(handler) { BaseAddress = new Uri(endpoint), Timeout = QuickTimeout };
         }
 
         #endregion

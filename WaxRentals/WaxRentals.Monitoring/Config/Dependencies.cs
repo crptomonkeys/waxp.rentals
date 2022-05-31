@@ -37,7 +37,7 @@ namespace WaxRentals.Monitoring.Config
 
             services.AddSingleton<ITelegramNotifier>(provider =>
                 new TelegramNotifier(
-                    new TelegramBotClient(telegram.Token, new HttpClient { Timeout = TimeSpan.FromSeconds(5) }),
+                    new TelegramBotClient(telegram.Token, new HttpClient { Timeout = QuickTimeout }),
                     new ChatId(telegram.TargetChat),
                     provider.GetRequiredService<IDataFactory>()
                 )

@@ -93,7 +93,7 @@ namespace WaxRentals.Processing.Processors
             try
             {
                 var random = new Random();
-                var json = JObject.Parse(new QuickTimeoutWebClient().DownloadString(Locations.Assets, TimeSpan.FromSeconds(5)));
+                var json = JObject.Parse(new QuickTimeoutWebClient().DownloadString(Locations.Assets, QuickTimeout));
                 return json.SelectTokens(Protocol.Assets)
                            .Select(token => token.ToObject<Nft>())
                            .OrderBy(nft => random.Next()) // Randomize for better distribution distribution.

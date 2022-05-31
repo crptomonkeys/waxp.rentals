@@ -6,6 +6,7 @@ namespace WaxRentals.Monitoring.Config
     {
 
         public static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+        public static readonly TimeSpan QuickTimeout = TimeSpan.FromSeconds(5);
 
         public static class Coins
         {
