@@ -688,7 +688,7 @@
             this.$forceUpdate();
           },
           localize: function (datetime) {
-            return new Date(datetime).toLocaleString();
+            return new Date(datetime + 'z').toLocaleString();
           }
         },
         mounted() {

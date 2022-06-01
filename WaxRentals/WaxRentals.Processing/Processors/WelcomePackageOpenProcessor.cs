@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
+using WaxRentals.Monitoring.Notifications;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -14,11 +15,13 @@ namespace WaxRentals.Processing.Processors
         protected override bool ProcessMultiplePerTick => false;
 
         private IBananoAccountFactory Banano { get; }
+        private ITelegramNotifier Telegram { get; }
 
-        public WelcomePackageOpenProcessor(IDataFactory factory, IBananoAccountFactory banano)
+        public WelcomePackageOpenProcessor(IDataFactory factory, IBananoAccountFactory banano, ITelegramNotifier telegram)
             : base(factory)
         {
             Banano = banano;
+            Telegram = telegram;
         }
 
         protected override Func<Task<IEnumerable<WelcomePackage>>> Get => Factory.Process.PullNewWelcomePackages;
@@ -37,6 +40,7 @@ namespace WaxRentals.Processing.Processors
                 if (balance >= package.Banano)
                 {
                     await Factory.Process.ProcessWelcomePackagePayment(package.PackageId);
+                    Telegram.Send($"Received welcome package payment for {package.Memo}.");
                 }
             }
             catch (Exception ex)
