@@ -7,12 +7,12 @@ namespace WaxRentals.Waxp.Transact
 
         public string Account { get; }
 
-        Task<AccountBalances> GetBalances();
-        Task<(bool, string)> Stake(string account, decimal cpu, decimal net);
-        Task<(bool, string)> Unstake(string account, decimal cpu, decimal net);
-        Task<(bool, string)> ClaimRefund();
-        Task<(bool, string)> Send(string account, decimal wax, string memo = null);
-        Task<(bool, string)> SendAsset(string account, string asset, string memo);
+        Task<(bool Success, AccountBalances Balances)> GetBalances();
+        Task<(bool Success, string)> Stake(string account, decimal cpu, decimal net);
+        Task<(bool Success, string)> Unstake(string account, decimal cpu, decimal net);
+        Task<(bool Success, string)> ClaimRefund();
+        Task<(bool Success, string)> Send(string account, decimal wax, string memo = null);
+        Task<(bool Success, string)> SendAsset(string account, string asset, string memo);
 
     }
 }

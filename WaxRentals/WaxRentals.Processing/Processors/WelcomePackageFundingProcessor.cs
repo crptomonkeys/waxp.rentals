@@ -41,14 +41,14 @@ namespace WaxRentals.Processing.Processors
         {
             try
             {
-                var balance = (await Wax.Today.GetBalances()).Available;
-                if (balance > package.Wax)
+                var (todaySuccess, todayBalances) = await Wax.Today.GetBalances();
+                if (todaySuccess && todayBalances.Available > package.Wax)
                 {
-                    var (success, fund) = await Wax.Today.Send(
+                    var (sendSuccess, fund) = await Wax.Today.Send(
                         package.TargetWaxAccount,
                         package.Wax,
                         $"{package.Memo}{Protocol.NewUser.MemoRefundOnExists}");
-                    if (success)
+                    if (sendSuccess)
                     {
                         var task = Factory.Process.ProcessWelcomePackageFunding(package.PackageId, fund);
                         Tracker.Track("Sent WAX", package.Wax, Coins.Wax, spent: package.Wax * Prices.Wax);

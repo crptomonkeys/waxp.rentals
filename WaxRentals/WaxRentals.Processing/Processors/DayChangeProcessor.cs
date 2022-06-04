@@ -22,18 +22,22 @@ namespace WaxRentals.Processing.Processors
         {
             if (Today != today)
             {
-                if ((await today.GetBalances()).Unstaking > 0)
+                var (todaySuccess, todayBalances) = await today.GetBalances();
+                if (todaySuccess && todayBalances.Unstaking > 0)
                 {
                     await today.ClaimRefund();
                 }
-                
-                var available = (await Wax.Yesterday.GetBalances()).Available;
-                if (available > 0)
+
+                var (yesterdaySuccess, yesterdayBalances) = await Wax.Yesterday.GetBalances();
+                if (yesterdaySuccess && yesterdayBalances.Available > 0)
                 {
-                    await Wax.Yesterday.Send(today.Account, available);
+                    await Wax.Yesterday.Send(today.Account, yesterdayBalances.Available);
                 }
 
-                Today = today;
+                if (todaySuccess && yesterdaySuccess)
+                {
+                    Today = today;
+                }
             }
         }
 

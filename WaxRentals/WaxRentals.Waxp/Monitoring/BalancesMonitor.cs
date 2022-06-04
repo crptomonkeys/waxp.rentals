@@ -22,34 +22,44 @@ namespace WaxRentals.Waxp.Monitoring
         
         protected override bool Tick(out AccountBalances balances)
         {
-            balances = GetBalances().GetAwaiter().GetResult();
-            if (_balances.Available != balances.Available ||
-                _balances.Staked != balances.Staked ||
-                _balances.Unstaking != balances.Unstaking ||
-                !string.Equals(_balances.Today, balances.Today, StringComparison.OrdinalIgnoreCase))
+            var result = GetBalances().GetAwaiter().GetResult();
+            balances = result.Balances;
+
+            if (result.Success)
             {
-                _balances = balances;
-                return true;
+                if (_balances.Available != balances.Available ||
+                    _balances.Staked    != balances.Staked    ||
+                    _balances.Unstaking != balances.Unstaking ||
+                    !string.Equals(_balances.Today, balances.Today, StringComparison.OrdinalIgnoreCase))
+                {
+                    _balances = balances;
+                    return true;
+                }
             }
             return false;
         }
 
-        private async Task<AccountBalances> GetBalances()
+        private async Task<(bool Success, AccountBalances Balances)> GetBalances()
         {
             var tasks = _wax.Transact.ToDictionary(account => account, account => account.GetBalances());
-            await Task.WhenAll(tasks.Values);
-            var today = await tasks[_wax.Today];
-            var tomorrow = await tasks[_wax.Tomorrow];
+            var success = (await Task.WhenAll(tasks.Values)).All(result => result.Success);
 
-            var balances = new AccountBalances();
-            balances.Available = today.Available;
-            balances.Unstaking = tomorrow.Unstaking + tomorrow.Available;
-            foreach (var kvp in tasks)
+            if (success)
             {
-                balances.Staked += (await kvp.Value).Staked;
+                var (_, today) = await tasks[_wax.Today];
+                var (_, tomorrow) = await tasks[_wax.Tomorrow];
+
+                var balances = new AccountBalances();
+                balances.Available = today.Available;
+                balances.Unstaking = tomorrow.Unstaking + tomorrow.Available;
+                foreach (var kvp in tasks)
+                {
+                    balances.Staked += (await kvp.Value).Balances.Staked;
+                }
+                balances.Today = _wax.Today.Account;
+                return (true, balances);
             }
-            balances.Today = _wax.Today.Account;
-            return balances;
+            return (false, null);
         }
 
     }

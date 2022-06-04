@@ -34,15 +34,15 @@ namespace WaxRentals.Processing.Processors
             {
                 // Fund the source account.
                 var source = Wax.GetAccount(rental.RentalDays);
-                var wax = rental.CPU + rental.NET;
-                var balance = (await source.GetBalances()).Available;
-                if (balance < wax)
+                var needed = rental.CPU + rental.NET;
+                var (sourceSuccess, sourceBalances) = await source.GetBalances();
+                if (sourceBalances.Available < needed)
                 {
-                    await Wax.Today.Send(source.Account, wax - balance);
+                    await Wax.Today.Send(source.Account, needed - sourceBalances.Available);
                 }
 
-                var (success, hash) = await source.Stake(rental.TargetWaxAccount, rental.CPU, rental.NET);
-                if (success)
+                var (stakeSuccess, hash) = await source.Stake(rental.TargetWaxAccount, rental.CPU, rental.NET);
+                if (stakeSuccess)
                 {
                     await Factory.Process.ProcessRentalStaking(rental.RentalId, source.Account, hash);
                 }
