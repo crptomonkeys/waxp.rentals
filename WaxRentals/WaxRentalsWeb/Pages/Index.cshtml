@@ -481,10 +481,11 @@
                   <h3>New Wallet</h3>
                   <p>
                     Open a new <a rel="nofollow" href="https://all-access.wax.io/" target="_blank"><strong>WAX Cloud Wallet</strong></a>.
-                    <br>We will send 5 WAX to <strong>newuser.wax</strong> for you.
-                    <br>We will also send you a starter NFT, <strong>and</strong> we will provide a free @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeCpu CPU / @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeNet NET rental to get you started.*
+                    <br>We will send <strong>5 WAX to newuser.wax</strong> for you.
+                    <br>We will also send you a <strong>starter NFT</strong>, and we will provide a <strong>free @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeCpu CPU / @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeNet NET rental</strong> to get you started.*
                     <br><br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
-                    <br><br>Welcome package price: <strong>{{ state.bananoWelcomePackagePrice }} BAN</strong> | NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@WaxRentals.Waxp.Config.Constants.Protocol.Account#nfts"></i></span><span v-else><strong>Delayed</strong></span>
+                    <br><br>Welcome package price: <strong>{{ state.bananoWelcomePackagePrice }} BAN</strong>
+                    <br>NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@WaxRentals.Waxp.Config.Constants.Protocol.Account#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackageRentalsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i></span><span v-else><strong>Delayed</strong></span>
                     <br><br><small>* NFT and rental will arrive as long as supplies are available.  If you don't receive your NFT or rental right away, you will receive them once supplies replenish.</small>
                   </p>
                 </div>

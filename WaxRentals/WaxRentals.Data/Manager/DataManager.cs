@@ -414,6 +414,7 @@ namespace WaxRentals.Data.Manager
                           .Where(package => package.StatusId == (int)Status.Processed)
                           .OrderByDescending(package => package.PackageId)
                           .Take(10)
+                          .Include(package => package.Rental)
                           .ToArray();
         }
 

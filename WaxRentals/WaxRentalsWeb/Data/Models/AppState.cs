@@ -33,6 +33,9 @@ namespace WaxRentalsWeb.Data.Models
 
         public decimal BananoWelcomePackagePrice => Math.Ceiling(WaxConstants.NewUser.ChargeWax * Safe.Divide(WaxPrice.Value, BananoPrice.Value));
         public decimal WaxWelcomePackageMinimumAvailable => WaxConstants.NewUser.OpenWax;
+        public bool WelcomePackageRentalsAvailable => WaxBalanceAvailable.Value >= (WaxConstants.NewUser.OpenWax +
+                                                                                    WaxConstants.NewUser.FreeCpu +
+                                                                                    WaxConstants.NewUser.FreeNet);
 
     }
 }
