@@ -103,7 +103,7 @@
               </div> <!-- /.col-md-12 -->
 
               <div class="col-md-12">
-                <div class="contact-form">
+                <div class="contact-form" v-if="state.waxMaximumRent >= state.waxMinimumRent">
                   <div class="row">
                     <form id="open-rental" action="/" method="post">
                       <fieldset class="col-md-3">
@@ -124,6 +124,10 @@
                     </form>
                   </div> <!-- /.row -->
                 </div> <!-- /.contact-form -->
+
+                <div class="toggle-content text-center" v-else>
+                  <p><strong>Looks like we are out of WAX to rent right now.  Check back again soon!</strong></p>
+                </div>
               </div> <!-- /.col-md-12 -->
             </div> <!-- /.row -->
           </div> <!-- /.content-->
