@@ -60,7 +60,7 @@ namespace WaxRentals.Monitoring.Recents
                         _purchasesLock.SafeWrite(() => _purchases = purchases);
                     }
 
-                    if (Differ(_packages, packages, package => package.PackageId))
+                    if (Differ(_packages, packages))
                     {
                         update = true;
                         _packagesLock.SafeWrite(() => _packages = packages);
@@ -80,6 +80,20 @@ namespace WaxRentals.Monitoring.Recents
             var leftIds = left.Select(get);
             var rightIds = right.Select(get);
             return leftIds.Except(rightIds).Any() || rightIds.Except(leftIds).Any();
+        }
+
+        private bool Differ(IEnumerable<WelcomePackage> left, IEnumerable<WelcomePackage> right)
+        {
+            var differ = Differ(left, right, package => package.PackageId);
+            if (!differ)
+            {
+                differ = (from p1 in left
+                          join p2 in right
+                          on p1.PackageId equals p2.PackageId
+                          where p1.NftTransaction != p2.NftTransaction || p1.RentalId != p2.RentalId
+                          select 1).Any();
+            }
+            return differ;
         }
 
     }
