@@ -43,7 +43,7 @@ namespace WaxRentals.Waxp.Transact
 
         #region " Balances "
 
-        public async Task<AccountBalances> GetBalances()
+        public async Task<(bool, AccountBalances)> GetBalances()
         {
             var balances = new AccountBalances();
             var apiTask = _client.ProcessApi(async client =>
@@ -66,7 +66,7 @@ namespace WaxRentals.Waxp.Transact
 
             await Task.WhenAll(apiTask, jsonTask);
             balances.Staked = await jsonTask;
-            return balances;
+            return (await apiTask, balances);
         }
 
         private async Task<decimal> GetValueFromJson(string url, IEnumerable<string> selectors, int scale)

@@ -27,7 +27,7 @@ namespace WaxRentalsWeb.Data.Models
         public decimal BananoMinimumCredit => BananoConstants.Minimum;
         // No BananoMaximumCredit because it's based on time, not number of WAX.
         public decimal WaxMinimumRent => WaxConstants.MinimumTransaction;
-        public decimal WaxMaximumRent => WaxBalanceAvailable.Value >= (WaxMinimumRent * 2) ? (WaxBalanceAvailable.Value / 2) : WaxMinimumRent;
+        public decimal WaxMaximumRent => WaxBalanceAvailable.Value / 2;
         public decimal WaxMinimumBuy => WaxConstants.MinimumTransaction;
         public decimal WaxMaximumBuy => Safe.Divide(BananoBalance.Value, WaxBuyPriceInBanano * 2);
 
