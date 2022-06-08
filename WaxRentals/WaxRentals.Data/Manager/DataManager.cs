@@ -46,7 +46,7 @@ namespace WaxRentals.Data.Manager
                     CPU = cpu,
                     NET = net,
                     Banano = banano,
-                    Status = Status.New
+                    Status = status
                 }
             );
             await Context.SaveChangesAsync();
