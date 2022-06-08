@@ -25,16 +25,18 @@ namespace WaxRentals.Processing.Processors
         private IPriceMonitor Prices { get; }
         private ITracker Tracker { get; }
         private ITelegramNotifier Telegram { get; }
+        private IWaxAccounts Wax { get; }
 
         private decimal PayRate { get { return Safe.Divide(Prices.Wax, Prices.Banano); } }
 
-        public TrackWaxProcessor(IDataFactory factory, IClientFactory client, IPriceMonitor prices, ITracker tracker, ITelegramNotifier telegram)
+        public TrackWaxProcessor(IDataFactory factory, IClientFactory client, IPriceMonitor prices, ITracker tracker, ITelegramNotifier telegram, IWaxAccounts wax)
             : base(factory)
         {
             Client = client;
             Prices = prices;
             Tracker = tracker;
             Telegram = telegram;
+            Wax = wax;
         }
 
         protected override Func<Task<IEnumerable<Transfer>>> Get => PullHistory;
@@ -78,7 +80,8 @@ namespace WaxRentals.Processing.Processors
                 if (await Factory.Insert.OpenPurchase(transfer.Amount, transfer.Hash, address, banano, skip ? Status.Processed : Status.New))
                 {
                     Tracker.Track("Received WAX", transfer.Amount, Coins.Wax, earned: transfer.Amount * Prices.Wax);
-                    Telegram.Send($"Bought {transfer.Amount} {Coins.Wax}.");
+                    Telegram.Send($"{(skip ? "Received" : "Bought")} {transfer.Amount} {Coins.Wax}.");
+                    await Wax.Primary.Send(Wax.Today.Account, transfer.Amount);
                 }
             }
         }

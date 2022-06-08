@@ -4,7 +4,6 @@ using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Prices;
 using WaxRentals.Processing.Tracking;
-using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
 using BananoAccount = WaxRentals.Banano.Transact.IBananoAccount;
 
@@ -14,15 +13,13 @@ namespace WaxRentals.Processing.Processors
     {
 
         private BananoAccount Banano { get; }
-        private IWaxAccounts Wax { get; }
         private IPriceMonitor Prices { get; }
         private ITracker Tracker { get; }
 
-        public PurchaseProcessor(IDataFactory factory, BananoAccount banano, IWaxAccounts wax, IPriceMonitor prices, ITracker tracker)
+        public PurchaseProcessor(IDataFactory factory, BananoAccount banano, IPriceMonitor prices, ITracker tracker)
             : base(factory)
         {
             Banano = banano;
-            Wax = wax;
             Prices = prices;
             Tracker = tracker;
         }
@@ -32,9 +29,8 @@ namespace WaxRentals.Processing.Processors
         {
             var hash = await Banano.Send(purchase.PaymentBananoAddress, purchase.Banano);
             var dataTask = Factory.Process.ProcessPurchase(purchase.PurchaseId, hash);
-            var waxTask = Wax.Primary.Send(Wax.Today.Account, purchase.Wax);
             Tracker.Track("Sent BAN", purchase.Banano, Coins.Banano, spent: purchase.Banano * Prices.Banano);
-            await Task.WhenAll(dataTask, waxTask);
+            await dataTask;
         }
 
     }
