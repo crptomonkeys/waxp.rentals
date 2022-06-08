@@ -19,13 +19,14 @@
         public decimal BananoWelcomePackagePrice { get; }
         public decimal WaxWelcomePackageMinimumAvailable { get; }
         public bool WelcomePackageNftsAvailable { get; }
+        public bool WelcomePackageRentalsAvailable { get; }
         public string SiteMessage { get; }
         public string WaxAccountToday { get; }
 
         public AppStateModel(AppState state)
         {
             BananoBalance                     = decimal.Round(state.BananoBalance.Value              , 4);
-            WaxBalanceAvailable               = decimal.Round(state.WaxBalanceAvailable.Value        , 0);
+            WaxBalanceAvailable               = decimal.Floor(state.WaxBalanceAvailable.Value           );
             WaxBalanceStaked                  = decimal.Round(state.WaxBalanceStaked.Value           , 0);
             WaxBalanceUnstaking               = decimal.Round(state.WaxBalanceUnstaking.Value        , 4);
             BananoPrice                       = decimal.Round(state.BananoPrice.Value                , 4);
@@ -40,6 +41,7 @@
             BananoWelcomePackagePrice         = decimal.Round(state.BananoWelcomePackagePrice        , 0);
             WaxWelcomePackageMinimumAvailable = decimal.Round(state.WaxWelcomePackageMinimumAvailable, 0);
             WelcomePackageNftsAvailable       =               state.WelcomePackageNftsAvailable          ;
+            WelcomePackageRentalsAvailable    =               state.WelcomePackageRentalsAvailable       ;
             SiteMessage                       =               state.SiteMessage                          ;
             WaxAccountToday                   =               state.WaxAccountToday                      ;
         }
