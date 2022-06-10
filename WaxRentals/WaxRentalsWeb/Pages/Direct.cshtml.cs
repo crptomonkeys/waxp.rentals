@@ -43,10 +43,10 @@ namespace WaxRentalsWeb.Pages
             );
         }
 
-        public IActionResult OnGetRecents()
+        public IActionResult OnGetInsights()
         {
             return Process(
-                new PageLoadModel { Name = "recents" }
+                new PageLoadModel { Name = "insights" }
             );
         }
 

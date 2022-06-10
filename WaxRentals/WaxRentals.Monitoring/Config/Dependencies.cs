@@ -26,8 +26,8 @@ namespace WaxRentals.Monitoring.Config
                 )
             );
 
-            services.AddSingleton<IRecentMonitor>(provider =>
-                new RecentMonitor(
+            services.AddSingleton<IInsightsMonitor>(provider =>
+                new InisghtsMonitor(
                     TimeSpan.FromMinutes(1),
                     provider.GetRequiredService<IDataFactory>()
                 )

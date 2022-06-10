@@ -418,6 +418,13 @@ namespace WaxRentals.Data.Manager
                           .ToArray();
         }
 
+        public IEnumerable<MonthlyStats> GetMonthlyStats()
+        {
+            return Context.Database
+                    .SqlQuery<MonthlyStats>("[reporting].[MonthlyStats]")
+                    .ToArray();
+        }
+
         public IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses)
         {
             return from rental in Context.Rentals

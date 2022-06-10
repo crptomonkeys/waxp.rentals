@@ -80,7 +80,9 @@ namespace WaxRentals.Processing.Processors
                 if (await Factory.Insert.OpenPurchase(transfer.Amount, transfer.Hash, address, banano, skip ? Status.Processed : Status.New))
                 {
                     Tracker.Track("Received WAX", transfer.Amount, Coins.Wax, earned: transfer.Amount * Prices.Wax);
-                    Telegram.Send($"{(skip ? "Received" : "Bought")} {transfer.Amount} {Coins.Wax}.");
+                    Telegram.Send(skip
+                        ? $"Received {transfer.Amount} {Coins.Wax} from {transfer.From}."
+                        : $"Bought {transfer.Amount} {Coins.Wax} off {transfer.From}.");
                     await Wax.Primary.Send(Wax.Today.Account, transfer.Amount);
                 }
             }
@@ -93,6 +95,7 @@ namespace WaxRentals.Processing.Processors
             return new Transfer
             {
                 Hash = block.transaction_id,
+                From = block.data.from,
                 Amount = block.data.amount,
                 Memo = block.data.memo
             };
@@ -111,11 +114,10 @@ namespace WaxRentals.Processing.Processors
 
     internal class Transfer
     {
-
         public decimal Amount { get; set; }
+        public string From { get; set; }
         public string Memo { get; set; }
         public string Hash { get; set; }
-
     }
     internal class TransferBlock
     {
@@ -126,6 +128,7 @@ namespace WaxRentals.Processing.Processors
     internal class TransferAction
     {
         public decimal amount { get; set; }
+        public string from { get; set; }
         public string memo { get; set; }
     }
 

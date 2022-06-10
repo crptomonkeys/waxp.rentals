@@ -72,7 +72,7 @@
               <li><a class="show-1" href="/direct/sell">Sell WAX</a></li>
               <li><a class="show-2" href="/direct/get">Get Banano</a></li>
               <li><a class="show-3" href="/direct/my">My Rentals</a></li>
-              <li><a class="show-4" href="/direct/recents">Recent Transactions</a></li>
+              <li><a class="show-4" href="/direct/recents">Site Insights</a></li>
               <li><a class="show-5" href="/direct/open">New Wallet</a></li>
             </ul> <!-- /.menu -->
             <a href="/" class="toggle-menu"><i class="fa fa-bars"></i></a>
@@ -141,7 +141,7 @@
                   <p>
                     <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">
                       <img src="/qr/wax" width="150" height="150" />
-                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@WaxRentals.Waxp.Config.Constants.Protocol.Account</strong> <i class="fa fa-copy clipboard" data-copy="@WaxRentals.Waxp.Config.Constants.Protocol.Account"></i> and <strong>include your BAN address as the memo</strong>.
+                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@WaxRentals.Waxp.Config.Constants.Protocol.Account</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@WaxRentals.Waxp.Config.Constants.Protocol.Account"></i> and <strong>include your BAN address as the memo</strong>.
                     </span>
                     <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
                     <br><br>WAX price: <strong>${{ state.waxPrice }}</strong> | BAN price: <strong>${{ state.bananoPrice }}</strong>
@@ -215,7 +215,7 @@
                       <br>Tap to open Kalium
                     </a>
                     <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
-                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-copy="detail.address.full"></i>.
+                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.address.full"></i>.
                     <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} days
                   </p>
                 </div>
@@ -276,7 +276,7 @@
                       <br>Tap to open Kalium
                     </a>
                     <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
-                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-copy="detail.address.full"></i>.
+                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.address.full"></i>.
                     <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} days
                   </p>
                 </div>
@@ -367,6 +367,43 @@
 
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
+                  <h3>Monthly Stats</h3>
+                  <table class="table table-dark table-striped table-sm">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="text-center">Year</th>
+                        <th scope="col" class="text-center">Month</th>
+                        <th scope="col" class="text-center">Wax-Days Rented</th>
+                        <th scope="col" class="text-center">Wax Purchased</th>
+                        <th scope="col" class="text-center">Welcome Packages Opened</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="stats in insights.monthlyStats">
+                        <td class="text-center">
+                          {{ stats.year }}
+                        </td>
+                        <td class="text-center">
+                          {{ stats.month }}
+                        </td>
+                        <td class="text-center">
+                          {{ stats.waxDaysRented + stats.waxDaysFree }}
+                          <br><small>{{ stats.waxDaysFree }} FREE</small>
+                        </td>
+                        <td class="text-center">
+                          {{ stats.waxPurchasedForSite }}
+                        </td>
+                        <td class="text-center">
+                          {{ stats.welcomePackagesOpened }}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div> <!-- /.col-md-6 -->
+
+              <div class="col-md-6">
+                <div class="toggle-content text-center spacing">
                   <h3>Recent Wax Rentals</h3>
                   <table class="table table-striped table-sm">
                     <thead>
@@ -377,7 +414,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="rental in recent.rentals">
+                      <tr v-for="rental in insights.recentRentals">
                         <td class="text-center">
                           {{ rental.cpu + rental.net }} WAX
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
@@ -411,7 +448,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="purchase in recent.purchases">
+                      <tr v-for="purchase in insights.recentPurchases">
                         <td class="text-center">
                           {{ purchase.wax }} WAX
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction" v-if="purchase.waxTransaction"></i>
@@ -439,7 +476,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="package in recent.welcomePackages">
+                      <tr v-for="package in insights.recentWelcomePackages">
                         <td class="text-center">
                           {{ package.banano }} BAN
                           <i class="fa fa-external-link banano-address-link" :data-address="package.bananoAddress"></i>
@@ -459,6 +496,7 @@
                   </table>
                 </div>
               </div> <!-- /.col-md-6 -->
+
             </div> <!-- /.row -->
           </div> <!-- /.content -->
 
@@ -474,7 +512,7 @@
                       <br>Tap to open Kalium
                     </a>
                     <br><br>Send <strong>exactly {{ state.bananoWelcomePackagePrice }} BAN</strong> to
-                    <br><span class="banano-address"><span class="address-highlight">{{ package.address.start }}</span>{{ package.address.mid }}<span class="address-highlight">{{ package.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-copy="package.address.full"></i>.
+                    <br><span class="banano-address"><span class="address-highlight">{{ package.address.start }}</span>{{ package.address.mid }}<span class="address-highlight">{{ package.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="package.address.full"></i>.
                     <br><br>Account: {{ package.account }} | Memo: {{ package.memo }}
                     <br><br>After you've sent payment, go check out your shiny new <a rel="nofollow" href="https://wallet.wax.io/dashboard" target="_blank"><strong>WAX Cloud Wallet</strong></a>!
                   </p>
@@ -552,6 +590,7 @@
   <script src="js/vendor/signalr.min.js"></script>
   <script src="js/vendor/vue.min.js"></script>
   <script src="js/vendor/axios.min.js"></script>
+  <script src="js/vendor/clipboard.min.js"></script>
   <script src="js/main.js"></script>
   <script src="js/site.js"></script>
   <script src="js/formatting.js"></script>
@@ -702,15 +741,16 @@
         }
       });
 
-      const recents = new Vue({
+      const insights = new Vue({
         el: '#menu-4',
         data() {
           return {
             state: {},
-            recent: {
-              rentals: [],
-              purchases: [],
-              welcomePackages: []
+            insights: {
+              recentRentals: [],
+              recentPurchases: [],
+              recentWelcomePackages: [],
+              monthlyStats: []
             }
           }
         },
@@ -770,7 +810,7 @@
         rent.state = state;
         sell.state = state;
         my.state = state;
-        recents.state = state;
+        insights.state = state;
         open.state = state;
 
         if (state.siteMessage) {
@@ -782,8 +822,8 @@
         }
       });
 
-      _connection.on("RecentsChanged", recent => {
-        recents.recent = recent;
+      _connection.on("InsightsChanged", info => {
+        insights.insights = info;
       });
 
     });

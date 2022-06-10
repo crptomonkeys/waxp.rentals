@@ -9,8 +9,8 @@ namespace WaxRentalsWeb.Data
         event EventHandler AppStateChanged;
         AppState AppState { get; }
 
-        event EventHandler RecentsChanged;
-        Recents Recents { get; }
+        event EventHandler InsightsChanged;
+        Insights Insights { get; }
 
     }
 }
