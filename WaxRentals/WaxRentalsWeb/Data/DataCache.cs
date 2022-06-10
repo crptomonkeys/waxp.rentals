@@ -23,10 +23,10 @@ namespace WaxRentalsWeb.Data
         private readonly NftsMonitor _nfts;
         private readonly FileMonitor _siteMessage;
 
-        public event EventHandler RecentsChanged;
-        public Recents Recents { get; } = new();
+        public event EventHandler InsightsChanged;
+        public Insights Insights { get; } = new();
 
-        private readonly IRecentMonitor _recent;
+        private readonly IInsightsMonitor _insights;
 
         public DataCache(
             IPriceMonitor prices,
@@ -34,7 +34,7 @@ namespace WaxRentalsWeb.Data
             BalancesMonitor wax,
             NftsMonitor nfts,
             SiteMessageMonitor siteMessage,
-            IRecentMonitor recent)
+            IInsightsMonitor insights)
         {
             _prices = prices;
             _banano = banano;
@@ -42,7 +42,7 @@ namespace WaxRentalsWeb.Data
             _nfts = nfts;
             _siteMessage = siteMessage;
 
-            _recent = recent;
+            _insights = insights;
         }
 
         public void Initialize()
@@ -50,7 +50,7 @@ namespace WaxRentalsWeb.Data
             _prices.Updated += (_, _) =>
             {
                 AppState.BananoPrice.Value = Math.Round(_prices.Banano, 6);
-                AppState.WaxPrice.Value = Math.Round(_prices.Wax, 6);
+                AppState.WaxPrice.Value    = Math.Round(_prices.Wax, 6);
                 RaiseAppStateEvent();
             };
 
@@ -63,9 +63,9 @@ namespace WaxRentalsWeb.Data
             _wax.Updated += (_, balances) =>
             {
                 AppState.WaxBalanceAvailable.Value = Math.Round(balances.Available, 4);
-                AppState.WaxBalanceStaked.Value = Math.Round(balances.Staked, 4);
+                AppState.WaxBalanceStaked.Value    = Math.Round(balances.Staked, 4);
                 AppState.WaxBalanceUnstaking.Value = Math.Round(balances.Unstaking, 4);
-                AppState.WaxAccountToday = balances.Today;
+                AppState.WaxAccountToday           = balances.Today;
                 RaiseAppStateEvent();
             };
 
@@ -91,15 +91,16 @@ namespace WaxRentalsWeb.Data
             _nfts.Initialize();
             _siteMessage.Initialize();
 
-            _recent.Updated += (_, _) =>
+            _insights.Updated += (_, _) =>
             {
-                Recents.Rentals = _recent.Rentals;
-                Recents.Purchases = _recent.Purchases;
-                Recents.WelcomePackages = _recent.WelcomePackages;
+                Insights.RecentRentals         = _insights.RecentRentals;
+                Insights.RecentPurchases       = _insights.RecentPurchases;
+                Insights.RecentWelcomePackages = _insights.RecentWelcomePackages;
+                Insights.MonthlyStats          = _insights.MonthlyStats;
                 RaiseRecentsEvent();
             };
 
-            _recent.Initialize();
+            _insights.Initialize();
         }
 
         private void RaiseAppStateEvent()
@@ -109,7 +110,7 @@ namespace WaxRentalsWeb.Data
 
         private void RaiseRecentsEvent()
         {
-            RecentsChanged?.Invoke(this, EventArgs.Empty);
+            InsightsChanged?.Invoke(this, EventArgs.Empty);
         }
 
     }

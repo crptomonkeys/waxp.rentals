@@ -25,13 +25,13 @@ namespace WaxRentalsWeb.Notifications
             _banano = banano;
 
             _data.AppStateChanged += async (_, _) => await NotifyAppState(_context.Clients.All);
-            _data.RecentsChanged += async (_, _) => await NotifyRecents(_context.Clients.All);
+            _data.InsightsChanged += async (_, _) => await NotifyInsights(_context.Clients.All);
         }
 
         public async override Task OnConnectedAsync()
         {
             var appState = NotifyAppState(Clients.Caller);
-            var recents = NotifyRecents(Clients.Caller);
+            var recents = NotifyInsights(Clients.Caller);
             await Task.WhenAll(appState, recents);
             await base.OnConnectedAsync();
         }
@@ -43,9 +43,9 @@ namespace WaxRentalsWeb.Notifications
             await Notify(client, "AppStateChanged", () => new AppStateModel(_data.AppState));
         }
 
-        private async Task NotifyRecents(IClientProxy client)
+        private async Task NotifyInsights(IClientProxy client)
         {
-            await Notify(client, "RecentsChanged", () => new RecentsModel(_data.Recents, _banano));
+            await Notify(client, "InsightsChanged", () => new InsightsModel(_data.Insights, _banano));
         }
 
         private async Task Notify<T>(IClientProxy client, string method, Func<T> getData)

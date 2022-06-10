@@ -138,7 +138,7 @@ const load = {
     this._load('.menu .show-3');
   },
 
-  recents: function () {
+  insights: function () {
     this._load('.menu .show-4');
   },
 
