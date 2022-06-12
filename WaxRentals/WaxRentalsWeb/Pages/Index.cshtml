@@ -98,6 +98,7 @@
                     <strong>Stake CPU and NET to your WAX account for {{ state.waxRentPriceInBanano }} BAN per WAX per day.</strong>
                     <br><br>Currently staked: <strong>{{ state.waxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.waxBalanceAvailable }}</strong> WAX <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i>
                     <span v-if="state.waxBalanceUnstaking > 0"><br>Available tomorrow: <strong>+{{ state.waxBalanceUnstaking }}</strong> WAX</span>
+                    <br><br><small>Rentals of at least @WaxRentalsWeb.Config.Constants.Calculations.DaysDoubleThreshold days will have their time <strong>doubled</strong> for free.</small>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -116,10 +117,11 @@
                         <input type="number" name="net" id="net" min="0" :max="state.waxMaximumRent" step="1" placeholder="# NET">
                       </fieldset>
                       <fieldset class="col-md-3">
-                        <input type="number" name="days" id="days" min="1" step="1" placeholder="# Days" required>
+                        <input type="number" name="days" id="days" min="1" step="1" placeholder="# Days" required v-model="days">
                       </fieldset>
                       <fieldset class="col-md-12">
                         <input class="button" type="submit" name="open" id="open" value="Start Staking" @@click.prevent="submit">
+                        <span class="rental-free-days" v-if="days >= @WaxRentalsWeb.Config.Constants.Calculations.DaysDoubleThreshold">+{{ days }} days free!</span>
                       </fieldset>
                     </form>
                   </div> <!-- /.row -->
@@ -380,20 +382,20 @@
                     </thead>
                     <tbody>
                       <tr v-for="stats in insights.monthlyStats">
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                           {{ stats.year }}
                         </td>
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                           {{ stats.month }}
                         </td>
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                           {{ stats.waxDaysRented + stats.waxDaysFree }}
                           <br><small>{{ stats.waxDaysFree }} FREE</small>
                         </td>
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                           {{ stats.waxPurchasedForSite }}
                         </td>
-                        <td class="text-center">
+                        <td class="text-center align-middle">
                           {{ stats.welcomePackagesOpened }}
                         </td>
                       </tr>
@@ -628,7 +630,8 @@
         el: '#menu-0',
         data() {
           return {
-            state: {}
+            state: {},
+            days: null
           }
         },
         methods: {

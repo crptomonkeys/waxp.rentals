@@ -9,5 +9,10 @@
             public const int Size = 150;
         }
 
+        public static class Calculations
+        {
+            public const int DaysDoubleThreshold = 15;
+        }
+
     }
 }
