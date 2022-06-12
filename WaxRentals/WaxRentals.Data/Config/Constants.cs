@@ -13,5 +13,10 @@
             public const string Db = "/run/secrets/wax.db";
         }
 
+        internal static class Display
+        {
+            public const int Recents = 7;
+        }
+
     }
 }

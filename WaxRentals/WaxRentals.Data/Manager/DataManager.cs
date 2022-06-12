@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Context;
 using WaxRentals.Data.Entities;
+using static WaxRentals.Data.Config.Constants;
 
 namespace WaxRentals.Data.Manager
 {
@@ -395,7 +396,7 @@ namespace WaxRentals.Data.Manager
             return Context.Rentals
                           .Where(rental => rental.StatusId == (int)Status.Processed || rental.StatusId == (int)Status.Closed)
                           .OrderByDescending(rental => rental.RentalId)
-                          .Take(10)
+                          .Take(Display.Recents)
                           .ToArray();
         }
 
@@ -404,7 +405,7 @@ namespace WaxRentals.Data.Manager
             return Context.Purchases
                           .Where(purchase => purchase.StatusId == (int)Status.Processed && purchase.BananoTransaction != null)
                           .OrderByDescending(purchase => purchase.PurchaseId)
-                          .Take(10)
+                          .Take(Display.Recents)
                           .ToArray();
         }
 
@@ -413,7 +414,7 @@ namespace WaxRentals.Data.Manager
             return Context.WelcomePackages
                           .Where(package => package.StatusId == (int)Status.Processed)
                           .OrderByDescending(package => package.PackageId)
-                          .Take(10)
+                          .Take(Display.Recents)
                           .Include(package => package.Rental)
                           .ToArray();
         }
