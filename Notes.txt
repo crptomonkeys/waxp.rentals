@@ -1,5 +1,4 @@
 
-- let run for a few weeks
 - announce beta
 - let run for a few weeks
 - announce live

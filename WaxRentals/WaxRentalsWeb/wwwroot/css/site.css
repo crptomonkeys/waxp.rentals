@@ -33,6 +33,13 @@ body {
   cursor: pointer;
 }
 
+span.rental-free-days {
+  font-weight: bold;
+  color: #d8aa46;
+  margin-left: 5px;
+  font-size: 1.1em;
+}
+
 #menu-3 div.toggle-content {
   margin-bottom: 20px;
 }

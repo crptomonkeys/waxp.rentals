@@ -9,6 +9,7 @@ using WaxRentals.Monitoring.Notifications;
 using WaxRentalsWeb.Config;
 using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Data.Models;
+using static WaxRentalsWeb.Config.Constants;
 
 namespace WaxRentalsWeb.Pages
 {
@@ -46,7 +47,7 @@ namespace WaxRentalsWeb.Pages
                 }
 
                 var cost = (input.CPU + input.NET) * input.Days * _cache.AppState.WaxRentPriceInBanano;
-                var id = await _data.Insert.OpenRental(input.Account, (int)input.Days, input.CPU, input.NET, decimal.Round(cost, 4));
+                var id = await _data.Insert.OpenRental(input.Account, RentalDays(input.Days), input.CPU, input.NET, decimal.Round(cost, 4));
                 var account = _banano.BuildAccount((uint)id);
                 _telegram.Send($"Starting rental process for {input.Account}.");
                 return Succeed(account.Address);
@@ -86,6 +87,12 @@ namespace WaxRentalsWeb.Pages
                 return (false, $"Must rent for at least one day.");
             }
             return (true, null);
+        }
+
+        private int RentalDays(uint input)
+        {
+            int days = (int)input;
+            return (days >= Calculations.DaysDoubleThreshold) ? (days * 2) : days;
         }
 
         private JsonResult Succeed(string address) => new JsonResult(RentalResult.Succeed(address));
