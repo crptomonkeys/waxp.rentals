@@ -110,12 +110,12 @@ namespace WaxRentals.Monitoring.Recents
         {
             var firstLeft = left.FirstOrDefault();
             var firstRight = right.FirstOrDefault();
-            return firstLeft.Year != firstRight.Year ||
-                   firstLeft.Month != firstRight.Month ||
-                   firstLeft.WaxDaysRented != firstRight.WaxDaysRented ||
-                   firstLeft.WaxDaysFree != firstRight.WaxDaysFree ||
-                   firstLeft.WaxPurchasedForSite != firstRight.WaxPurchasedForSite ||
-                   firstLeft.WelcomePackagesOpened != firstRight.WelcomePackagesOpened;
+            return firstLeft?.Year                  != firstRight?.Year                ||
+                   firstLeft?.Month                 != firstRight?.Month               ||
+                   firstLeft?.WaxDaysRented         != firstRight?.WaxDaysRented       ||
+                   firstLeft?.WaxDaysFree           != firstRight?.WaxDaysFree         ||
+                   firstLeft?.WaxPurchasedForSite   != firstRight?.WaxPurchasedForSite ||
+                   firstLeft?.WelcomePackagesOpened != firstRight?.WelcomePackagesOpened;
         }
 
         #endregion
