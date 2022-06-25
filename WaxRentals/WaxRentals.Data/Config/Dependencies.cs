@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Data.Entity.SqlServer;
+using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Context;
@@ -21,6 +22,9 @@ namespace WaxRentals.Data.Config
             services.AddTransient<WaxRentalsContext>();
             services.AddTransient<DataManager>();
             services.AddSingleton<IDataFactory, DataFactory>();
+
+            // Allow the database scale to do rounding where necessary.
+            SqlProviderServices.TruncateDecimalsToScale = false;
         }
 
     }
