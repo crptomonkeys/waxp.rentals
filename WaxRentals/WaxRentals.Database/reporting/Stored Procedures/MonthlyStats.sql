@@ -34,7 +34,7 @@ BEGIN
 			SELECT
 				Year = DATEPART(year, Inserted),
 				Month = DATEPART(month, Inserted),
-				WaxBought = CASE WHEN PaymentBananoAddress IS NOT NULL THEN Wax ELSE 0 END
+				WaxBought = CASE WHEN BananoTransaction IS NOT NULL THEN Wax ELSE 0 END
 			FROM Purchase
 			WHERE StatusId > 1
 		) p
