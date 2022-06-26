@@ -1,21 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eos.Api" Version="1.18.12.19" />
-    <PackageReference Include="Eos.Cryptography" Version="1.18.12.19" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="5.0.17" />
-    <PackageReference Include="Nano.Net" Version="1.5.0" />
-    <PackageReference Include="QRCoder" Version="1.4.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\WaxRentals.Banano\WaxRentals.Banano.csproj" />
     <ProjectReference Include="..\WaxRentals.Data\WaxRentals.Data.csproj" />
     <ProjectReference Include="..\WaxRentals.Monitoring\WaxRentals.Monitoring.csproj" />
+    <ProjectReference Include="..\WaxRentals.Processing\WaxRentals.Processing.csproj" />
     <ProjectReference Include="..\WaxRentals.Service.Connectors\WaxRentals.Service.Shared.csproj" />
     <ProjectReference Include="..\WaxRentals.Waxp\WaxRentals.Waxp.csproj" />
   </ItemGroup>

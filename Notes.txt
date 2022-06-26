@@ -1,3 +1,7 @@
 
 - let run for a few weeks
 - announce live
+  - best things about CM/banano
+    - top 5*(10cpu*5days)
+    - top 1*(CM, additional?)
+  - API

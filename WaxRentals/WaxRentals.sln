@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32413.511
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1 -- Solution Items", "1 -- Solution Items", "{35DB5FCD-A3E4-4043-BB9C-578169103AA3}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,17 +25,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Data", "WaxRenta
 EndProject
 Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "WaxRentals.Database", "WaxRentals.Database\WaxRentals.Database.sqlproj", "{FB0F0576-6DD7-4391-A45E-975E5F542F18}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 -- Data", "4 -- Data", "{7EAA7E06-4B3C-4147-A926-A45FE6DB771C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 -- Data", "5 -- Data", "{7EAA7E06-4B3C-4147-A926-A45FE6DB771C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2 -- App", "2 -- App", "{9A71D8E9-28F8-48FE-A7FD-64E05B59FF7D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Processing", "WaxRentals.Processing\WaxRentals.Processing.csproj", "{F401AC16-DD40-4F1E-B187-0B57D267230B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 -- Protocols", "3 -- Protocols", "{85587003-2A08-4C06-A343-5D712A5E4DB3}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4 -- Protocols", "4 -- Protocols", "{85587003-2A08-4C06-A343-5D712A5E4DB3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5 -- Tools", "5 -- Tools", "{1DE5BCA2-FA15-4D36-90B4-A819E8065F05}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "6 -- Tools", "6 -- Tools", "{1DE5BCA2-FA15-4D36-90B4-A819E8065F05}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FillDatabaseAddresses", "FillDatabaseAddresses\FillDatabaseAddresses.csproj", "{FCAA2091-91BE-4F88-ADB6-10A273CA1F81}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3 -- Service", "3 -- Service", "{12E99994-E4B6-441E-9E43-D38835E6F977}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Service", "WaxRentals.Service\WaxRentals.Service.csproj", "{67541D94-1D67-4BAA-814D-5D026E99B09B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Service.Shared", "WaxRentals.Service.Connectors\WaxRentals.Service.Shared.csproj", "{248EC80E-DE22-4750-9FA3-2FE2D5BE1E7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +85,14 @@ Global
 		{FCAA2091-91BE-4F88-ADB6-10A273CA1F81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FCAA2091-91BE-4F88-ADB6-10A273CA1F81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCAA2091-91BE-4F88-ADB6-10A273CA1F81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67541D94-1D67-4BAA-814D-5D026E99B09B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67541D94-1D67-4BAA-814D-5D026E99B09B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67541D94-1D67-4BAA-814D-5D026E99B09B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67541D94-1D67-4BAA-814D-5D026E99B09B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{248EC80E-DE22-4750-9FA3-2FE2D5BE1E7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{248EC80E-DE22-4750-9FA3-2FE2D5BE1E7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{248EC80E-DE22-4750-9FA3-2FE2D5BE1E7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{248EC80E-DE22-4750-9FA3-2FE2D5BE1E7B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -93,6 +107,8 @@ Global
 		{FB0F0576-6DD7-4391-A45E-975E5F542F18} = {7EAA7E06-4B3C-4147-A926-A45FE6DB771C}
 		{F401AC16-DD40-4F1E-B187-0B57D267230B} = {9A71D8E9-28F8-48FE-A7FD-64E05B59FF7D}
 		{FCAA2091-91BE-4F88-ADB6-10A273CA1F81} = {1DE5BCA2-FA15-4D36-90B4-A819E8065F05}
+		{67541D94-1D67-4BAA-814D-5D026E99B09B} = {12E99994-E4B6-441E-9E43-D38835E6F977}
+		{248EC80E-DE22-4750-9FA3-2FE2D5BE1E7B} = {12E99994-E4B6-441E-9E43-D38835E6F977}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {67FEF539-CB46-41B5-89E4-7399F417FC18}
