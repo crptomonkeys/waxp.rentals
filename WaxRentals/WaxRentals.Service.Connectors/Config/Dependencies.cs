@@ -10,6 +10,13 @@ namespace WaxRentals.Service.Shared.Config
 
         public static void AddDependencies(this IServiceCollection services, string baseUrl)
         {
+            services.AddSingleton<IAppService>(provider =>
+                new AppService(
+                    BuildUrl(baseUrl, "App"),
+                    provider.GetRequiredService<IDataFactory>().Log
+                )
+            );
+
             services.AddSingleton<IRentalService>(provider =>
                 new RentalService(
                     BuildUrl(baseUrl, "Rental"),

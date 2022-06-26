@@ -31,10 +31,22 @@ namespace WaxRentals.Service.Shared.Connectors
 
         protected async Task<Result<TOut>> Post<TOut>(string path, object data)
         {
+            var json = JsonSerializer.Serialize(data);
+            return await Process<TOut>(async () =>
+                await Client.PostAsync(path, new StringContent(json, Encoding.UTF8, "application/json"))
+            );
+        }
+
+        protected async Task<Result<TOut>> Get<TOut>(string path)
+        {
+            return await Process<TOut>(async () => await Client.GetAsync(path));
+        }
+
+        protected async Task<Result<TOut>> Process<TOut>(Func<Task<HttpResponseMessage>> target)
+        {
             try
             {
-                var json = JsonSerializer.Serialize(data);
-                var response = await Client.PostAsync(path, new StringContent(json, Encoding.UTF8, "application/json"));
+                var response = await target();
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
