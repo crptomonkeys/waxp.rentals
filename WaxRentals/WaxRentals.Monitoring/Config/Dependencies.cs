@@ -8,6 +8,7 @@ using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Notifications;
 using WaxRentals.Monitoring.Prices;
 using WaxRentals.Monitoring.Recents;
+using WaxRentals.Service.Shared.Connectors;
 using static WaxRentals.Monitoring.Config.Constants;
 using File = System.IO.File;
 
@@ -18,6 +19,14 @@ namespace WaxRentals.Monitoring.Config
 
         public static void AddDependencies(this IServiceCollection services)
         {
+            services.AddSingleton<IAppStateMonitor>(provider =>
+                new AppStateMonitor(
+                    TimeSpan.FromSeconds(5),
+                    provider.GetRequiredService<IDataFactory>(),
+                    provider.GetRequiredService<IAppService>()
+                )
+            );
+
             services.AddSingleton<IPriceMonitor>(provider =>
                 new PriceMonitor(
                     TimeSpan.FromMinutes(2),
@@ -27,7 +36,7 @@ namespace WaxRentals.Monitoring.Config
             );
 
             services.AddSingleton<IInsightsMonitor>(provider =>
-                new InisghtsMonitor(
+                new InsightsMonitor(
                     TimeSpan.FromMinutes(1),
                     provider.GetRequiredService<IDataFactory>()
                 )

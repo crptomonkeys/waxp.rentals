@@ -8,7 +8,7 @@ using WaxRentals.Monitoring.Extensions;
 
 namespace WaxRentals.Monitoring.Recents
 {
-    internal class InisghtsMonitor : Monitor, IInsightsMonitor
+    internal class InsightsMonitor : Monitor, IInsightsMonitor
     {
 
         private SafeEnumerable<Rental> _rentals = new();
@@ -23,7 +23,7 @@ namespace WaxRentals.Monitoring.Recents
         private SafeEnumerable<MonthlyStats> _stats = new();
         public IEnumerable<MonthlyStats> MonthlyStats { get { return _stats.SafeRead(); } }
 
-        public InisghtsMonitor(TimeSpan interval, IDataFactory factory)
+        public InsightsMonitor(TimeSpan interval, IDataFactory factory)
             : base(interval, factory)
         {
             // Nothing additional.

@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using WaxRentals.Banano.Transact;
+using WaxRentals.Monitoring.Recents;
 using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Data.Models;
 
@@ -11,21 +12,25 @@ namespace WaxRentalsWeb.Notifications
     {
 
         private readonly IDataCache _data;
+        private IAppStateMonitor AppState { get; }
         private readonly IHubContext<NotificationHub> _context;
         private readonly IBananoAccountFactory _banano;
-
+        
         // This must be public to work.
         public NotificationHub(
             IDataCache data,
+            IAppStateMonitor appState,
             IHubContext<NotificationHub> context,
             IBananoAccountFactory banano)
         {
             _data = data;
+            AppState = appState;
             _context = context;
             _banano = banano;
 
             _data.AppStateChanged += async (_, _) => await NotifyAppState(_context.Clients.All);
             _data.InsightsChanged += async (_, _) => await NotifyInsights(_context.Clients.All);
+            AppState.Updated += async (_, _) => await NotifyAppState(_context.Clients.All);
         }
 
         public async override Task OnConnectedAsync()
@@ -40,7 +45,11 @@ namespace WaxRentalsWeb.Notifications
 
         private async Task NotifyAppState(IClientProxy client)
         {
-            await Notify(client, "AppStateChanged", () => new AppStateModel(_data.AppState));
+            if (_data.AppState == null || AppState.Value == null)
+            {
+                return;
+            }
+            await Notify(client, "AppStateChanged", () => new AppStateModel(_data.AppState, AppState.Value));
         }
 
         private async Task NotifyInsights(IClientProxy client)

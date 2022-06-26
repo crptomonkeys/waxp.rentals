@@ -51,6 +51,7 @@ namespace WaxRentals.Service.Config
 
             services.AddSingleton<CostsCache>();
             services.AddSingleton<LimitsCache>();
+            services.AddSingleton<Cache>();
         }
 
         #region " HttpClient "
