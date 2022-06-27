@@ -25,13 +25,13 @@ namespace WaxRentals.Processing.Processors
                 var (todaySuccess, todayBalances) = await today.GetBalances();
                 if (todaySuccess && todayBalances.Unstaking > 0)
                 {
-                    await today.ClaimRefund();
+                    (todaySuccess, _) = await today.ClaimRefund();
                 }
 
                 var (yesterdaySuccess, yesterdayBalances) = await Wax.Yesterday.GetBalances();
                 if (yesterdaySuccess && yesterdayBalances.Available > 0)
                 {
-                    await Wax.Yesterday.Send(today.Account, yesterdayBalances.Available);
+                    (yesterdaySuccess, _) = await Wax.Yesterday.Send(today.Account, yesterdayBalances.Available);
                 }
 
                 if (todaySuccess && yesterdaySuccess)
