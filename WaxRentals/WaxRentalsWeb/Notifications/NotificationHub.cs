@@ -5,6 +5,7 @@ using WaxRentals.Banano.Transact;
 using WaxRentals.Monitoring.Recents;
 using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Data.Models;
+using WaxRentalsWeb.Files;
 
 namespace WaxRentalsWeb.Notifications
 {
@@ -13,24 +14,32 @@ namespace WaxRentalsWeb.Notifications
 
         private readonly IDataCache _data;
         private IAppStateMonitor AppState { get; }
-        private readonly IHubContext<NotificationHub> _context;
-        private readonly IBananoAccountFactory _banano;
+        private IBananoAccountFactory Banano { get; }
+
+        private volatile string _siteMessage;
         
         // This must be public to work.
         public NotificationHub(
             IDataCache data,
             IAppStateMonitor appState,
-            IHubContext<NotificationHub> context,
+            SiteMessageMonitor siteMessageMonitor,
+            IHubContext<NotificationHub> hub,
             IBananoAccountFactory banano)
         {
             _data = data;
             AppState = appState;
-            _context = context;
-            _banano = banano;
+            Banano = banano;
 
-            _data.AppStateChanged += async (_, _) => await NotifyAppState(_context.Clients.All);
-            _data.InsightsChanged += async (_, _) => await NotifyInsights(_context.Clients.All);
-            AppState.Updated += async (_, _) => await NotifyAppState(_context.Clients.All);
+            _data.InsightsChanged += async (_, _) => await NotifyInsights(hub.Clients.All);
+
+            AppState.Updated += async (_, _) => await NotifyAppState(hub.Clients.All);
+            
+            siteMessageMonitor.Updated += async (_, contents) =>
+            {
+                _siteMessage = contents;
+                await NotifyInsights(hub.Clients.All);
+            };
+            siteMessageMonitor.Initialize();
         }
 
         public async override Task OnConnectedAsync()
@@ -45,16 +54,16 @@ namespace WaxRentalsWeb.Notifications
 
         private async Task NotifyAppState(IClientProxy client)
         {
-            if (_data.AppState == null || AppState.Value == null)
+            if (AppState.Value == null)
             {
                 return;
             }
-            await Notify(client, "AppStateChanged", () => new AppStateModel(_data.AppState, AppState.Value));
+            await Notify(client, "AppStateChanged", () => new AppStateModel(AppState.Value, _siteMessage));
         }
 
         private async Task NotifyInsights(IClientProxy client)
         {
-            await Notify(client, "InsightsChanged", () => new InsightsModel(_data.Insights, _banano));
+            await Notify(client, "InsightsChanged", () => new InsightsModel(_data.Insights, Banano));
         }
 
         private async Task Notify<T>(IClientProxy client, string method, Func<T> getData)

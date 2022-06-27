@@ -27,21 +27,39 @@ namespace WaxRentals.Service.Controllers
         [HttpGet("State")]
         public JsonResult State()
         {
+            var costs = Cache.Costs.GetCosts();
+            var limits = Cache.Limits.GetLimits();
             var prices = Cache.Prices.GetPrices();
             var waxInfo = Cache.WaxInfo.GetBalances();
             return Succeed(
                 new AppState
                 {
-                    BananoPrice   = Price(prices.Banano),
-                    BananoAddress = Banano.Address,
-                    BananoBalance = Balance(Cache.BananoInfo.GetBalance()),
+                    BananoPrice                    = Price(prices.Banano),
+                    BananoAddress                  = Banano.Address,
+                    BananoBalance                  = Balance(Cache.BananoInfo.GetBalance()),
+                                                   
+                    WaxPrice                       = Price(prices.Wax),
+                    WaxAccount                     = WaxConstants.Protocol.Account,
+                    WaxStaked                      = Balance(waxInfo.Staked),
+                    WaxWorkingAccount              = waxInfo.Today,
+                    WaxBalanceAvailableToday       = Balance(waxInfo.Available),
+                    WaxBalanceAvailableTomorrow    = Balance(waxInfo.Unstaking),
+                                                   
+                    WaxRentPriceInBanano           = Price(costs.WaxRentPriceInBanano),
+                    WaxBuyPriceInBanano            = Price(costs.WaxBuyPriceInBanano),
+                    BananoWelcomePackagePrice      = Price(costs.BananoWelcomePackagePrice),
+                                                   
+                    BananoMinimumCredit            = Balance(limits.BananoMinimumCredit),
+                    WaxMinimumRent                 = Balance(limits.WaxMinimumRent),
+                    WaxMaximumRent                 = Balance(limits.WaxMaximumRent),
+                    WaxMinimumBuy                  = Balance(limits.WaxMinimumBuy),
+                    WaxMaximumBuy                  = Balance(limits.WaxMaximumBuy),
 
-                    WaxPrice                    = Price(prices.Wax),
-                    WaxAccount                  = WaxConstants.Protocol.Account,
-                    WaxStaked                   = Balance(waxInfo.Staked),
-                    WaxWorkingAccount           = waxInfo.Today,
-                    WaxBalanceAvailableToday    = Balance(waxInfo.Available),
-                    WaxBalanceAvailableTomorrow = Balance(waxInfo.Unstaking)
+                    WelcomePackagesAvailable       = waxInfo.Available >= WaxConstants.Protocol.NewUser.OpenWax,
+                    WelcomePackageRentalsAvailable = waxInfo.Available >= (WaxConstants.Protocol.NewUser.OpenWax +
+                                                                           WaxConstants.Protocol.NewUser.FreeCpu +
+                                                                           WaxConstants.Protocol.NewUser.FreeNet),
+                    WelcomePackageNftsAvailable    = Cache.Nfts.GetNfts().Any()
                 }
             );
         }

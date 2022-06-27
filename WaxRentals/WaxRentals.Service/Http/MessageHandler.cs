@@ -2,6 +2,8 @@
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 
+#nullable disable
+
 namespace WaxRentals.Service.Http
 {
     internal class MessageHandler : DelegatingHandler
@@ -40,13 +42,12 @@ namespace WaxRentals.Service.Http
             return response;
         }
 
-        private static async Task<string> GetFullMessage(Task<string?> body, string lead, params HttpHeaders?[] headers)
+        private static async Task<string> GetFullMessage(Task<string> body, string lead, params HttpHeaders[] headers)
         {
             // For some reason, we need to force the Content-Length header for it to be included.
             headers.OfType<HttpContentHeaders>().Select(header => header.ContentLength).ToList();
 
-            var flat = headers.Where(h => h != null).SelectMany(header => header); // The warning says this could be null,
-                                                                                   // but it obviously can't be.
+            var flat = headers.Where(h => h != null).SelectMany(header => header);
             var combined = string.Join(
                 Environment.NewLine,
                 flat.Select(header => $"{header.Key}: {string.Join(", ", header.Value)}")
@@ -65,7 +66,7 @@ namespace WaxRentals.Service.Http
     internal static class HttpRequestExtensions
     {
 
-        public static async Task<string?> GetBody(this HttpRequestMessage @this)
+        public static async Task<string> GetBody(this HttpRequestMessage @this)
         {
             // An empty body will show as null Content.
             if (@this.Content == null)
@@ -75,7 +76,7 @@ namespace WaxRentals.Service.Http
             return await @this.Content.ReadAsStringAsync();
         }
 
-        public static async Task<string?> GetBody(this HttpResponseMessage @this)
+        public static async Task<string> GetBody(this HttpResponseMessage @this)
         {
             // An empty body will show as null Content.
             if (@this.Content == null)

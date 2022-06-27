@@ -545,7 +545,7 @@
               </div> <!-- /.col-md-12 -->
 
               <div class="col-md-12" v-if="!package">
-                <div class="contact-form" v-if="state.waxBalanceAvailable >= state.waxWelcomePackageMinimumAvailable">
+                <div class="contact-form" v-if="state.welcomePackagesAvailable">
                   <div class="row">
                     <form id="open-welcome-package" action="/api/WelcomePackage" method="post">
 

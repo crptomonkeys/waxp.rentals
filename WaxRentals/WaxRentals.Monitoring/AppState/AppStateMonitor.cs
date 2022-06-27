@@ -48,15 +48,30 @@ namespace WaxRentals.Monitoring.Recents
         private bool Differ(AppState left, AppState right)
         {
             var comparison = StringComparison.OrdinalIgnoreCase;
-            return !string.Equals(left.BananoAddress, right.BananoAddress, comparison)   ||
-                   left.BananoBalance != right.BananoBalance                             ||
-                   left.BananoPrice != right.BananoPrice                                 ||
-                   !string.Equals(left.WaxAccount, right.WaxAccount, comparison)         ||
-                   left.WaxBalanceAvailableToday != right.WaxBalanceAvailableToday       ||
-                   left.WaxBalanceAvailableTomorrow != right.WaxBalanceAvailableTomorrow ||
-                   left.WaxPrice != right.WaxPrice                                       ||
-                   left.WaxStaked != right.WaxStaked                                     ||
-                   !string.Equals(left.WaxWorkingAccount, right.WaxWorkingAccount, comparison);
+            return !string.Equals(left.BananoAddress, right.BananoAddress, comparison)         ||
+                   left.BananoBalance != right.BananoBalance                                   ||
+                   left.BananoPrice != right.BananoPrice                                       ||
+                                                                                               
+                   !string.Equals(left.WaxAccount, right.WaxAccount, comparison)               ||
+                   left.WaxBalanceAvailableToday != right.WaxBalanceAvailableToday             ||
+                   left.WaxBalanceAvailableTomorrow != right.WaxBalanceAvailableTomorrow       ||
+                   left.WaxPrice != right.WaxPrice                                             ||
+                   left.WaxStaked != right.WaxStaked                                           ||
+                   !string.Equals(left.WaxWorkingAccount, right.WaxWorkingAccount, comparison) || 
+                   
+                   left.WaxRentPriceInBanano != right.WaxRentPriceInBanano                     ||
+                   left.WaxBuyPriceInBanano != right.WaxBuyPriceInBanano                       ||
+                   left.BananoWelcomePackagePrice != right.BananoWelcomePackagePrice           ||
+                   
+                   left.BananoMinimumCredit != right.BananoMinimumCredit                       ||
+                   left.WaxMinimumRent != right.WaxMinimumRent                                 ||
+                   left.WaxMaximumRent != right.WaxMaximumRent                                 ||
+                   left.WaxMinimumBuy != right.WaxMinimumBuy                                   ||
+                   left.WaxMaximumBuy != right.WaxMaximumBuy                                   ||
+                   
+                   left.WelcomePackagesAvailable != right.WelcomePackagesAvailable             ||
+                   left.WelcomePackageRentalsAvailable != right.WelcomePackageRentalsAvailable ||
+                   left.WelcomePackageNftsAvailable != right.WelcomePackageNftsAvailable;
         }
 
         #endregion

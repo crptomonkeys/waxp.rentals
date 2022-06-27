@@ -25,6 +25,20 @@ namespace WaxRentals.Service.Config
             // Caches.
 
             services.AddSingleton(provider =>
+                new BananoInfoCache(
+                    provider.GetRequiredService<IDataFactory>(),
+                    TimeSpan.FromMinutes(1),
+                    provider.GetRequiredService<IBananoAccount>())
+            );
+
+            services.AddSingleton(provider =>
+                new NftsCache(
+                    provider.GetRequiredService<IDataFactory>(),
+                    TimeSpan.FromMinutes(5)
+                )
+            );
+
+            services.AddSingleton(provider =>
             {
                 var factory = provider.GetRequiredService<IDataFactory>();
                 return new PricesCache(
@@ -35,13 +49,6 @@ namespace WaxRentals.Service.Config
             });
 
             services.AddSingleton(provider =>
-                new BananoInfoCache(
-                    provider.GetRequiredService<IDataFactory>(),
-                    TimeSpan.FromMinutes(1),
-                    provider.GetRequiredService<IBananoAccount>())
-            );
-
-            services.AddSingleton(provider =>
                 new WaxInfoCache(
                     provider.GetRequiredService<IDataFactory>(),
                     TimeSpan.FromMinutes(2),
@@ -49,9 +56,9 @@ namespace WaxRentals.Service.Config
                 )
             );
 
+            services.AddSingleton<Cache>();
             services.AddSingleton<CostsCache>();
             services.AddSingleton<LimitsCache>();
-            services.AddSingleton<Cache>();
         }
 
         #region " HttpClient "

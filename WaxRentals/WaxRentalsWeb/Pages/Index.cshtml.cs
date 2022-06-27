@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Notifications;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Config;
 using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Data.Models;
@@ -18,14 +20,14 @@ namespace WaxRentalsWeb.Pages
 
         public PageLoadModel InitialPage { get; private set; }
 
-        private readonly IDataCache _cache;
+        private readonly IAppService _service;
         private readonly IDataFactory _data;
         private readonly IBananoAccountFactory _banano;
         private readonly ITelegramNotifier _telegram;
 
-        public IndexModel(IDataCache cache, IDataFactory data, IBananoAccountFactory banano, ITelegramNotifier telegram)
+        public IndexModel(IAppService service, IDataFactory data, IBananoAccountFactory banano, ITelegramNotifier telegram)
         {
-            _cache = cache;
+            _service = service;
             _data = data;
             _banano = banano;
             _telegram = telegram;
@@ -40,13 +42,14 @@ namespace WaxRentalsWeb.Pages
         {
             try
             {
-                var (valid, error) = Validate(input);
+                var state = (await _service.State()).Value;
+                var (valid, error) = Validate(input, state);
                 if (!valid)
                 {
                     return Fail(error);
                 }
 
-                var cost = (input.CPU + input.NET) * input.Days * _cache.AppState.WaxRentPriceInBanano;
+                var cost = (input.CPU + input.NET) * input.Days * state.WaxRentPriceInBanano;
                 var id = await _data.Insert.OpenRental(input.Account, RentalDays(input.Days), input.CPU, input.NET, decimal.Round(cost, 4));
                 var account = _banano.BuildAccount((uint)id);
                 _telegram.Send($"Starting rental process for {input.Account}.");
@@ -66,21 +69,21 @@ namespace WaxRentalsWeb.Pages
             }
         }
 
-        private (bool valid, string error) Validate(RentalInput input)
+        private (bool valid, string error) Validate(RentalInput input, AppState state)
         {
             if (!ModelState.IsValid)
             {
-                var (name, state) = ModelState.First(kvp => kvp.Value.Errors.Any());
-                var errors = string.Join(" ", state.Errors.Select(e => e.ErrorMessage));
+                var (name, entry) = ModelState.First(kvp => kvp.Value.Errors.Any());
+                var errors = string.Join(" ", entry.Errors.Select(e => e.ErrorMessage));
                 return (false, $"{name}: {errors}");
             }
-            else if (input.CPU + input.NET < _cache.AppState.WaxMinimumRent)
+            else if (input.CPU + input.NET < state.WaxMinimumRent)
             {
-                return (false, $"Must rent at least {_cache.AppState.WaxMinimumRent} WAX.");
+                return (false, $"Must rent at least {state.WaxMinimumRent} WAX.");
             }
-            else if (input.CPU + input.NET > _cache.AppState.WaxMaximumRent)
+            else if (input.CPU + input.NET > state.WaxMaximumRent)
             {
-                return (false, $"Cannot rent more than {_cache.AppState.WaxMaximumRent} WAX in one transaction right now.");
+                return (false, $"Cannot rent more than {state.WaxMaximumRent} WAX in one transaction right now.");
             }
             else if (input.Days < 1)
             {
