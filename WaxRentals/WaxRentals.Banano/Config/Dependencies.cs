@@ -1,9 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Nano.Net;
 using Newtonsoft.Json.Linq;
-using WaxRentals.Banano.Monitoring;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using static WaxRentals.Banano.Config.Constants;
@@ -21,14 +19,6 @@ namespace WaxRentals.Banano.Config
                     Node = new RpcClient(Locations.Node),
                     WorkServer = new RpcClient(Locations.WorkServer)
                 }
-            );
-
-            services.AddSingleton(provider =>
-                new BalanceMonitor(
-                    TimeSpan.FromMinutes(2),
-                    provider.GetRequiredService<IDataFactory>(),
-                    provider.GetRequiredService<IBananoAccount>()
-                )
             );
 
             var seed = JObject.Parse(File.ReadAllText(Locations.Seed)).ToObject<BananoSeed>();

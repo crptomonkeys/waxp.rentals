@@ -35,21 +35,6 @@ namespace WaxRentals.Waxp.Config
 
             services.AddSingleton<IClientFactory, ClientFactory>();
             services.AddSingleton<IWaxAccounts, WaxAccounts>();
-
-            services.AddSingleton(provider =>
-                new BalancesMonitor(
-                    TimeSpan.FromMinutes(2),
-                    provider.GetRequiredService<IDataFactory>(),
-                    provider.GetRequiredService<IWaxAccounts>()
-                )
-            );
-
-            services.AddSingleton(provider =>
-                new NftsMonitor(
-                    TimeSpan.FromMinutes(1),
-                    provider.GetRequiredService<IDataFactory>()
-                )
-            );
         }
 
     }
