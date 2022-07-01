@@ -26,7 +26,7 @@ namespace WaxRentalsWeb.Pages
                 var rental = _data.Explore.GetRentalsByBananoAddresses(new string[] { address }).SingleOrDefault();
                 if (rental?.Status == Status.New || rental?.Status == Status.Pending)
                 {
-                    var account = _banano.BuildAccount((uint)rental.RentalId);
+                    var account = _banano.BuildAccount(rental.RentalId);
                     var link = account.BuildLink(rental.Banano);
                     return GenerateQRCode(link);
                 }
@@ -41,7 +41,7 @@ namespace WaxRentalsWeb.Pages
                 var package = _data.Explore.GetWelcomePackagesByBananoAddresses(new string[] { address }).SingleOrDefault();
                 if (package?.Status == Status.New)
                 {
-                    var account = _banano.BuildWelcomeAccount((uint)package.PackageId);
+                    var account = _banano.BuildWelcomeAccount(package.PackageId);
                     var link = account.BuildLink(package.Banano);
                     return GenerateQRCode(link);
                 }

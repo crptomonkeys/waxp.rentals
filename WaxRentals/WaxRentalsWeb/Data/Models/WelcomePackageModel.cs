@@ -1,5 +1,4 @@
-﻿using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
+﻿using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentalsWeb.Data.Models
 {
@@ -13,14 +12,14 @@ namespace WaxRentalsWeb.Data.Models
         public string NftTransaction { get; }
         public string StakeTransaction { get; }
 
-        public WelcomePackageModel(WelcomePackage package, IBananoAccountFactory banano)
+        public WelcomePackageModel(WelcomePackageInfo package)
         {
             Banano           = package.Banano;
-            BananoAddress    = banano.BuildWelcomeAccount((uint)package.PackageId).Address;
+            BananoAddress    = package.BananoAddress;
             Wax              = package.Wax;
             FundTransaction  = package.FundTransaction;
             NftTransaction   = package.NftTransaction;
-            StakeTransaction = package.Rental?.StakeWaxTransaction;
+            StakeTransaction = package.StakeTransaction;
         }
 
     }

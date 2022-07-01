@@ -35,7 +35,7 @@ namespace WaxRentals.Processing.Processors
         {
             try
             {
-                var account = Banano.BuildWelcomeAccount((uint)package.PackageId);
+                var account = Banano.BuildWelcomeAccount(package.PackageId);
                 var balance = await account.GetBalance();
                 if (balance >= package.Banano)
                 {

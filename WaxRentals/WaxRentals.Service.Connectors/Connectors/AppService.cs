@@ -7,6 +7,7 @@ namespace WaxRentals.Service.Shared.Connectors
     public interface IAppService
     {
         Task<Result<AppState>> State();
+        Task<Result<AppInsights>> Insights();
     }
 
     internal class AppService : Connector, IAppService
@@ -17,6 +18,11 @@ namespace WaxRentals.Service.Shared.Connectors
         public async Task<Result<AppState>> State()
         {
             return await Get<AppState>("State");
+        }
+
+        public async Task<Result<AppInsights>> Insights()
+        {
+            return await Get<AppInsights>("Insights");
         }
 
     }

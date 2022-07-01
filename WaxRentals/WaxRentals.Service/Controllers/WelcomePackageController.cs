@@ -39,7 +39,7 @@ namespace WaxRentals.Service.Controllers
                 }
 
                 var id = await Factory.Insert.OpenWelcomePackage(NewUser.Account, memo, NewUser.OpenWax, cost);
-                var account = Banano.BuildWelcomeAccount((uint)id);
+                var account = Banano.BuildWelcomeAccount(id);
                 return Succeed(
                     new NewWelcomePackage(
                         account.Address,

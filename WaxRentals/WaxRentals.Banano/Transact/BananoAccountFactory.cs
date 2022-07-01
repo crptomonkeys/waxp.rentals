@@ -19,14 +19,14 @@ namespace WaxRentals.Banano.Transact
             _factory = factory;
         }
 
-        public IBananoAccount BuildAccount(uint index)
+        public IBananoAccount BuildAccount(int index)
         {
-            return new WrappedAccount(_seed, index, _rpc, _factory);
+            return new WrappedAccount(_seed, (uint)index, _rpc, _factory);
         }
 
-        public IBananoAccount BuildWelcomeAccount(uint index)
+        public IBananoAccount BuildWelcomeAccount(int index)
         {
-            return new WrappedAccount(_welcomeSeed, index, _rpc, _factory);
+            return new WrappedAccount(_welcomeSeed, (uint)index, _rpc, _factory);
         }
 
     }

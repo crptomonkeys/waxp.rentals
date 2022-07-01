@@ -1,15 +1,15 @@
 ﻿using System;
 using WaxRentals.Service.Shared.Entities;
 
-namespace WaxRentals.Monitoring.Recents
+namespace WaxRentals.Monitoring.App
 {
-    public interface IAppStateMonitor
+    public interface IAppInsightsMonitor
     {
 
         event EventHandler Updated;
         void Initialize();
 
-        AppState Value { get; }
+        AppInsights Value { get; }
 
     }
 }

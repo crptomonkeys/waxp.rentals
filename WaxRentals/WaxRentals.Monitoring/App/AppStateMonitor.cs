@@ -5,14 +5,14 @@ using WaxRentals.Monitoring.Extensions;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
 
-namespace WaxRentals.Monitoring.Recents
+namespace WaxRentals.Monitoring.App
 {
     internal class AppStateMonitor : Monitor, IAppStateMonitor
     {
 
-        private AppState _appState;
+        private AppState _state;
         private readonly ReaderWriterLockSlim _rwls = new();
-        public AppState Value { get { return _rwls.SafeRead(() => _appState); } }
+        public AppState Value { get { return _rwls.SafeRead(() => _state); } }
 
         public IAppService Service { get; }
 
@@ -29,10 +29,10 @@ namespace WaxRentals.Monitoring.Recents
             try
             {
                 var state = Service.State().GetAwaiter().GetResult().Value;
-                if (_rwls.SafeRead(() => _appState) == null || Differ(_rwls.SafeRead(() => _appState), state))
+                if (_rwls.SafeRead(() => _state) == null || Differ(_rwls.SafeRead(() => _state), state))
                 {
                     update = true;
-                    _rwls.SafeWrite(() => _appState = state);
+                    _rwls.SafeWrite(() => _state = state);
                 }
             }
             catch (Exception ex)

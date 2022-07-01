@@ -16,7 +16,7 @@ namespace WaxRentalsWeb.Data.Models
 
         public RentalDetailModel(Rental rental, IBananoAccountFactory banano)
         {
-            var account = banano.BuildAccount((uint)rental.RentalId);
+            var account = banano.BuildAccount(rental.RentalId);
             Address = new BananoAddressModel(account.Address);
             Link = account.BuildLink(rental.Banano);
             Cpu = Convert.ToInt32(rental.CPU);

@@ -33,7 +33,7 @@ namespace WaxRentals.Processing.Processors
         {
             try
             {
-                var account = Banano.BuildAccount((uint)rental.RentalId);
+                var account = Banano.BuildAccount(rental.RentalId);
                 var amount = await account.GetBalance();
                 var hash = await account.Send(SweepAddress, amount);
                 await Factory.Process.ProcessRentalSweep(rental.RentalId, hash);

@@ -391,39 +391,39 @@ namespace WaxRentals.Data.Manager
 
         #region " IExplore "
 
-        public IEnumerable<Rental> GetRecentRentals()
+        public async Task<IEnumerable<Rental>> GetLatestRentals()
         {
-            return Context.Rentals
-                          .Where(rental => rental.StatusId == (int)Status.Processed || rental.StatusId == (int)Status.Closed)
-                          .OrderByDescending(rental => rental.RentalId)
-                          .Take(Display.Recents)
-                          .ToArray();
+            return await Context.Rentals
+                                .Where(rental => rental.StatusId == (int)Status.Processed || rental.StatusId == (int)Status.Closed)
+                                .OrderByDescending(rental => rental.RentalId)
+                                .Take(Display.Recents)
+                                .ToArrayAsync();
         }
 
-        public IEnumerable<Purchase> GetRecentPurchases()
+        public async Task<IEnumerable<Purchase>> GetLatestPurchases()
         {
-            return Context.Purchases
-                          .Where(purchase => purchase.StatusId == (int)Status.Processed && purchase.BananoTransaction != null)
-                          .OrderByDescending(purchase => purchase.PurchaseId)
-                          .Take(Display.Recents)
-                          .ToArray();
+            return await Context.Purchases
+                                .Where(purchase => purchase.StatusId == (int)Status.Processed && purchase.BananoTransaction != null)
+                                .OrderByDescending(purchase => purchase.PurchaseId)
+                                .Take(Display.Recents)
+                                .ToArrayAsync();
         }
 
-        public IEnumerable<WelcomePackage> GetRecentWelcomePackages()
+        public async Task<IEnumerable<WelcomePackage>> GetLatestWelcomePackages()
         {
-            return Context.WelcomePackages
-                          .Where(package => package.StatusId == (int)Status.Processed)
-                          .OrderByDescending(package => package.PackageId)
-                          .Take(Display.Recents)
-                          .Include(package => package.Rental)
-                          .ToArray();
+            return await Context.WelcomePackages
+                                .Where(package => package.StatusId == (int)Status.Processed)
+                                .OrderByDescending(package => package.PackageId)
+                                .Take(Display.Recents)
+                                .Include(package => package.Rental)
+                                .ToArrayAsync();
         }
 
-        public IEnumerable<MonthlyStats> GetMonthlyStats()
+        public async Task<IEnumerable<MonthlyStats>> GetMonthlyStats()
         {
-            return Context.Database
-                    .SqlQuery<MonthlyStats>("[reporting].[MonthlyStats]")
-                    .ToArray();
+            return await Context.Database
+                                .SqlQuery<MonthlyStats>("[reporting].[MonthlyStats]")
+                                .ToArrayAsync();
         }
 
         public IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses)

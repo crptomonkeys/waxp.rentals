@@ -33,6 +33,14 @@ namespace WaxRentals.Service.Config
             );
 
             services.AddSingleton(provider =>
+                new InsightsCache(
+                    provider.GetRequiredService<IDataFactory>(),
+                    TimeSpan.FromMinutes(1),
+                    provider.GetRequiredService<IBananoAccountFactory>()
+                )
+            );
+
+            services.AddSingleton(provider =>
                 new NftsCache(
                     provider.GetRequiredService<IDataFactory>(),
                     TimeSpan.FromMinutes(5)

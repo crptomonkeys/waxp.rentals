@@ -67,7 +67,9 @@ namespace WaxRentals.Service.Controllers
         [HttpGet("Insights")]
         public JsonResult Insights()
         {
-            return Fail("This method is not implemented.");
+            return Succeed(
+                Cache.Insights.GetInsights()
+            );
         }
 
         #region " Rounding "

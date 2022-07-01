@@ -41,7 +41,7 @@ namespace WaxRentalsWeb.Data.Models
             WaxMinimumBuy                  = decimal.Round(state.WaxMinimumBuy                 , 0);
             WaxMaximumBuy                  = decimal.Round(state.WaxMaximumBuy                 , 0);
             BananoWelcomePackagePrice      = decimal.Round(state.BananoWelcomePackagePrice     , 0);
-            WelcomePackagesAvailable       = state.WelcomePackagesAvailable                        ;
+            WelcomePackagesAvailable       =               state.WelcomePackagesAvailable          ;
             WelcomePackageNftsAvailable    =               state.WelcomePackageNftsAvailable       ;
             WelcomePackageRentalsAvailable =               state.WelcomePackageRentalsAvailable    ;
             SiteMessage                    =                     siteMessage                       ;

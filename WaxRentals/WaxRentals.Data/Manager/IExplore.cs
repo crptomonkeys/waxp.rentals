@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using WaxRentals.Data.Entities;
 
 namespace WaxRentals.Data.Manager
@@ -6,10 +7,10 @@ namespace WaxRentals.Data.Manager
     public interface IExplore
     {
 
-        IEnumerable<Rental> GetRecentRentals();
-        IEnumerable<Purchase> GetRecentPurchases();
-        IEnumerable<WelcomePackage> GetRecentWelcomePackages();
-        IEnumerable<MonthlyStats> GetMonthlyStats();
+        Task<IEnumerable<Rental>> GetLatestRentals();
+        Task<IEnumerable<Purchase>> GetLatestPurchases();
+        Task<IEnumerable<WelcomePackage>> GetLatestWelcomePackages();
+        Task<IEnumerable<MonthlyStats>> GetMonthlyStats();
 
         IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses);
         IEnumerable<Rental> GetRentalsByWaxAccount(string account);

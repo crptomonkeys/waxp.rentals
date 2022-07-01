@@ -70,7 +70,7 @@ namespace WaxRentals.Service.Controllers
                     id = await Factory.Insert.OpenRental(input.Account, RentalDays(input.Days), input.Cpu, input.Net, cost);
                 }
 
-                var account = Banano.BuildAccount((uint)id);
+                var account = Banano.BuildAccount(id);
                 return Succeed(account.Address);
             }
             catch (Exception ex)

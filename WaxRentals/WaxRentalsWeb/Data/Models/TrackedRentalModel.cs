@@ -26,7 +26,7 @@ namespace WaxRentalsWeb.Data.Models
             Net                = Convert.ToInt32(rental.NET);
             Days               = rental.RentalDays;
             Banano             = decimal.Round(rental.Banano, 4);
-            BananoAddress      = banano.BuildAccount((uint)rental.RentalId).Address;
+            BananoAddress      = banano.BuildAccount(rental.RentalId).Address;
             Paid               = rental.Paid;
             Expires            = rental.PaidThrough;
             StakeTransaction   = rental.StakeWaxTransaction;

@@ -1,5 +1,6 @@
 
 - swap to service
+- if no prices, fix New Wallet and Sell Wax screens
 - api
 - admin site
 

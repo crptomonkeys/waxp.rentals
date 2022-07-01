@@ -1,8 +1,8 @@
 ﻿using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching.Values;
-using WaxRentals.Service.Utilities;
 using WaxConstants = WaxRentals.Waxp.Config.Constants.Protocol;
 using BananoConstants = WaxRentals.Banano.Config.Constants.Protocol;
+using WaxRentals.Service.Shared.Utilities;
 
 namespace WaxRentals.Service.Caching
 {

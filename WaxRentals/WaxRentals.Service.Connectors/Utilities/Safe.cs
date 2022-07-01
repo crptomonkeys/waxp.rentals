@@ -1,4 +1,4 @@
-﻿namespace WaxRentals.Service.Utilities
+﻿namespace WaxRentals.Service.Shared.Utilities
 {
     public static class Safe
     {

@@ -50,7 +50,7 @@ namespace WaxRentalsWeb.Pages
 
                 var cost = (input.CPU + input.NET) * input.Days * state.WaxRentPriceInBanano;
                 var id = await Data.Insert.OpenRental(input.Account, RentalDays(input.Days), input.CPU, input.NET, decimal.Round(cost, 4));
-                var account = Banano.BuildAccount((uint)id);
+                var account = Banano.BuildAccount(id);
                 await Track.Notify($"Starting rental process for {input.Account}.");
                 return Succeed(account.Address);
             }

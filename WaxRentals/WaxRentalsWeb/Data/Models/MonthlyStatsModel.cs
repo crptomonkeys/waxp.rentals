@@ -1,5 +1,5 @@
 ﻿using System.Globalization;
-using WaxRentals.Data.Entities;
+using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentalsWeb.Data.Models
 {

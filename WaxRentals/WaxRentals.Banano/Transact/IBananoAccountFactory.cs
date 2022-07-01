@@ -3,8 +3,8 @@
     public interface IBananoAccountFactory
     {
 
-        IBananoAccount BuildAccount(uint index);
-        IBananoAccount BuildWelcomeAccount(uint index);
+        IBananoAccount BuildAccount(int index);
+        IBananoAccount BuildWelcomeAccount(int index);
 
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Files;
 using BananoDependencies = WaxRentals.Banano.Config.Dependencies;
 using DataDependencies = WaxRentals.Data.Config.Dependencies;
@@ -19,9 +18,6 @@ namespace WaxRentalsWeb.Config
             ServiceDependencies.AddDependencies(services, "http://localhost:22022");
 
             services.AddSingleton<SiteMessageMonitor>();
-
-            services.AddSingleton<DataCache>();
-            services.AddSingleton<IDataCache>(provider => provider.GetRequiredService<DataCache>());
         }
 
     }
