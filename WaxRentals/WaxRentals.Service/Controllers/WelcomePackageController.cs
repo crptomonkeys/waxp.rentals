@@ -4,7 +4,7 @@ using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
 using WaxRentals.Service.Shared.Entities;
-using static WaxRentals.Waxp.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
 namespace WaxRentals.Service.Controllers
 {
@@ -27,7 +27,7 @@ namespace WaxRentals.Service.Controllers
             try
             {
                 // Filter invalid memos.
-                if (string.IsNullOrWhiteSpace(memo) || !Regex.IsMatch(memo, Protocol.NewUser.MemoRegex))
+                if (string.IsNullOrWhiteSpace(memo) || !Regex.IsMatch(memo, NewUser.MemoRegex))
                 {
                     return Fail("Please check that the memo provided is correct.");
                 }
@@ -38,13 +38,13 @@ namespace WaxRentals.Service.Controllers
                     return Fail("Something went wrong; please try again in a few minutes.");
                 }
 
-                var id = await Factory.Insert.OpenWelcomePackage(Protocol.NewUser.Account, memo, Protocol.NewUser.OpenWax, cost);
+                var id = await Factory.Insert.OpenWelcomePackage(NewUser.Account, memo, NewUser.OpenWax, cost);
                 var account = Banano.BuildWelcomeAccount((uint)id);
                 return Succeed(
                     new NewWelcomePackage(
                         account.Address,
                         account.BuildLink(cost),
-                        Protocol.NewUser.Account,
+                        NewUser.Account,
                         memo)
                 );
             }

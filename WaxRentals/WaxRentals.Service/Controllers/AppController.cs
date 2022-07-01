@@ -3,7 +3,7 @@ using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
 using WaxRentals.Service.Shared.Entities;
-using WaxConstants = WaxRentals.Waxp.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Service.Controllers
 {
@@ -39,7 +39,7 @@ namespace WaxRentals.Service.Controllers
                     BananoBalance                  = Balance(Cache.BananoInfo.GetBalance()),
                                                    
                     WaxPrice                       = Price(prices.Wax),
-                    WaxAccount                     = WaxConstants.Protocol.Account,
+                    WaxAccount                     = Wax.PrimaryAccount,
                     WaxStaked                      = Balance(waxInfo.Staked),
                     WaxWorkingAccount              = waxInfo.Today,
                     WaxBalanceAvailableToday       = Balance(waxInfo.Available),
@@ -55,10 +55,10 @@ namespace WaxRentals.Service.Controllers
                     WaxMinimumBuy                  = Balance(limits.WaxMinimumBuy),
                     WaxMaximumBuy                  = Balance(limits.WaxMaximumBuy),
 
-                    WelcomePackagesAvailable       = waxInfo.Available >= WaxConstants.Protocol.NewUser.OpenWax,
-                    WelcomePackageRentalsAvailable = waxInfo.Available >= (WaxConstants.Protocol.NewUser.OpenWax +
-                                                                           WaxConstants.Protocol.NewUser.FreeCpu +
-                                                                           WaxConstants.Protocol.NewUser.FreeNet),
+                    WelcomePackagesAvailable       = waxInfo.Available >= Wax.NewUser.OpenWax,
+                    WelcomePackageRentalsAvailable = waxInfo.Available >= (Wax.NewUser.OpenWax +
+                                                                           Wax.NewUser.FreeCpu +
+                                                                           Wax.NewUser.FreeNet),
                     WelcomePackageNftsAvailable    = Cache.Nfts.GetNfts().Any()
                 }
             );

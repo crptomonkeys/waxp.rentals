@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
-using static WaxRentals.Banano.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants.Banano;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -35,7 +35,7 @@ namespace WaxRentals.Processing.Processors
             {
                 var account = Banano.BuildWelcomeAccount((uint)package.PackageId);
                 var amount = await account.GetBalance();
-                var hash = await account.Send(Protocol.Address, amount);
+                var hash = await account.Send(SweepAddress, amount);
                 await Factory.Process.ProcessWelcomePackageSweep(package.PackageId, hash);
             }
             catch (Exception ex)

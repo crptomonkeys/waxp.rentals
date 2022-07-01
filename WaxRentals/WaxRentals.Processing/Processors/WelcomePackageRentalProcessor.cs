@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 using WaxRentals.Processing.Extensions;
-using static WaxRentals.Waxp.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -29,9 +29,9 @@ namespace WaxRentals.Processing.Processors
             {
                 var rentalId = await Factory.Insert.OpenRental(
                     package.MemoToAccount(),
-                    Protocol.NewUser.FreeRentalDays,
-                    Protocol.NewUser.FreeCpu,
-                    Protocol.NewUser.FreeNet,
+                    NewUser.FreeRentalDays,
+                    NewUser.FreeCpu,
+                    NewUser.FreeNet,
                     0,
                     Status.Pending);
                 await Factory.Process.ProcessWelcomePackageRental(package.PackageId, rentalId);

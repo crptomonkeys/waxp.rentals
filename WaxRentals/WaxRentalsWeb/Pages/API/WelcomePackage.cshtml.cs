@@ -41,8 +41,8 @@ namespace WaxRentalsWeb.Pages
             }
         }
 
-        protected JsonResult Succeed(WelcomePackageDetail detail) => new JsonResult(WelcomePackageResult.Succeed(detail));
-        protected JsonResult Fail(string error) => new JsonResult(WelcomePackageResult.Fail(error));
+        protected JsonResult Succeed(WelcomePackageDetail detail) => new(WelcomePackageResult.Succeed(detail));
+        protected JsonResult Fail(string error) => new(WelcomePackageResult.Fail(error));
 
     }
 }

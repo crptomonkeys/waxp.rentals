@@ -9,7 +9,6 @@ namespace WaxRentals.Banano.Config
         public static class Protocol
         {
             public const string Prefix = "ban";
-            public const string Address = "ban_1waxf5j83w7eqqz3kph7u843wh3p5ddf1n48rh4i9m41zhk9nnquzwbnz9pb";
             public const int Decimals = 29;
             public const decimal Minimum = 1;
             public static readonly BigDecimal MinimumTransaction = Amount.NanoToRaw(Minimum * 0.1m); // 1 BAN

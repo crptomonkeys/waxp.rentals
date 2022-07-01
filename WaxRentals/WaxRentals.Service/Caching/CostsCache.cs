@@ -2,7 +2,7 @@
 using WaxRentals.Service.Caching.Values;
 using WaxRentals.Service.Utilities;
 using static WaxRentals.Service.Config.Constants;
-using static WaxRentals.Waxp.Config.Constants.Protocol;
+using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
 namespace WaxRentals.Service.Caching
 {

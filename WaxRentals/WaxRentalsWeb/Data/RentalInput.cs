@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using static WaxRentals.Waxp.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
 namespace WaxRentalsWeb.Data
 {
     public class RentalInput
     {
 
-        [Required, RegularExpression(Protocol.WaxAddressRegex)]
+        [Required, RegularExpression(Protocol.AccountRegex)]
         public string Account { get; set; }
 
         [Required]

@@ -7,13 +7,14 @@ using BananoDependencies = WaxRentals.Banano.Config.Dependencies;
 using DataDependencies = WaxRentals.Data.Config.Dependencies;
 using MonitoringDependencies = WaxRentals.Monitoring.Config.Dependencies;
 using ProcessingDependencies = WaxRentals.Processing.Config.Dependencies;
+using ServiceDependencies = WaxRentals.Service.Shared.Config.Dependencies;
 using WaxDependencies = WaxRentals.Waxp.Config.Dependencies;
 
 namespace WaxRentals.Processing
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("Starting up; please wait.");
             var provider = BuildServiceProvider();
@@ -71,6 +72,7 @@ namespace WaxRentals.Processing
             var services = new ServiceCollection();
 
             DataDependencies.AddDependencies(services);
+            ServiceDependencies.AddDependencies(services, "http://localhost:22022");
             BananoDependencies.AddDependencies(services);
             WaxDependencies.AddDependencies(services);
             MonitoringDependencies.AddDependencies(services);

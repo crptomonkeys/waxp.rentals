@@ -13,6 +13,7 @@ using WaxRentals.Processing.Tracking;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
+using ServiceConstants = WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -103,7 +104,7 @@ namespace WaxRentals.Processing.Processors
 
         private static bool IsBananoAddress(string memo)
         {
-            return Regex.IsMatch(memo ?? "", Protocol.BananoAddressRegex, RegexOptions.IgnoreCase);
+            return Regex.IsMatch(memo ?? "", ServiceConstants.Banano.Protocol.AddressRegex, RegexOptions.IgnoreCase);
         }
 
         #endregion

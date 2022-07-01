@@ -4,12 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Notifications;
 using WaxRentals.Monitoring.Prices;
 using WaxRentals.Processing.Tracking;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
-using static WaxRentals.Waxp.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -47,7 +46,7 @@ namespace WaxRentals.Processing.Processors
                     var (sendSuccess, fund) = await Wax.Today.Send(
                         package.TargetWaxAccount,
                         package.Wax,
-                        $"{package.Memo}{Protocol.NewUser.MemoRefundOnExists}");
+                        $"{package.Memo}{NewUser.MemoRefundOnExists}");
                     if (sendSuccess)
                     {
                         var task = Factory.Process.ProcessWelcomePackageFunding(package.PackageId, fund);

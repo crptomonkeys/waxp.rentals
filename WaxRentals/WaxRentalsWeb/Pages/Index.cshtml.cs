@@ -91,14 +91,14 @@ namespace WaxRentalsWeb.Pages
             return (true, null);
         }
 
-        private int RentalDays(uint input)
+        private static int RentalDays(uint input)
         {
             int days = (int)input;
             return (days >= Calculations.DaysDoubleThreshold) ? (days * 2) : days;
         }
 
-        private JsonResult Succeed(string address) => new JsonResult(RentalResult.Succeed(address));
-        private JsonResult Fail(string error) => new JsonResult(RentalResult.Fail(error));
+        private static JsonResult Succeed(string address) => new(RentalResult.Succeed(address));
+        private static JsonResult Fail(string error) => new(RentalResult.Fail(error));
 
     }
 }

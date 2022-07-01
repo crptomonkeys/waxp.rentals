@@ -8,7 +8,7 @@ using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 using WaxRentalsWeb.Data.Models;
-using static WaxRentals.Waxp.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentalsWeb.Pages
 {
@@ -27,7 +27,7 @@ namespace WaxRentalsWeb.Pages
         public JsonResult OnGet(string account)
         {
             // Filter invalid accounts.
-            if (!string.IsNullOrWhiteSpace(account) && Regex.IsMatch(account, Protocol.WaxAddressRegex))
+            if (!string.IsNullOrWhiteSpace(account) && Regex.IsMatch(account, Wax.Protocol.AccountRegex))
             {
                 return Process(() => _data.Explore.GetRentalsByWaxAccount(account));
             }
@@ -38,7 +38,7 @@ namespace WaxRentalsWeb.Pages
         {
             // Filter invalid addresses.
             addresses = addresses.Where(address => !string.IsNullOrWhiteSpace(address) &&
-                                                   Regex.IsMatch(address, Protocol.BananoAddressRegex));
+                                                   Regex.IsMatch(address, Banano.Protocol.AddressRegex));
             return Process(() => _data.Explore.GetRentalsByBananoAddresses(addresses));
         }
 
