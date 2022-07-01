@@ -2,7 +2,7 @@
 using System.IO;
 using Microsoft.Extensions.FileProviders;
 
-namespace WaxRentals.Monitoring
+namespace WaxRentalsWeb.Files
 {
     public abstract class FileMonitor : IDisposable
     {

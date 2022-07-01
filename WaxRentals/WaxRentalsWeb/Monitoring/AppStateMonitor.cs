@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading;
 using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Extensions;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
+using WaxRentalsWeb.Extensions;
 
-namespace WaxRentals.Monitoring.App
+namespace WaxRentalsWeb.Monitoring
 {
     internal class AppStateMonitor : Monitor, IAppStateMonitor
     {

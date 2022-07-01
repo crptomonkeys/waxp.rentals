@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using WaxRentals.Monitoring.App;
 using WaxRentalsWeb.Data.Models;
 using WaxRentalsWeb.Files;
+using WaxRentalsWeb.Monitoring;
 
 namespace WaxRentalsWeb.Notifications
 {

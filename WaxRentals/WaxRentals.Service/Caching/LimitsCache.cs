@@ -9,7 +9,7 @@ namespace WaxRentals.Service.Caching
     public class LimitsCache : CacheBase
     {
 
-        public Limits GetLimits() => new Limits
+        public Limits GetLimits() => new()
         {
             BananoMinimumCredit = BananoConstants.Minimum,
 

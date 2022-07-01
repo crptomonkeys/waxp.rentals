@@ -1,6 +1,4 @@
-﻿using WaxRentals.Monitoring;
-
-namespace WaxRentalsWeb.Files
+﻿namespace WaxRentalsWeb.Files
 {
     public class SiteMessageMonitor : FileMonitor
     {

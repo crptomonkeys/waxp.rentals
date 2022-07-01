@@ -7,7 +7,7 @@ namespace WaxRentals.Service.Caching
     public class WaxInfoCache : InvalidatableCache
     {
 
-        public AccountBalances GetBalances() => new AccountBalances
+        public AccountBalances GetBalances() => new()
         {
             Today = Today,
             Available = Available.Value,

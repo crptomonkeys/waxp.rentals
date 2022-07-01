@@ -15,7 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\WaxRentals.Banano\WaxRentals.Banano.csproj" />
     <ProjectReference Include="..\WaxRentals.Data\WaxRentals.Data.csproj" />
-    <ProjectReference Include="..\WaxRentals.Monitoring\WaxRentals.Monitoring.csproj" />
     <ProjectReference Include="..\WaxRentals.Service.Connectors\WaxRentals.Service.Shared.csproj" />
   </ItemGroup>
 

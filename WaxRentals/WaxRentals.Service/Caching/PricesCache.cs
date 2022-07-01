@@ -7,7 +7,7 @@ namespace WaxRentals.Service.Caching
     public class PricesCache : TimedCacheBase
     {
 
-        public Prices GetPrices() => new Prices
+        public Prices GetPrices() => new()
         {
             Banano = Banano.Value,
             Wax = Wax.Value

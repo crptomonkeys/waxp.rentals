@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Extensions;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
+using WaxRentalsWeb.Extensions;
 
-namespace WaxRentals.Monitoring.App
+namespace WaxRentalsWeb.Monitoring
 {
     internal class AppInsightsMonitor : Monitor, IAppInsightsMonitor
     {
