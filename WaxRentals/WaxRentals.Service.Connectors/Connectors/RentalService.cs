@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WaxRentals.Data.Manager;
 using WaxRentals.Service.Shared.Entities;
 using WaxRentals.Service.Shared.Entities.Input;
 
@@ -14,7 +13,7 @@ namespace WaxRentals.Service.Shared.Connectors
     internal class RentalService : Connector, IRentalService
     {
 
-        public RentalService(Uri baseUrl, ILog log) : base(baseUrl, log) { }
+        public RentalService(Uri baseUrl, ITrackService log) : base(baseUrl, log) { }
 
         public async Task<Result<string>> New(RentalInput input)
         {

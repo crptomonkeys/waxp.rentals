@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WaxRentals.Data.Manager;
 using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentals.Service.Shared.Connectors
@@ -13,7 +12,7 @@ namespace WaxRentals.Service.Shared.Connectors
     internal class AppService : Connector, IAppService
     {
 
-        public AppService(Uri baseUrl, ILog log) : base(baseUrl, log) { }
+        public AppService(Uri baseUrl, ITrackService log) : base(baseUrl, log) { }
 
         public async Task<Result<AppState>> State()
         {

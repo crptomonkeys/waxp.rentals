@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using WaxRentals.Data.Manager;
 using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentals.Service.Shared.Connectors
@@ -12,7 +11,7 @@ namespace WaxRentals.Service.Shared.Connectors
     {
 
         protected HttpClient Client { get; }
-        protected ILog Log { get; }
+        protected ITrackService? Log { get; }
         protected static JsonSerializerOptions SerializerOptions { get; }
 
         static Connector()
@@ -20,13 +19,28 @@ namespace WaxRentals.Service.Shared.Connectors
             SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         }
 
-        public Connector(Uri baseUrl, ILog log)
+        public Connector(Uri baseUrl, ITrackService? log = null)
         {
             Client = new HttpClient
             {
                 BaseAddress = baseUrl
             };
             Log = log;
+        }
+
+        protected async Task<Result> Post(string path, object data)
+        {
+            var json = JsonSerializer.Serialize(data);
+            return await Process(async () =>
+                await Client.PostAsync(path, new StringContent(json, Encoding.UTF8, "application/json"))
+            );
+        }
+
+        protected async Task<Result> Post(string path, string data)
+        {
+            return await Process(async () =>
+                await Client.PostAsync(path, new StringContent(data, Encoding.UTF8))
+            );
         }
 
         protected async Task<Result<TOut>> Post<TOut>(string path, object data)
@@ -40,6 +54,35 @@ namespace WaxRentals.Service.Shared.Connectors
         protected async Task<Result<TOut>> Get<TOut>(string path)
         {
             return await Process<TOut>(async () => await Client.GetAsync(path));
+        }
+
+        protected async Task<Result> Process(Func<Task<HttpResponseMessage>> target)
+        {
+            try
+            {
+                var response = await target();
+                if (response.IsSuccessStatusCode)
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    return Result.Succeed();
+                }
+                return Result.Fail($"Unsuccessful response from server: {(int)response.StatusCode} {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                try
+                {
+                    if (Log != null)
+                    {
+                        await Log.Error(ex);
+                    }
+                    return Result.Fail(ex.Message);
+                }
+                catch
+                {
+                    return Result.Fail("Unknown error.");
+                }
+            }
         }
 
         protected async Task<Result<TOut>> Process<TOut>(Func<Task<HttpResponseMessage>> target)
@@ -58,7 +101,10 @@ namespace WaxRentals.Service.Shared.Connectors
             {
                 try
                 {
-                    await Log.Error(ex);
+                    if (Log != null)
+                    {
+                        await Log.Error(ex);
+                    }
                     return Result<TOut>.Fail(ex.Message);
                 }
                 catch

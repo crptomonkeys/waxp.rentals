@@ -1,5 +1,8 @@
 
-- let run for a few weeks
+- swap to service
+- api
+- admin site
+
 - announce live
   - best things about CM/banano
     - top 5*(10cpu*5days)

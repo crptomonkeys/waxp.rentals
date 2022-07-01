@@ -2,6 +2,7 @@
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
 using WaxRentals.Service.Http;
+using WaxRentals.Service.Tracking;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Service.Config.Constants.Http;
 using static WaxRentals.Service.Config.Constants.Locations;
@@ -59,6 +60,10 @@ namespace WaxRentals.Service.Config
             services.AddSingleton<Cache>();
             services.AddSingleton<CostsCache>();
             services.AddSingleton<LimitsCache>();
+
+            // Tracking.
+
+            services.AddSingleton<ITracker, Tracker>();
         }
 
         #region " HttpClient "

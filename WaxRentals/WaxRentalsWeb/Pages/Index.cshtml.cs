@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Notifications;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Config;
@@ -20,17 +19,17 @@ namespace WaxRentalsWeb.Pages
 
         public PageLoadModel InitialPage { get; private set; }
 
-        private readonly IAppService _service;
-        private readonly IDataFactory _data;
-        private readonly IBananoAccountFactory _banano;
-        private readonly ITelegramNotifier _telegram;
+        private IAppService Service { get; }
+        private IDataFactory Data { get; }
+        private IBananoAccountFactory Banano { get; }
+        private ITrackService Track { get; }
 
-        public IndexModel(IAppService service, IDataFactory data, IBananoAccountFactory banano, ITelegramNotifier telegram)
+        public IndexModel(IAppService service, IDataFactory data, IBananoAccountFactory banano, ITrackService track)
         {
-            _service = service;
-            _data = data;
-            _banano = banano;
-            _telegram = telegram;
+            Service = service;
+            Data = data;
+            Banano = banano;
+            Track = track;
         }
 
         public void OnGet()
@@ -42,7 +41,7 @@ namespace WaxRentalsWeb.Pages
         {
             try
             {
-                var state = (await _service.State()).Value;
+                var state = (await Service.State()).Value;
                 var (valid, error) = Validate(input, state);
                 if (!valid)
                 {
@@ -50,16 +49,16 @@ namespace WaxRentalsWeb.Pages
                 }
 
                 var cost = (input.CPU + input.NET) * input.Days * state.WaxRentPriceInBanano;
-                var id = await _data.Insert.OpenRental(input.Account, RentalDays(input.Days), input.CPU, input.NET, decimal.Round(cost, 4));
-                var account = _banano.BuildAccount((uint)id);
-                _telegram.Send($"Starting rental process for {input.Account}.");
+                var id = await Data.Insert.OpenRental(input.Account, RentalDays(input.Days), input.CPU, input.NET, decimal.Round(cost, 4));
+                var account = Banano.BuildAccount((uint)id);
+                await Track.Notify($"Starting rental process for {input.Account}.");
                 return Succeed(account.Address);
             }
             catch (Exception ex)
             {
                 try
                 {
-                    await _data.Log.Error(ex);
+                    await Track.Error(ex);
                     return Fail(ex.Message);
                 }
                 catch

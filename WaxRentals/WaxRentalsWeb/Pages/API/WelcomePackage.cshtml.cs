@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using WaxRentals.Monitoring.Notifications;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Data.Models;
@@ -12,13 +11,13 @@ namespace WaxRentalsWeb.Pages
     public class WelcomePackageModel : PageModel
     {
 
-        private ITelegramNotifier Telegram { get; }
         private IWelcomePackageService Service { get; }
+        private ITrackService Track { get; }
 
-        public WelcomePackageModel(ITelegramNotifier telegram, IWelcomePackageService service)
+        public WelcomePackageModel(IWelcomePackageService service, ITrackService track)
         {
-            Telegram = telegram;
             Service = service;
+            Track = track;
         }
 
         public async Task<JsonResult> OnPostAsync(string memo)
@@ -26,7 +25,7 @@ namespace WaxRentalsWeb.Pages
             var result = await Service.New(memo);
             if (result.Success)
             {
-                Telegram.Send($"Starting welcome package process for {memo}.");
+                await Track.Notify($"Starting welcome package process for {memo}.");
                 var package = result.Value;
                 return Succeed(new WelcomePackageDetail
                 {
