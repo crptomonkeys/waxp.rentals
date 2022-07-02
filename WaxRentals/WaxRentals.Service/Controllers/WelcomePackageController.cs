@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
+using WaxRentals.Service.Config;
 using WaxRentals.Service.Shared.Entities;
 using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
@@ -13,13 +14,17 @@ namespace WaxRentals.Service.Controllers
 
         private CostsCache Costs { get; }
         private IBananoAccountFactory Banano { get; }
+        private Mapper Mapper { get; }
 
-        public WelcomePackageController(IDataFactory factory, CostsCache costs, IBananoAccountFactory banano)
+        public WelcomePackageController(IDataFactory factory, CostsCache costs, IBananoAccountFactory banano, Mapper mapper)
             : base(factory)
         {
             Costs = costs;
             Banano = banano;
+            Mapper = mapper;
         }
+
+        #region " Create "
 
         [HttpPost("New")]
         public async Task<JsonResult> New([FromBody] string memo)
@@ -61,6 +66,19 @@ namespace WaxRentals.Service.Controllers
                 }
             }
         }
+
+        #endregion
+
+        #region " Read "
+
+        [HttpGet("ByBananoAddresses")]
+        public async Task<JsonResult> ByBananoAddresses([FromBody] IEnumerable<string> addresses)
+        {
+            var packages = await Factory.Explore.GetWelcomePackagesByBananoAddresses(addresses);
+            return Succeed(packages.Select(Mapper.Map));
+        }
+
+        #endregion
 
     }
 }

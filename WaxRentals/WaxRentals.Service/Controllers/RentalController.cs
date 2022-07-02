@@ -3,6 +3,7 @@ using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
+using WaxRentals.Service.Config;
 using WaxRentals.Service.Shared.Entities.Input;
 using static WaxRentals.Service.Config.Constants;
 
@@ -15,6 +16,7 @@ namespace WaxRentals.Service.Controllers
         private LimitsCache Limits { get; }
 
         private IBananoAccountFactory Banano { get; }
+        private Mapper Mapper { get; }
 
         public RentalController(
             IDataFactory factory,
@@ -22,14 +24,18 @@ namespace WaxRentals.Service.Controllers
             CostsCache costs,
             LimitsCache limits,
             
-            IBananoAccountFactory banano)
+            IBananoAccountFactory banano,
+            Mapper mapper)
             : base(factory)
         {
             Costs = costs;
             Limits = limits;
 
             Banano = banano;
+            Mapper = mapper;
         }
+
+        #region " Create "
 
         [HttpPost("New")]
         public async Task<JsonResult> New([FromBody] RentalInput input)
@@ -91,6 +97,26 @@ namespace WaxRentals.Service.Controllers
         {
             return (days >= Calculations.DaysDoubleThreshold) ? (days * 2) : days;
         }
+
+        #endregion
+
+        #region " Read "
+
+        [HttpGet("ByWaxAccount")]
+        public async Task<JsonResult> ByWaxAccount(string account)
+        {
+            var rentals = await Factory.Explore.GetRentalsByWaxAccount(account);
+            return Succeed(rentals.Select(Mapper.Map));
+        }
+
+        [HttpGet("ByBananoAddresses")]
+        public async Task<JsonResult> ByBananoAddresses([FromBody] IEnumerable<string> addresses)
+        {
+            var rentals = await Factory.Explore.GetRentalsByBananoAddresses(addresses);
+            return Succeed(rentals.Select(Mapper.Map));
+        }
+
+        #endregion
 
     }
 }

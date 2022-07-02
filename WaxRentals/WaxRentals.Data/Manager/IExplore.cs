@@ -12,9 +12,9 @@ namespace WaxRentals.Data.Manager
         Task<IEnumerable<WelcomePackage>> GetLatestWelcomePackages();
         Task<IEnumerable<MonthlyStats>> GetMonthlyStats();
 
-        IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses);
-        IEnumerable<Rental> GetRentalsByWaxAccount(string account);
-        IEnumerable<WelcomePackage> GetWelcomePackagesByBananoAddresses(IEnumerable<string> addresses);
+        Task<IEnumerable<Rental>> GetRentalsByBananoAddresses(IEnumerable<string> addresses);
+        Task<IEnumerable<Rental>> GetRentalsByWaxAccount(string account);
+        Task<IEnumerable<WelcomePackage>> GetWelcomePackagesByBananoAddresses(IEnumerable<string> addresses);
 
     }
 }

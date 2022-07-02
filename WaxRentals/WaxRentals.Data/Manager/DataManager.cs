@@ -319,10 +319,10 @@ namespace WaxRentals.Data.Manager
 
         #region " IWork "
 
-        public Task<int?> PullNextAddress()
+        public async Task<int?> PullNextAddress()
         {
-            return Task.FromResult(
-                Context.Addresses.FirstOrDefault(address => address.Work == null)?.AddressId
+            return await Task.FromResult(
+                (await Context.Addresses.FirstOrDefaultAsync(address => address.Work == null))?.AddressId
             );
         }
 
@@ -426,26 +426,28 @@ namespace WaxRentals.Data.Manager
                                 .ToArrayAsync();
         }
 
-        public IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses)
+        public async Task<IEnumerable<Rental>> GetRentalsByBananoAddresses(IEnumerable<string> addresses)
         {
-            return from rental in Context.Rentals
-                   join banano in Context.Addresses on rental.RentalId equals banano.AddressId
-                   where addresses.Contains(banano.BananoAddress) && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned)
-                   select rental;
+            return await (from rental in Context.Rentals
+                          join banano in Context.Addresses on rental.RentalId equals banano.AddressId
+                          where addresses.Contains(banano.BananoAddress) && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned)
+                          select rental).ToArrayAsync();
         }
 
-        public IEnumerable<Rental> GetRentalsByWaxAccount(string account)
+        public async Task<IEnumerable<Rental>> GetRentalsByWaxAccount(string account)
         {
-            return Context.Rentals.Where(rental =>
-                rental.TargetWaxAccount == account && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned));
+            return await Context.Rentals
+                                .Where(rental => rental.TargetWaxAccount == account &&
+                                                 (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned))
+                                .ToArrayAsync();
         }
 
-        public IEnumerable<WelcomePackage> GetWelcomePackagesByBananoAddresses(IEnumerable<string> addresses)
+        public async Task<IEnumerable<WelcomePackage>> GetWelcomePackagesByBananoAddresses(IEnumerable<string> addresses)
         {
-            return from package in Context.WelcomePackages
-                   join banano in Context.WelcomeAddresses on package.PackageId equals banano.AddressId
-                   where addresses.Contains(banano.BananoAddress) && (package.StatusId != (int)Status.New || package.Inserted > Abandoned)
-                   select package;
+            return await (from package in Context.WelcomePackages
+                          join banano in Context.WelcomeAddresses on package.PackageId equals banano.AddressId
+                          where addresses.Contains(banano.BananoAddress) && (package.StatusId != (int)Status.New || package.Inserted > Abandoned)
+                          select package).ToArrayAsync();
         }
 
         #endregion

@@ -1,6 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Timers;
-using WaxRentals.Data.Manager;
+using WaxRentals.Service.Shared.Connectors;
 
 namespace WaxRentalsWeb.Monitoring
 {
@@ -10,9 +11,9 @@ namespace WaxRentalsWeb.Monitoring
         #region " Event "
 
         public event EventHandler Updated;
-        protected IDataFactory Factory { get; }
+        protected ITrackService Log { get; }
 
-        protected void RaiseEvent()
+        protected async Task RaiseEvent()
         {
             try
             {
@@ -20,14 +21,14 @@ namespace WaxRentalsWeb.Monitoring
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                await Log.Error(ex);
             }
         }
 
-        public void Initialize()
+        public async Task Initialize()
         {
-            Elapsed();
-            RaiseEvent();
+            await Elapsed();
+            await RaiseEvent();
         }
 
         #endregion
@@ -36,12 +37,12 @@ namespace WaxRentalsWeb.Monitoring
 
         private readonly Timer _timer;
 
-        protected Monitor(TimeSpan interval, IDataFactory factory)
+        protected Monitor(TimeSpan interval, ITrackService log)
         {
-            Factory = factory;
+            Log = log;
 
             _timer = new Timer(interval.TotalMilliseconds);
-            _timer.Elapsed += (_, _) => Elapsed();
+            _timer.Elapsed += async (_, _) => await Elapsed();
             _timer.Start();
         }
 
@@ -53,22 +54,22 @@ namespace WaxRentalsWeb.Monitoring
             }
         }
 
-        protected virtual void Elapsed()
+        protected virtual async Task Elapsed()
         {
             try
             {
-                if (Tick())
+                if (await Tick())
                 {
-                    RaiseEvent();
+                    await RaiseEvent();
                 }
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                await Log.Error(ex);
             }
         }
 
-        protected abstract bool Tick();
+        protected abstract Task<bool> Tick();
 
         #endregion
 
@@ -79,20 +80,20 @@ namespace WaxRentalsWeb.Monitoring
 
         #region " Event "
 
-        protected Monitor(TimeSpan interval, IDataFactory factory) : base(interval, factory) { }
+        protected Monitor(TimeSpan interval, ITrackService log) : base(interval, log) { }
 
         public new event EventHandler<T> Updated;
 
-        protected void RaiseEvent(T result)
+        protected async Task RaiseEvent(T result)
         {
             try
             {
                 Updated?.Invoke(this, result);
-                RaiseEvent();
+                await RaiseEvent();
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                await Log.Error(ex);
             }
         }
 
@@ -100,27 +101,27 @@ namespace WaxRentalsWeb.Monitoring
 
         #region " Timer "
 
-        protected override void Elapsed()
+        protected async override Task Elapsed()
         {
             try
             {
-                if (Tick(out T args))
+                if (await Tick(out T args))
                 {
-                    RaiseEvent(args);
+                    await RaiseEvent(args);
                 }
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                await Log.Error(ex);
             }
         }
 
-        protected abstract bool Tick(out T result);
+        protected abstract Task<bool> Tick(out T result);
 
-        protected override bool Tick()
+        protected override Task<bool> Tick()
         {
             // This should never be called.
-            return false;
+            return Task.FromResult(false);
         }
 
         #endregion

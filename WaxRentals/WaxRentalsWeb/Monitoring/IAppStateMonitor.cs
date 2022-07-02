@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentalsWeb.Monitoring
@@ -7,7 +8,7 @@ namespace WaxRentalsWeb.Monitoring
     {
 
         event EventHandler Updated;
-        void Initialize();
+        Task Initialize();
 
         AppState Value { get; }
 

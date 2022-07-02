@@ -1,10 +1,9 @@
-﻿using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Data.Models;
 using static WaxRentals.Service.Shared.Config.Constants.Banano;
 
@@ -13,24 +12,26 @@ namespace WaxRentalsWeb.Pages
     public class RentalDetailsModel : PageModel
     {
 
-        private readonly IDataFactory _data;
-        private readonly IBananoAccountFactory _banano;
+        private IRentalService Rentals { get; }
 
-        public RentalDetailsModel(IDataFactory data, IBananoAccountFactory banano)
+        public RentalDetailsModel(IRentalService rentals)
         {
-            _data = data;
-            _banano = banano;
+            Rentals = rentals;
         }
 
-        public JsonResult OnGet(string address)
+        public async Task<JsonResult> OnGet(string address)
         {
             // Filter invalid accounts.
             if (!string.IsNullOrWhiteSpace(address) && Regex.IsMatch(address, Protocol.AddressRegex))
             {
-                var rental = _data.Explore.GetRentalsByBananoAddresses(new string[] { address }).SingleOrDefault();
-                if (rental?.Status == Status.New || rental?.Status == Status.Pending)
+                var result = await Rentals.ByBananoAddress(address);
+                if (result.Success && result.Value != null)
                 {
-                    return new JsonResult(new RentalDetailModel(rental, _banano));
+                    var rental = result.Value;
+                    if (rental.Status == Status.New || rental.Status == Status.Pending)
+                    {
+                        return new JsonResult(new RentalDetailModel(result.Value));
+                    }
                 }
             }
             return null;

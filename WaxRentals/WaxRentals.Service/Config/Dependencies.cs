@@ -17,6 +17,10 @@ namespace WaxRentals.Service.Config
 
         public static void AddDependencies(this IServiceCollection services)
         {
+            // Config.
+
+            services.AddSingleton<Mapper>();
+
             // Protocols.
 
             BananoDependencies.AddDependencies(services);
@@ -36,7 +40,7 @@ namespace WaxRentals.Service.Config
                 new InsightsCache(
                     provider.GetRequiredService<IDataFactory>(),
                     TimeSpan.FromMinutes(1),
-                    provider.GetRequiredService<IBananoAccountFactory>()
+                    provider.GetRequiredService<Mapper>()
                 )
             );
 

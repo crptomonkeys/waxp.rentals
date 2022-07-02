@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading;
-using WaxRentals.Data.Manager;
+using System.Threading.Tasks;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Extensions;
@@ -16,28 +16,32 @@ namespace WaxRentalsWeb.Monitoring
 
         public IAppService Service { get; }
 
-        public AppStateMonitor(TimeSpan interval, IDataFactory factory, IAppService service)
-            : base(interval, factory)
+        public AppStateMonitor(TimeSpan interval, ITrackService log, IAppService service)
+            : base(interval, log)
         {
             Service = service;
         }
 
-        protected override bool Tick()
+        protected async override Task<bool> Tick()
         {
             var update = false;
 
             try
             {
-                var state = Service.State().GetAwaiter().GetResult().Value;
-                if (_rwls.SafeRead(() => _state) == null || Differ(_rwls.SafeRead(() => _state), state))
+                var result = await Service.State();
+                if (result.Success)
                 {
-                    update = true;
-                    _rwls.SafeWrite(() => _state = state);
+                    var state = result.Value;
+                    if (_rwls.SafeRead(() => _state) == null || Differ(_rwls.SafeRead(() => _state), state))
+                    {
+                        update = true;
+                        _rwls.SafeWrite(() => _state = state);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                await Log.Error(ex);
             }
 
             return update;

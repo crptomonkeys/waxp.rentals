@@ -1,6 +1,5 @@
 ﻿using System;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
+using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentalsWeb.Data.Models
 {
@@ -19,18 +18,18 @@ namespace WaxRentalsWeb.Data.Models
         public string UnstakeTransaction { get; }
         public Status Status { get; }
 
-        public TrackedRentalModel(Rental rental, IBananoAccountFactory banano)
+        public TrackedRentalModel(RentalInfo rental)
         {
-            WaxAccount         = rental.TargetWaxAccount;
-            Cpu                = Convert.ToInt32(rental.CPU);
-            Net                = Convert.ToInt32(rental.NET);
-            Days               = rental.RentalDays;
+            WaxAccount         = rental.WaxAccount;
+            Cpu                = rental.Cpu;
+            Net                = rental.Net;
+            Days               = rental.Days;
             Banano             = decimal.Round(rental.Banano, 4);
-            BananoAddress      = banano.BuildAccount(rental.RentalId).Address;
+            BananoAddress      = rental.BananoAddress;
             Paid               = rental.Paid;
-            Expires            = rental.PaidThrough;
-            StakeTransaction   = rental.StakeWaxTransaction;
-            UnstakeTransaction = rental.UnstakeWaxTransaction;
+            Expires            = rental.Expires;
+            StakeTransaction   = rental.StakeTransaction;
+            UnstakeTransaction = rental.UnstakeTransaction;
             Status             = rental.Status;
         }
 
