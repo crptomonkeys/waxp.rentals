@@ -21,13 +21,14 @@ namespace WaxRentals.Service.Controllers
         }
 
         [HttpPost("Error")]
-        public async Task Error([FromBody] ErrorLog log)
+        public async Task<JsonResult> Error([FromBody] ErrorLog log)
         {
             await Factory.Log.Error(log.Exception, log.Error, log.Context);
+            return Succeed();
         }
 
         [HttpPost("Message")]
-        public async Task Message([FromBody] MessageLog log)
+        public async Task<JsonResult> Message([FromBody] MessageLog log)
         {
             var direction = log.Direction switch
             {
@@ -36,18 +37,21 @@ namespace WaxRentals.Service.Controllers
                 _ => throw new ArgumentOutOfRangeException(nameof(log.Direction), log.Direction, "Unsupported value.")
             };
             await Factory.Log.Message(log.RequestId, log.Url, direction, log.Message);
+            return Succeed();
         }
 
         [HttpPost("Transaction")]
-        public void Transaction([FromBody] TransactionLog log)
+        public JsonResult Transaction([FromBody] TransactionLog log)
         {
             Tracker.Track(log.Description, log.Quantity, log.Coin, log.Earned, log.Spent);
+            return Succeed();
         }
 
         [HttpPost("Notify")]
-        public void Notify([FromBody] string message)
+        public JsonResult Notify([FromBody] string message)
         {
             Telegram.Send(message);
+            return Succeed();
         }
 
     }

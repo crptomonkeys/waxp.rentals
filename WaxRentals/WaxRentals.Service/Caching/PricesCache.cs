@@ -1,6 +1,6 @@
 ﻿using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching.Values;
-using static WaxRentals.Service.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Service.Caching
 {

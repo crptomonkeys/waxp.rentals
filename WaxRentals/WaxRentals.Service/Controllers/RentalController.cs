@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
 using WaxRentals.Service.Config;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentals.Service.Shared.Entities.Input;
 using static WaxRentals.Service.Config.Constants;
+using Status = WaxRentals.Data.Entities.Status;
 
 namespace WaxRentals.Service.Controllers
 {
@@ -37,8 +38,8 @@ namespace WaxRentals.Service.Controllers
 
         #region " Create "
 
-        [HttpPost("New")]
-        public async Task<JsonResult> New([FromBody] RentalInput input)
+        [HttpPost("Create")]
+        public async Task<JsonResult> Create([FromBody] NewRentalInput input)
         {
             try
             {
@@ -61,8 +62,6 @@ namespace WaxRentals.Service.Controllers
 
                 // Open.
 
-                var costs = Costs.GetCosts();
-
                 int id;
                 if (input.Free)
                 {
@@ -70,14 +69,14 @@ namespace WaxRentals.Service.Controllers
                 }
                 else
                 {
-                    var cost = (input.Cpu + input.Net) * input.Days * costs.WaxRentPriceInBanano;
+                    var cost = (input.Cpu + input.Net) * input.Days * Costs.GetCosts().WaxRentPriceInBanano;
                     cost = decimal.Round(cost, 4);
 
                     id = await Factory.Insert.OpenRental(input.Account, RentalDays(input.Days), input.Cpu, input.Net, cost);
                 }
 
                 var account = Banano.BuildAccount(id);
-                return Succeed(account.Address);
+                return Succeed(new NewRental(id, account.Address));
             }
             catch (Exception ex)
             {
@@ -114,6 +113,66 @@ namespace WaxRentals.Service.Controllers
         {
             var rentals = await Factory.Explore.GetRentalsByBananoAddresses(addresses);
             return Succeed(rentals.Select(Mapper.Map));
+        }
+
+        [HttpGet("New")]
+        public async Task<JsonResult> New()
+        {
+            var rentals = await Factory.Process.PullNewRentals();
+            return Succeed(rentals.Select(Mapper.Map));
+        }
+
+        [HttpGet("Paid")]
+        public async Task<JsonResult> Paid()
+        {
+            var rentals = await Factory.Process.PullPaidRentalsToStake();
+            return Succeed(rentals.Select(Mapper.Map));
+        }
+
+        [HttpGet("Sweepable")]
+        public async Task<JsonResult> Sweepable()
+        {
+            var rentals = await Factory.Process.PullSweepableRentals();
+            return Succeed(rentals.Select(Mapper.Map));
+        }
+
+        [HttpGet("NextClosing")]
+        public async Task<JsonResult> NextClosing()
+        {
+            var rental = await Factory.Process.PullNextClosingRental();
+            return Succeed(Mapper.Map(rental));
+        }
+
+        #endregion
+
+        #region " Update "
+
+        [HttpPost("ProcessPayment")]
+        public async Task<JsonResult> ProcessPayment([FromBody] ProcessInput input)
+        {
+            await Factory.Process.ProcessRentalPayment(input.Id);
+            return Succeed();
+        }
+
+        [HttpPost("ProcessStake")]
+        public async Task<JsonResult> ProcessStake([FromBody] ProcessRentalInput input)
+        {
+            await Factory.Process.ProcessRentalStaking(input.Id, input.Source, input.Transaction);
+            return Succeed();
+        }
+
+        [HttpPost("ProcessSweep")]
+        public async Task<JsonResult> ProcessSweep([FromBody] ProcessInput input)
+        {
+            await Factory.Process.ProcessRentalSweep(input.Id, input.Transaction);
+            return Succeed();
+        }
+
+        [HttpPost("ProcessClosing")]
+        public async Task<JsonResult> ProcessClosing([FromBody] ProcessInput input)
+        {
+            await Factory.Process.ProcessRentalClosing(input.Id, input.Transaction);
+            return Succeed();
         }
 
         #endregion

@@ -22,9 +22,30 @@ namespace WaxRentals.Service.Shared.Config
                 )
             );
 
+            services.AddSingleton<IBananoService>(provider =>
+                new BananoService(
+                    BuildUrl(baseUrl, "Banano"),
+                    provider.GetRequiredService<ITrackService>()
+                )
+            );
+
+            services.AddSingleton<IPurchaseService>(provider =>
+                new PurchaseService(
+                    BuildUrl(baseUrl, "Purchase"),
+                    provider.GetRequiredService<ITrackService>()
+                )
+            );
+
             services.AddSingleton<IRentalService>(provider =>
                 new RentalService(
                     BuildUrl(baseUrl, "Rental"),
+                    provider.GetRequiredService<ITrackService>()
+                )
+            );
+
+            services.AddSingleton<IWaxService>(provider =>
+                new WaxService(
+                    BuildUrl(baseUrl, "Wax"),
                     provider.GetRequiredService<ITrackService>()
                 )
             );

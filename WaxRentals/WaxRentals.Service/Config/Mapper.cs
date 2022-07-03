@@ -1,5 +1,6 @@
 ﻿using WaxRentals.Banano.Transact;
 using WaxRentals.Service.Shared.Entities;
+using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
 namespace WaxRentals.Service.Config
 {
@@ -31,7 +32,9 @@ namespace WaxRentals.Service.Config
             var account = Banano.BuildAccount(rental.RentalId);
             return new RentalInfo
             {
+                Id                 = rental.RentalId,
                 WaxAccount         = rental.TargetWaxAccount,
+                SourceAccount      = rental.SourceWaxAccount,
                 Cpu                = Convert.ToInt32(rental.CPU),
                 Net                = Convert.ToInt32(rental.NET),
                 Days               = rental.RentalDays,
@@ -50,9 +53,11 @@ namespace WaxRentals.Service.Config
         {
             return new PurchaseInfo
             {
+                Id                = purchase.PurchaseId,
                 Wax               = purchase.Wax,
                 WaxTransaction    = purchase.WaxTransaction,
                 Banano            = purchase.Banano,
+                BananoAddress     = purchase.PaymentBananoAddress,
                 BananoTransaction = purchase.BananoTransaction
             };
         }
@@ -62,10 +67,13 @@ namespace WaxRentals.Service.Config
             var account = Banano.BuildWelcomeAccount(package.PackageId);
             return new WelcomePackageInfo
             {
+                Id                = package.PackageId,
                 Banano            = package.Banano,
                 BananoAddress     = account.Address,
                 BananoPaymentLink = account.BuildLink(package.Banano),
+                WaxAccount        = package.TargetWaxAccount,
                 Wax               = package.Wax,
+                Memo              = $"{package.Memo}{NewUser.MemoRefundOnExists}",
                 FundTransaction   = package.FundTransaction,
                 NftTransaction    = package.NftTransaction,
                 StakeTransaction  = package.Rental?.StakeWaxTransaction,

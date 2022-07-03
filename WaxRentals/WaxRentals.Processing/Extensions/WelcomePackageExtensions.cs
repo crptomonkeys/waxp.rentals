@@ -1,12 +1,12 @@
 ﻿using System;
-using WaxRentals.Data.Entities;
+using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentals.Processing.Extensions
 {
     internal static class WelcomePackageExtensions
     {
 
-        public static string MemoToAccount(this WelcomePackage @this)
+        public static string MemoToAccount(this WelcomePackageInfo @this)
         {
             return @this.Memo.Replace("DOT", ".", StringComparison.Ordinal);
         }

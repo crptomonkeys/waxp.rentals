@@ -5,6 +5,7 @@ using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
 using WaxRentals.Service.Config;
 using WaxRentals.Service.Shared.Entities;
+using WaxRentals.Service.Shared.Entities.Input;
 using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
 namespace WaxRentals.Service.Controllers
@@ -26,8 +27,8 @@ namespace WaxRentals.Service.Controllers
 
         #region " Create "
 
-        [HttpPost("New")]
-        public async Task<JsonResult> New([FromBody] string memo)
+        [HttpPost("Create")]
+        public async Task<JsonResult> Create([FromBody] string memo)
         {
             try
             {
@@ -76,6 +77,80 @@ namespace WaxRentals.Service.Controllers
         {
             var packages = await Factory.Explore.GetWelcomePackagesByBananoAddresses(addresses);
             return Succeed(packages.Select(Mapper.Map));
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> New()
+        {
+            var packages = await Factory.Process.PullNewWelcomePackages();
+            return Succeed(packages.Select(Mapper.Map));
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> Paid()
+        {
+            var packages = await Factory.Process.PullPaidWelcomePackagesToFund();
+            return Succeed(packages.Select(Mapper.Map));
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> MissingNfts()
+        {
+            var packages = await Factory.Process.PullFundedWelcomePackagesMissingNft();
+            return Succeed(packages.Select(Mapper.Map));
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> MissingRentals()
+        {
+            var packages = await Factory.Process.PullFundedWelcomePackagesMissingRental();
+            return Succeed(packages.Select(Mapper.Map));
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> Sweepable()
+        {
+            var packages = await Factory.Process.PullSweepableWelcomePackages();
+            return Succeed(packages.Select(Mapper.Map));
+        }
+
+        #endregion
+
+        #region " Update "
+
+        [HttpPost("ProcessPayment")]
+        public async Task<JsonResult> ProcessPayment([FromBody] ProcessInput input)
+        {
+            await Factory.Process.ProcessWelcomePackagePayment(input.Id);
+            return Succeed();
+        }
+
+        [HttpPost("ProcessFunding")]
+        public async Task<JsonResult> ProcessFunding([FromBody] ProcessInput input)
+        {
+            await Factory.Process.ProcessWelcomePackageFunding(input.Id, input.Transaction);
+            return Succeed();
+        }
+
+        [HttpPost("ProcessNft")]
+        public async Task<JsonResult> ProcessNft([FromBody] ProcessInput input)
+        {
+            await Factory.Process.ProcessWelcomePackageNft(input.Id, input.Transaction);
+            return Succeed();
+        }
+
+        [HttpPost("ProcessRental")]
+        public async Task<JsonResult> ProcessRental([FromBody] ProcessWelcomePackageInput input)
+        {
+            await Factory.Process.ProcessWelcomePackageRental(input.Id, input.RentalId);
+            return Succeed();
+        }
+
+        [HttpPost("ProcessSweep")]
+        public async Task<JsonResult> ProcessSweep([FromBody] ProcessInput input)
+        {
+            await Factory.Process.ProcessWelcomePackageSweep(input.Id, input.Transaction);
+            return Succeed();
         }
 
         #endregion

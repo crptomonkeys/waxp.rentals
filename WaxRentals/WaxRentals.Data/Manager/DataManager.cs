@@ -10,7 +10,7 @@ using static WaxRentals.Data.Config.Constants;
 
 namespace WaxRentals.Data.Manager
 {
-    internal class DataManager : IInsert, IProcess, ITrackWax, IWork, ILog, IExplore
+    internal class DataManager : IInsert, IProcess, ITrackWax, ILog, IExplore
     {
 
         private WaxRentalsContext Context { get; }
@@ -313,27 +313,6 @@ namespace WaxRentals.Data.Manager
         {
             Context.WaxHistory.Add(new WaxHistory { LastRun = last });
             Context.SaveChanges();
-        }
-
-        #endregion
-
-        #region " IWork "
-
-        public async Task<int?> PullNextAddress()
-        {
-            return await Task.FromResult(
-                (await Context.Addresses.FirstOrDefaultAsync(address => address.Work == null))?.AddressId
-            );
-        }
-
-        public async Task SaveWork(int addressId, string work)
-        {
-            var address = Context.Addresses.SingleOrDefault(address => address.AddressId == addressId && address.Work == null);
-            if (address != null)
-            {
-                address.Work = work;
-                await Context.SaveChangesAsync();
-            }
         }
 
         #endregion

@@ -30,11 +30,11 @@ namespace WaxRentalsWeb.Pages
 
         public async Task<JsonResult> OnPostAsync(RentalInput input)
         {
-            var result = await Service.New(Map(input));
+            var result = await Service.Create(Map(input));
             if (result.Success)
             {
                 await Track.Notify($"Starting rental process for {input.Account}.");
-                return Succeed(result.Value);
+                return Succeed(result.Value.Address);
             }
             else
             {
@@ -42,9 +42,9 @@ namespace WaxRentalsWeb.Pages
             }
         }
 
-        private ServiceEntities.Input.RentalInput Map(RentalInput input)
+        private static ServiceEntities.Input.NewRentalInput Map(RentalInput input)
         {
-            return new ServiceEntities.Input.RentalInput
+            return new ServiceEntities.Input.NewRentalInput
             {
                 Account = input.Account,
                 Days = (int)input.Days,

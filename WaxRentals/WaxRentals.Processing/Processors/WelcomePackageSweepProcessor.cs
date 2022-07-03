@@ -2,45 +2,49 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
-using static WaxRentals.Service.Shared.Config.Constants.Banano;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class WelcomePackageSweepProcessor : Processor<IEnumerable<WelcomePackage>>
+    internal class WelcomePackageSweepProcessor : Processor<Result<IEnumerable<WelcomePackageInfo>>>
     {
 
         protected override bool ProcessMultiplePerTick => false;
 
-        private IBananoAccountFactory Banano { get; }
+        private IWelcomePackageService Packages { get; }
+        private IBananoService Banano { get; }
 
-        public WelcomePackageSweepProcessor(IDataFactory factory, IBananoAccountFactory banano)
-            : base(factory)
+        public WelcomePackageSweepProcessor(ITrackService track, IWelcomePackageService packages, IBananoService banano)
+            : base(track)
         {
+            Packages = packages;
             Banano = banano;
         }
 
-        protected override Func<Task<IEnumerable<WelcomePackage>>> Get => Factory.Process.PullSweepableWelcomePackages;
-        protected async override Task Process(IEnumerable<WelcomePackage> packages)
+        protected override Func<Task<Result<IEnumerable<WelcomePackageInfo>>>> Get => Packages.Sweepable;
+        protected async override Task Process(Result<IEnumerable<WelcomePackageInfo>> result)
         {
-            var tasks = packages.Select(Process);
-            await Task.WhenAll(tasks);
+            if (result.Success)
+            {
+                var tasks = result.Value.Select(Process);
+                await Task.WhenAll(tasks);
+            }
         }
 
-        private async Task Process(WelcomePackage package)
+        private async Task Process(WelcomePackageInfo package)
         {
             try
             {
-                var account = Banano.BuildWelcomeAccount(package.PackageId);
-                var amount = await account.GetBalance();
-                var hash = await account.Send(SweepAddress, amount);
-                await Factory.Process.ProcessWelcomePackageSweep(package.PackageId, hash);
+                var result = await Banano.SweepWelcomeAccount(package.Id);
+                if (result.Success)
+                {
+                    await Packages.ProcessSweep(package.Id, result.Value);
+                }
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: package);
+                Log(ex, context: package);
             }
         }
 

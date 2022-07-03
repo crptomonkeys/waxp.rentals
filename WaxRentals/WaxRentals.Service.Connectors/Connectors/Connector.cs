@@ -63,7 +63,6 @@ namespace WaxRentals.Service.Shared.Connectors
                 var response = await target();
                 if (response.IsSuccessStatusCode)
                 {
-                    var content = await response.Content.ReadAsStringAsync();
                     return Result.Succeed();
                 }
                 return Result.Fail($"Unsuccessful response from server: {(int)response.StatusCode} {response.StatusCode}");

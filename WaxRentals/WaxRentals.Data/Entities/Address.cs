@@ -10,7 +10,5 @@ namespace WaxRentals.Data.Entities
 		[Column("Address"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 		public string BananoAddress { get; set; }
 
-		public string Work { get; set; }
-
 	}
 }

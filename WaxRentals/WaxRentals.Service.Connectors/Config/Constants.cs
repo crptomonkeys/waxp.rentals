@@ -2,6 +2,12 @@
 {
     public static class Constants
     {
+        public static class Coins
+        {
+            public const string Banano = "banano";
+            public const string Wax = "wax";
+        }
+
         public static class Banano
         {
             public const string SweepAddress = "ban_1waxf5j83w7eqqz3kph7u843wh3p5ddf1n48rh4i9m41zhk9nnquzwbnz9pb";

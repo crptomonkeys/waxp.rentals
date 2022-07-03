@@ -1,33 +1,36 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentals.Waxp.Transact;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class RentalClosingProcessor : Processor<Rental>
+    internal class RentalClosingProcessor : Processor<Result<RentalInfo>>
     {
 
+        private IRentalService Rentals { get; }
         private IWaxAccounts Wax { get; }
-        private IBananoAccountFactory Banano { get; set; }
 
-        public RentalClosingProcessor(IDataFactory factory, IWaxAccounts wax, IBananoAccountFactory banano)
-            : base(factory)
+        public RentalClosingProcessor(ITrackService track, IRentalService rentals, IWaxAccounts wax)
+            : base(track)
         {
+            Rentals = rentals;
             Wax = wax;
-            Banano = banano;
         }
 
-        protected override Func<Task<Rental>> Get => Factory.Process.PullNextClosingRental;
-        protected async override Task Process(Rental rental)
+        protected override Func<Task<Result<RentalInfo>>> Get => Rentals.NextClosing;
+        protected async override Task Process(Result<RentalInfo> result)
         {
-            var wax = Wax.GetAccount(rental.SourceWaxAccount);
-            var (success, hash) = await wax.Unstake(rental.TargetWaxAccount, rental.CPU, rental.NET);
-            if (success)
+            if (result.Success)
             {
-                await Factory.Process.ProcessRentalClosing(rental.RentalId, hash);
+                var rental = result.Value;
+                var wax = Wax.GetAccount(rental.SourceAccount);
+                var (success, hash) = await wax.Unstake(rental.WaxAccount, rental.Cpu, rental.Net);
+                if (success)
+                {
+                    await Rentals.ProcessClosing(rental.Id, hash);
+                }
             }
         }
 

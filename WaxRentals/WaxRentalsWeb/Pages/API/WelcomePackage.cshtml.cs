@@ -22,7 +22,7 @@ namespace WaxRentalsWeb.Pages
 
         public async Task<JsonResult> OnPostAsync(string memo)
         {
-            var result = await Service.New(memo);
+            var result = await Service.Create(memo);
             if (result.Success)
             {
                 await Track.Notify($"Starting welcome package process for {memo}.");

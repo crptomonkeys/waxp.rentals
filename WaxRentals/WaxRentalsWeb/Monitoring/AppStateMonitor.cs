@@ -49,7 +49,7 @@ namespace WaxRentalsWeb.Monitoring
 
         #region " Differ "
 
-        private bool Differ(AppState left, AppState right)
+        private static bool Differ(AppState left, AppState right)
         {
             var comparison = StringComparison.OrdinalIgnoreCase;
             return !string.Equals(left.BananoAddress, right.BananoAddress, comparison)         ||

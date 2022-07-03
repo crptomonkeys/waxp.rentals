@@ -5,15 +5,12 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Notifications;
 using WaxRentals.Monitoring.Prices;
-using WaxRentals.Processing.Tracking;
+using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Utilities;
 using WaxRentals.Waxp.Transact;
-using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
-using ServiceConstants = WaxRentals.Service.Shared.Config.Constants;
+using Constants = WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -24,19 +21,15 @@ namespace WaxRentals.Processing.Processors
 
         private IClientFactory Client { get; }
         private IPriceMonitor Prices { get; }
-        private ITracker Tracker { get; }
-        private ITelegramNotifier Telegram { get; }
         private IWaxAccounts Wax { get; }
 
         private decimal PayRate { get { return Safe.Divide(Prices.Wax, Prices.Banano); } }
 
-        public TrackWaxProcessor(IDataFactory factory, IClientFactory client, IPriceMonitor prices, ITracker tracker, ITelegramNotifier telegram, IWaxAccounts wax)
-            : base(factory)
+        public TrackWaxProcessor(ITrackService track, IClientFactory client, IPriceMonitor prices, IWaxAccounts wax)
+            : base(track)
         {
             Client = client;
             Prices = prices;
-            Tracker = tracker;
-            Telegram = telegram;
             Wax = wax;
         }
 
@@ -80,10 +73,10 @@ namespace WaxRentals.Processing.Processors
                 var banano = transfer.Amount * PayRate;
                 if (await Factory.Insert.OpenPurchase(transfer.Amount, transfer.Hash, address, banano, skip ? Status.Processed : Status.New))
                 {
-                    Tracker.Track("Received WAX", transfer.Amount, Coins.Wax, earned: transfer.Amount * Prices.Wax);
-                    Telegram.Send(skip
-                        ? $"Received {transfer.Amount} {Coins.Wax} from {transfer.From}."
-                        : $"Bought {transfer.Amount} {Coins.Wax} off {transfer.From}.");
+                    LogTransaction("Received WAX", transfer.Amount, Constants.Coins.Wax, earned: transfer.Amount * Prices.Wax);
+                    Notify(skip
+                        ? $"Received {transfer.Amount} {Constants.Coins.Wax} from {transfer.From}."
+                        : $"Bought {transfer.Amount} {Constants.Coins.Wax} off {transfer.From}.");
                     await Wax.Primary.Send(Wax.Today.Account, transfer.Amount);
                 }
             }
@@ -104,7 +97,7 @@ namespace WaxRentals.Processing.Processors
 
         private static bool IsBananoAddress(string memo)
         {
-            return Regex.IsMatch(memo ?? "", ServiceConstants.Banano.Protocol.AddressRegex, RegexOptions.IgnoreCase);
+            return Regex.IsMatch(memo ?? "", Constants.Banano.Protocol.AddressRegex, RegexOptions.IgnoreCase);
         }
 
         #endregion

@@ -18,7 +18,7 @@ namespace WaxRentalsWeb.Pages
         public async Task<IActionResult> OnGet()
         {
             var state = await Service.State();
-            return GenerateQRCode(state.Value.WaxAccount);
+            return state.Success ? GenerateQRCode(state.Value.WaxAccount) : null;
         }
 
     }

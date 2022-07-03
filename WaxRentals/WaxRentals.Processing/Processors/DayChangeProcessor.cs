@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WaxRentals.Data.Manager;
+using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Waxp.Transact;
 
 namespace WaxRentals.Processing.Processors
@@ -11,8 +11,8 @@ namespace WaxRentals.Processing.Processors
         private IWaxAccounts Wax { get; }
         private IWaxAccount Today { get; set; }
 
-        public DayChangeProcessor(IDataFactory factory, IWaxAccounts wax)
-            : base(factory)
+        public DayChangeProcessor(ITrackService track, IWaxAccounts wax)
+            : base(track)
         {
             Wax = wax;
         }

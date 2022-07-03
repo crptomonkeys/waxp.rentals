@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
 using WaxRentals.Processing.Extensions;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentals.Waxp;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
@@ -14,30 +14,35 @@ using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class WelcomePackageNftProcessor : Processor<IEnumerable<WelcomePackage>>
+    internal class WelcomePackageNftProcessor : Processor<Result<IEnumerable<WelcomePackageInfo>>>
     {
 
         protected override bool ProcessMultiplePerTick => false;
 
+        private IWelcomePackageService Packages { get; }
         private IWaxAccounts Wax { get; }
 
 
-        public WelcomePackageNftProcessor(IDataFactory factory, IWaxAccounts wax)
-            : base(factory)
+        public WelcomePackageNftProcessor(ITrackService track, IWelcomePackageService packages, IWaxAccounts wax)
+            : base(track)
         {
+            Packages = packages;
             Wax = wax;
         }
 
-        protected override Func<Task<IEnumerable<WelcomePackage>>> Get => Factory.Process.PullFundedWelcomePackagesMissingNft;
-        protected async override Task Process(IEnumerable<WelcomePackage> packages)
+        protected override Func<Task<Result<IEnumerable<WelcomePackageInfo>>>> Get => Packages.MissingNfts;
+        protected async override Task Process(Result<IEnumerable<WelcomePackageInfo>> result)
         {
-            var nfts = await GetNfts();
-            var bag = new ConcurrentBag<Nft>(nfts);
-            var tasks = packages.Select(package => Process(package, bag));
-            await Task.WhenAll(tasks);
+            if (result.Success)
+            {
+                var nfts = await GetNfts();
+                var bag = new ConcurrentBag<Nft>(nfts);
+                var tasks = result.Value.Select(package => Process(package, bag));
+                await Task.WhenAll(tasks);
+            }
         }
 
-        private async Task Process(WelcomePackage package, ConcurrentBag<Nft> nfts)
+        private async Task Process(WelcomePackageInfo package, ConcurrentBag<Nft> nfts)
         {
             try
             {
@@ -46,13 +51,13 @@ namespace WaxRentals.Processing.Processors
                     var (success, hash) = await SendNft(package.MemoToAccount(), starter);
                     if (success)
                     {
-                        await Factory.Process.ProcessWelcomePackageNft(package.PackageId, hash);
+                        await Packages.ProcessNft(package.Id, hash);
                     }
                 }
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: package);
+                Log(ex, context: package);
             }
         }
 
@@ -64,7 +69,7 @@ namespace WaxRentals.Processing.Processors
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: account);
+                Log(ex, context: account);
                 return (false, null);
             }
         }
@@ -74,7 +79,8 @@ namespace WaxRentals.Processing.Processors
             try
             {
                 var random = new Random();
-                var json = JObject.Parse(new QuickTimeoutWebClient().DownloadString(Locations.Assets, QuickTimeout));
+                var data = await new QuickTimeoutWebClient().DownloadStringTaskAsync(Locations.Assets, QuickTimeout);
+                var json = JObject.Parse(data);
                 return json.SelectTokens(Protocol.Assets)
                            .Select(token => token.ToObject<Nft>())
                            .OrderBy(nft => random.Next()) // Randomize for better distribution distribution.
@@ -82,7 +88,7 @@ namespace WaxRentals.Processing.Processors
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: Locations.Assets);
+                Log(ex, context: Locations.Assets);
                 return Enumerable.Empty<Nft>();
             }
         }

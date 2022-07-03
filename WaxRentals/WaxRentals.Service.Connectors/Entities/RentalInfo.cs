@@ -7,7 +7,9 @@ namespace WaxRentals.Service.Shared.Entities
     public class RentalInfo
 	{
 
+        public int Id { get; set; }
         public string WaxAccount { get; set; }
+        public string SourceAccount { get; set; }
         public int Cpu { get; set; }
         public int Net { get; set; }
         public int Days { get; set; }

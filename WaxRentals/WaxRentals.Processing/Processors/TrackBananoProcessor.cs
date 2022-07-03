@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Prices;
-using WaxRentals.Processing.Tracking;
-using static WaxRentals.Monitoring.Config.Constants;
+using WaxRentals.Service.Shared.Connectors;
+using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -15,14 +14,12 @@ namespace WaxRentals.Processing.Processors
 
         private IBananoAccount Banano { get; }
         private IPriceMonitor Prices { get; }
-        private ITracker Tracker { get; }
 
-        public TrackBananoProcessor(IDataFactory factory, IBananoAccount banano, IPriceMonitor prices, ITracker tracker)
-            : base(factory)
+        public TrackBananoProcessor(ITrackService track, IBananoAccount banano, IPriceMonitor prices)
+            : base(track)
         {
             Banano = banano;
             Prices = prices;
-            Tracker = tracker;
         }
 
         protected override Func<Task<decimal>> Get => () => Banano.Receive();
@@ -31,7 +28,7 @@ namespace WaxRentals.Processing.Processors
             if (received > 0)
             {
                 var converted = decimal.Parse(received.ToString()); // If we just do (decimal)received, we can only get whole numbers.
-                Tracker.Track("Received BAN", converted, Coins.Banano, earned: decimal.Round(converted * Prices.Banano, 2));
+                LogTransaction("Received BAN", converted, Coins.Banano, earned: decimal.Round(converted * Prices.Banano, 2));
             }
             return Task.CompletedTask;
         }

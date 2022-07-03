@@ -3,49 +3,51 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Notifications;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class RentalOpenProcessor : Processor<IEnumerable<Rental>>
+    internal class RentalOpenProcessor : Processor<Result<IEnumerable<RentalInfo>>>
     {
 
         protected override bool ProcessMultiplePerTick => false;
 
+        private IRentalService Rentals { get; }
         private IBananoAccountFactory Banano { get; }
-        private ITelegramNotifier Telegram { get; }
 
-        public RentalOpenProcessor(IDataFactory factory, IBananoAccountFactory banano, ITelegramNotifier telegram)
-            : base(factory)
+        public RentalOpenProcessor(ITrackService track, IRentalService rentals, IBananoAccountFactory banano)
+            : base(track)
         {
+            Rentals = rentals;
             Banano = banano;
-            Telegram = telegram;
         }
 
-        protected override Func<Task<IEnumerable<Rental>>> Get => Factory.Process.PullNewRentals;
-        protected async override Task Process(IEnumerable<Rental> rentals)
+        protected override Func<Task<Result<IEnumerable<RentalInfo>>>> Get => Rentals.New;
+        protected async override Task Process(Result<IEnumerable<RentalInfo>> result)
         {
-            var tasks = rentals.Select(Process);
-            await Task.WhenAll(tasks);
+            if (result.Success)
+            {
+                var tasks = result.Value.Select(Process);
+                await Task.WhenAll(tasks);
+            }
         }
 
-        private async Task Process(Rental rental)
+        private async Task Process(RentalInfo rental)
         {
             try
             {
-                var account = Banano.BuildAccount(rental.RentalId);
+                var account = Banano.BuildAccount(rental.Id);
                 var balance = await account.GetBalance();
                 if (balance >= rental.Banano)
                 {
-                    await Factory.Process.ProcessRentalPayment(rental.RentalId);
-                    Telegram.Send($"Received rental payment for {rental.TargetWaxAccount}.");
+                    await Rentals.ProcessPayment(rental.Id);
+                    Notify($"Received rental payment for {rental.WaxAccount}.");
                 }
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: rental);
+                Log(ex, context: rental);
             }
         }
 

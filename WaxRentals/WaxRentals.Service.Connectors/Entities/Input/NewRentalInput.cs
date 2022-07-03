@@ -1,6 +1,6 @@
 ﻿namespace WaxRentals.Service.Shared.Entities.Input
 {
-    public struct RentalInput
+    public struct NewRentalInput
     {
 
         public string Account { get; set; }

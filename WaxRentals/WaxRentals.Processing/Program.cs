@@ -3,12 +3,8 @@ using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using WaxRentals.Processing.Processors;
-using BananoDependencies = WaxRentals.Banano.Config.Dependencies;
-using DataDependencies = WaxRentals.Data.Config.Dependencies;
-using MonitoringDependencies = WaxRentals.Monitoring.Config.Dependencies;
 using ProcessingDependencies = WaxRentals.Processing.Config.Dependencies;
 using ServiceDependencies = WaxRentals.Service.Shared.Config.Dependencies;
-using WaxDependencies = WaxRentals.Waxp.Config.Dependencies;
 
 namespace WaxRentals.Processing
 {
@@ -34,9 +30,6 @@ namespace WaxRentals.Processing
 
                 // Be generous on debits.
                 provider.BuildProcessor<RentalClosingProcessor>(TimeSpan.FromMinutes(5)),
-
-                // Be very responsive to work needs.
-                //provider.BuildProcessor<WorkProcessor>(TimeSpan.FromSeconds(5)),
 
                 // Be very responsive to the day changing.
                 provider.BuildProcessor<DayChangeProcessor>(TimeSpan.FromSeconds(5)),
@@ -71,11 +64,7 @@ namespace WaxRentals.Processing
         {
             var services = new ServiceCollection();
 
-            DataDependencies.AddDependencies(services);
             ServiceDependencies.AddDependencies(services, "http://localhost:22022");
-            BananoDependencies.AddDependencies(services);
-            WaxDependencies.AddDependencies(services);
-            MonitoringDependencies.AddDependencies(services);
             ProcessingDependencies.AddDependencies(services);
 
             return services.BuildServiceProvider();

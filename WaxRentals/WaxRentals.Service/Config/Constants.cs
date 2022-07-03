@@ -1,4 +1,6 @@
-﻿namespace WaxRentals.Service.Config
+﻿using static WaxRentals.Service.Shared.Config.Constants;
+
+namespace WaxRentals.Service.Config
 {
     public static class Constants
     {
@@ -7,12 +9,6 @@
         {
             public const decimal BananoPerWaxPerDay = 1;
             public const int DaysDoubleThreshold = 15;
-        }
-
-        public static class Coins
-        {
-            public const string Banano = "banano";
-            public const string Wax = "wax";
         }
 
         public static class Http

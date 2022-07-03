@@ -2,7 +2,8 @@
 using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.Extensions.DependencyInjection;
-using WaxRentals.Data.Manager;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities.Input;
 using ManualResetEventSlim = System.Threading.ManualResetEventSlim;
 
 namespace WaxRentals.Processing.Processors
@@ -17,12 +18,12 @@ namespace WaxRentals.Processing.Processors
     {
         private readonly ManualResetEventSlim _complete = new();
 
-        protected IDataFactory Factory { get; }
+        private ITrackService Track { get; }
         protected virtual bool ProcessMultiplePerTick { get; } = true;
 
-        protected Processor(IDataFactory factory)
+        protected Processor(ITrackService track)
         {
-            Factory = factory;
+            Track = track;
         }
         
         #region " Processing "
@@ -109,13 +110,34 @@ namespace WaxRentals.Processing.Processors
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: target);
+                Log(ex, context: target);
             }
             _complete.Set();
         }
 
         protected abstract Func<Task<T>> Get { get; }
         protected abstract Task Process(T target);
+
+        #endregion
+
+        #region " Tracking "
+
+        protected async void Log(Exception ex, string error = null, object context = null)
+        {
+            var log = new ErrorLog { Exception = ex, Error = error, Context = context };
+            await Track.Error(log);
+        }
+
+        protected async void LogTransaction(string description, decimal quantity, string coin, decimal? earned = null, decimal? spent = null)
+        {
+            var log = new TransactionLog { Description = description, Quantity = quantity, Coin = coin, Earned = earned, Spent = spent };
+            await Track.Transaction(log);
+        }
+
+        protected async void Notify(string message)
+        {
+            await Track.Notify(message);
+        }
 
         #endregion
 

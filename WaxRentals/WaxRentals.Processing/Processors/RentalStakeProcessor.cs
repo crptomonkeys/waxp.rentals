@@ -2,54 +2,59 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentals.Waxp.Transact;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class RentalStakeProcessor : Processor<IEnumerable<Rental>>
+    internal class RentalStakeProcessor : Processor<Result<IEnumerable<RentalInfo>>>
     {
 
         protected override bool ProcessMultiplePerTick => false;
 
+        private IRentalService Rentals { get; }
         private IWaxAccounts Wax { get; }
         
-        public RentalStakeProcessor(IDataFactory factory, IWaxAccounts wax)
-            : base(factory)
+        public RentalStakeProcessor(ITrackService track, IRentalService rentals, IWaxAccounts wax)
+            : base(track)
         {
+            Rentals = rentals;
             Wax = wax;
         }
 
-        protected override Func<Task<IEnumerable<Rental>>> Get => Factory.Process.PullPaidRentalsToStake;
-        protected async override Task Process(IEnumerable<Rental> rentals)
+        protected override Func<Task<Result<IEnumerable<RentalInfo>>>> Get => Rentals.Paid;
+        protected async override Task Process(Result<IEnumerable<RentalInfo>> result)
         {
-            var tasks = rentals.Select(Process);
-            await Task.WhenAll(tasks);
+            if (result.Success)
+            {
+                var tasks = result.Value.Select(Process);
+                await Task.WhenAll(tasks);
+            }
         }
 
-        private async Task Process(Rental rental)
+        private async Task Process(RentalInfo rental)
         {
             try
             {
                 // Fund the source account.
-                var source = Wax.GetAccount(rental.RentalDays);
-                var needed = rental.CPU + rental.NET;
+                var source = Wax.GetAccount(rental.Days);
+                var needed = rental.Cpu + rental.Net;
                 var (sourceSuccess, sourceBalances) = await source.GetBalances();
                 if (sourceBalances.Available < needed)
                 {
                     await Wax.Today.Send(source.Account, needed - sourceBalances.Available);
                 }
 
-                var (stakeSuccess, hash) = await source.Stake(rental.TargetWaxAccount, rental.CPU, rental.NET);
+                var (stakeSuccess, hash) = await source.Stake(rental.WaxAccount, rental.Cpu, rental.Net);
                 if (stakeSuccess)
                 {
-                    await Factory.Process.ProcessRentalStaking(rental.RentalId, source.Account, hash);
+                    await Rentals.ProcessStake(rental.Id, source.Account, hash);
                 }
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: rental);
+                Log(ex, context: rental);
             }
         }
 
