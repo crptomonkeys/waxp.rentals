@@ -154,7 +154,7 @@ namespace WaxRentals.Banano.Transact
 
         #region " Scale "
 
-        private decimal Scale(BigDecimal value)
+        private static decimal Scale(BigDecimal value)
         {
             // Converting implicitly to decimal uses the full Mantissa rather
             // than the scaled value, so have to use string in between.

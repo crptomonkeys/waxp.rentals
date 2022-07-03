@@ -7,6 +7,7 @@ namespace WaxRentals.Service.Shared.Connectors
 {
     public interface IPurchaseService
     {
+        Task<Result> Create(decimal amount, string transaction, string paymentAddress, decimal banano, Status status);
         Task<Result<PurchaseInfo>> Next();
         Task<Result> Process(int id, string transaction);
     }
@@ -15,6 +16,12 @@ namespace WaxRentals.Service.Shared.Connectors
     {
 
         public PurchaseService(Uri baseUrl, ITrackService log) : base(baseUrl, log) { }
+
+        public async Task<Result> Create(decimal amount, string transaction, string paymentAddress, decimal banano, Status status)
+        {
+            var input = new NewPurchaseInput(amount, transaction, paymentAddress, banano, status);
+            return await Post("Create", input);
+        }
 
         public async Task<Result<PurchaseInfo>> Next()
         {

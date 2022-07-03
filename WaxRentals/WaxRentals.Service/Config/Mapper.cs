@@ -81,9 +81,26 @@ namespace WaxRentals.Service.Config
             };
         }
 
+        public WaxTransferInfo Map(Waxp.History.TransferInfo transfer)
+        {
+            return new WaxTransferInfo
+            {
+                Source                = transfer.Source,
+                Transaction           = transfer.Transaction,
+                Amount                = transfer.Amount,
+                BananoPaymentAddress  = transfer.BananoPaymentAddress,
+                SkipPayment           = transfer.SkipPayment
+            };
+        }
+
         public Status Map(Data.Entities.Status status)
         {
             return Enum.Parse<Status>(status.ToString());
+        }
+
+        public Data.Entities.Status Map(Status status)
+        {
+            return Enum.Parse<Data.Entities.Status>(status.ToString());
         }
 
     }

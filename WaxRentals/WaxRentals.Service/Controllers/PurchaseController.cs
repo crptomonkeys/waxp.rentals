@@ -18,6 +18,19 @@ namespace WaxRentals.Service.Controllers
             Mapper = mapper;
         }
 
+        [HttpPost("Create")]
+        public async Task<JsonResult> Create([FromBody] NewPurchaseInput input)
+        {
+            var success = await Factory.Insert.OpenPurchase(
+                input.Amount,
+                input.Transaction,
+                input.BananoPaymentAddress,
+                input.Banano,
+                Mapper.Map(input.Status)
+            );
+            return success ? Succeed() : Fail("Purchase already exists.");
+        }
+
         [HttpGet("Next")]
         public async Task<JsonResult> Next()
         {

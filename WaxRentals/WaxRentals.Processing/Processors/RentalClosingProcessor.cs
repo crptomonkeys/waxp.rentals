@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
-using WaxRentals.Waxp.Transact;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -10,9 +9,9 @@ namespace WaxRentals.Processing.Processors
     {
 
         private IRentalService Rentals { get; }
-        private IWaxAccounts Wax { get; }
+        private IWaxService Wax { get; }
 
-        public RentalClosingProcessor(ITrackService track, IRentalService rentals, IWaxAccounts wax)
+        public RentalClosingProcessor(ITrackService track, IRentalService rentals, IWaxService wax)
             : base(track)
         {
             Rentals = rentals;
@@ -24,13 +23,16 @@ namespace WaxRentals.Processing.Processors
         {
             if (result.Success)
             {
-                var rental = result.Value;
-                var wax = Wax.GetAccount(rental.SourceAccount);
-                var (success, hash) = await wax.Unstake(rental.WaxAccount, rental.Cpu, rental.Net);
-                if (success)
-                {
-                    await Rentals.ProcessClosing(rental.Id, hash);
-                }
+                await Process(result.Value);
+            }
+        }
+
+        private async Task Process(RentalInfo rental)
+        {
+            var result = await Wax.Unstake(rental.Cpu, rental.Net, rental.WaxAccount, rental.SourceAccount);
+            if (result.Success)
+            {
+                await Rentals.ProcessClosing(rental.Id, result.Value);
             }
         }
 

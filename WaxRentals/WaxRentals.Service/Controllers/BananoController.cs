@@ -2,6 +2,7 @@
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Shared.Entities.Input;
+using static WaxRentals.Service.Shared.Config.Constants;
 using static WaxRentals.Service.Shared.Config.Constants.Banano;
 
 namespace WaxRentals.Service.Controllers
@@ -20,6 +21,20 @@ namespace WaxRentals.Service.Controllers
         {
             Banano = banano;
             Storage = storage;
+        }
+
+        [HttpGet("RentalAccountBalance")]
+        public async Task<JsonResult> RentalAccountBalance(int id)
+        {
+            var account = Banano.BuildAccount(id);
+            return Succeed(await account.GetBalance());
+        }
+
+        [HttpGet("WelcomeAccountBalance")]
+        public async Task<JsonResult> WelcomeAccountBalance(int id)
+        {
+            var account = Banano.BuildWelcomeAccount(id);
+            return Succeed(await account.GetBalance());
         }
 
         [HttpPost("SweepRentalAccount")]
@@ -46,6 +61,12 @@ namespace WaxRentals.Service.Controllers
             return Fail("No balance.");
         }
 
+        [HttpPost("CompleteSweeps")]
+        public async Task<JsonResult> CompleteSweeps()
+        {
+            return Succeed(await Storage.Receive());
+        }
+
         [HttpPost("Send")]
         public async Task<JsonResult> Send([FromBody] SendInput input)
         {
@@ -54,7 +75,7 @@ namespace WaxRentals.Service.Controllers
             {
                 return Succeed(await Storage.Send(input.Recipient, input.Amount));
             }
-            return Fail($"Requested {input.Amount} banano but only have {available} banano available.");
+            return Fail($"Requested {input.Amount} {Coins.Banano} but only have {available} {Coins.Banano} available.");
         }
 
     }

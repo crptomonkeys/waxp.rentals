@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WaxRentals.Monitoring.Prices;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
-using WaxRentals.Waxp.Transact;
 using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
@@ -16,15 +14,15 @@ namespace WaxRentals.Processing.Processors
         protected override bool ProcessMultiplePerTick => false;
 
         private IWelcomePackageService Packages { get; }
-        private IWaxAccounts Wax { get; }
-        private IPriceMonitor Prices { get; }
+        private IWaxService Wax { get; }
+        private IAppService App { get; }
         
-        public WelcomePackageFundingProcessor(ITrackService track, IWelcomePackageService packages, IWaxAccounts wax, IPriceMonitor prices)
+        public WelcomePackageFundingProcessor(ITrackService track, IWelcomePackageService packages, IWaxService wax, IAppService app)
             : base(track)
         {
             Packages = packages;
             Wax = wax;
-            Prices = prices;
+            App = app;
         }
 
         protected override Func<Task<Result<IEnumerable<WelcomePackageInfo>>>> Get => Packages.Paid;
@@ -41,25 +39,24 @@ namespace WaxRentals.Processing.Processors
         {
             try
             {
-                var (todaySuccess, todayBalances) = await Wax.Today.GetBalances();
-                if (todaySuccess && todayBalances.Available > package.Wax)
+                var result = await Wax.Send(package.WaxAccount, package.Wax, memo: package.Memo);
+                if (result.Success)
                 {
-                    var (sendSuccess, fund) = await Wax.Today.Send(
-                        package.WaxAccount,
-                        package.Wax,
-                        package.Memo);
-                    if (sendSuccess)
-                    {
-                        var task = Packages.ProcessFunding(package.Id, fund);
-                        LogTransaction("Sent WAX", package.Wax, Coins.Wax, spent: package.Wax * Prices.Wax);
-                        await task;
-                    }
+                    var task = Packages.ProcessFunding(package.Id, result.Value);
+                    LogTransaction("Sent WAX", package.Wax, Coins.Wax, spent: await ToUsd(package.Wax));
+                    await task;
                 }
             }
             catch (Exception ex)
             {
                 Log(ex, context: package);
             }
+        }
+
+        private async Task<decimal> ToUsd(decimal wax)
+        {
+            var result = await App.State();
+            return wax * (result.Value?.WaxPrice ?? 0);
         }
 
     }

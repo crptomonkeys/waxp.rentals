@@ -17,7 +17,7 @@ namespace WaxRentals.Waxp.Config
 
             public const string TransferBlocks = "$.simple_actions[?(@.action=='transfer' && @.data.to=='" + PrimaryAccount + "' && @.data.amount>'0')]";
 
-            public const decimal MinimumTransaction = Calculations.BananoPerWaxPerDay;
+            public const decimal MinimumTransaction = 1;
 
             public const int Decimals = 8;
             public static readonly string[] StakedWaxFormats = new string[]

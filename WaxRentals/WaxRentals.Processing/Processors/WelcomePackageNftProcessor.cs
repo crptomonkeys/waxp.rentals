@@ -3,14 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using WaxRentals.Processing.Extensions;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
-using WaxRentals.Waxp;
-using WaxRentals.Waxp.Transact;
-using static WaxRentals.Monitoring.Config.Constants;
-using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -20,10 +15,10 @@ namespace WaxRentals.Processing.Processors
         protected override bool ProcessMultiplePerTick => false;
 
         private IWelcomePackageService Packages { get; }
-        private IWaxAccounts Wax { get; }
+        private IWaxService Wax { get; }
 
 
-        public WelcomePackageNftProcessor(ITrackService track, IWelcomePackageService packages, IWaxAccounts wax)
+        public WelcomePackageNftProcessor(ITrackService track, IWelcomePackageService packages, IWaxService wax)
             : base(track)
         {
             Packages = packages;
@@ -35,9 +30,17 @@ namespace WaxRentals.Processing.Processors
         {
             if (result.Success)
             {
-                var nfts = await GetNfts();
-                var bag = new ConcurrentBag<Nft>(nfts);
-                var tasks = result.Value.Select(package => Process(package, bag));
+                await Process(result.Value);
+            }
+        }
+
+        private async Task Process(IEnumerable<WelcomePackageInfo> packages)
+        {
+            var result = await Wax.Nfts();
+            if (result.Success)
+            {
+                var nfts = new ConcurrentBag<Nft>(result.Value);
+                var tasks = packages.Select(package => Process(package, nfts));
                 await Task.WhenAll(tasks);
             }
         }
@@ -48,48 +51,16 @@ namespace WaxRentals.Processing.Processors
             {
                 if (nfts.TryTake(out Nft starter))
                 {
-                    var (success, hash) = await SendNft(package.MemoToAccount(), starter);
-                    if (success)
+                    var result = await Wax.SendAsset(package.MemoToAccount(), starter.AssetId, "Welcome!");
+                    if (result.Success)
                     {
-                        await Packages.ProcessNft(package.Id, hash);
+                        await Packages.ProcessNft(package.Id, result.Value);
                     }
                 }
             }
             catch (Exception ex)
             {
                 Log(ex, context: package);
-            }
-        }
-
-        private async Task<(bool, string)> SendNft(string account, Nft nft)
-        {
-            try
-            {
-                return await Wax.Primary.SendAsset(account, nft.AssetId, "Welcome!");
-            }
-            catch (Exception ex)
-            {
-                Log(ex, context: account);
-                return (false, null);
-            }
-        }
-
-        private async Task<IEnumerable<Nft>> GetNfts()
-        {
-            try
-            {
-                var random = new Random();
-                var data = await new QuickTimeoutWebClient().DownloadStringTaskAsync(Locations.Assets, QuickTimeout);
-                var json = JObject.Parse(data);
-                return json.SelectTokens(Protocol.Assets)
-                           .Select(token => token.ToObject<Nft>())
-                           .OrderBy(nft => random.Next()) // Randomize for better distribution distribution.
-                           .ToList();
-            }
-            catch (Exception ex)
-            {
-                Log(ex, context: Locations.Assets);
-                return Enumerable.Empty<Nft>();
             }
         }
 

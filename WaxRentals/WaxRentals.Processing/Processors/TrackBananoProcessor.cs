@@ -1,36 +1,39 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Monitoring.Prices;
 using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class TrackBananoProcessor : Processor<decimal>
+    internal class TrackBananoProcessor : Processor<Result<decimal>>
     {
 
         protected override bool ProcessMultiplePerTick => false;
 
-        private IBananoAccount Banano { get; }
-        private IPriceMonitor Prices { get; }
+        private IBananoService Banano { get; }
+        private IAppService App { get; }
 
-        public TrackBananoProcessor(ITrackService track, IBananoAccount banano, IPriceMonitor prices)
+        public TrackBananoProcessor(ITrackService track, IBananoService banano, IAppService app)
             : base(track)
         {
             Banano = banano;
-            Prices = prices;
+            App = app;
         }
 
-        protected override Func<Task<decimal>> Get => () => Banano.Receive();
-        protected override Task Process(decimal received)
+        protected override Func<Task<Result<decimal>>> Get => Banano.CompleteSweeps;
+        protected async override Task Process(Result<decimal> result)
         {
-            if (received > 0)
+            if (result.Success && result.Value > 0)
             {
-                var converted = decimal.Parse(received.ToString()); // If we just do (decimal)received, we can only get whole numbers.
-                LogTransaction("Received BAN", converted, Coins.Banano, earned: decimal.Round(converted * Prices.Banano, 2));
+                LogTransaction("Received BAN", result.Value, Coins.Banano, earned: decimal.Round(await ToUsd(result.Value), 2));
             }
-            return Task.CompletedTask;
+        }
+
+        private async Task<decimal> ToUsd(decimal banano)
+        {
+            var result = await App.State();
+            return banano * (result.Value?.BananoPrice ?? 0);
         }
 
     }

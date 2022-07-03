@@ -301,18 +301,18 @@ namespace WaxRentals.Data.Manager
 
         #region " ITrackWax "
 
-        public DateTime? GetLastHistoryCheck()
+        public async Task<DateTime?> GetLastHistoryCheck()
         {
-            return Context.WaxHistory
-                          .OrderByDescending(history => history.LastRun)
-                          .FirstOrDefault()
-                         ?.LastRun;
+            var history = await Context.WaxHistory
+                                       .OrderByDescending(history => history.LastRun)
+                                       .FirstOrDefaultAsync();
+            return history?.LastRun;
         }
 
-        public void SetLastHistoryCheck(DateTime last)
+        public async Task SetLastHistoryCheck(DateTime last)
         {
             Context.WaxHistory.Add(new WaxHistory { LastRun = last });
-            Context.SaveChanges();
+            await Context.SaveChangesAsync();
         }
 
         #endregion

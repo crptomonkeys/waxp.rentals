@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring;
+using WaxRentals.Waxp.History;
 using WaxRentals.Waxp.Monitoring;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Waxp.Config.Constants;
@@ -35,6 +36,7 @@ namespace WaxRentals.Waxp.Config
 
             services.AddSingleton<IClientFactory, ClientFactory>();
             services.AddSingleton<IWaxAccounts, WaxAccounts>();
+            services.AddSingleton<IWaxHistoryChecker, WaxHistoryChecker>();
         }
 
     }

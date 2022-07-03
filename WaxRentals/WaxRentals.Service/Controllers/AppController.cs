@@ -41,7 +41,7 @@ namespace WaxRentals.Service.Controllers
                     WaxPrice                       = Price(prices.Wax),
                     WaxAccount                     = Wax.PrimaryAccount,
                     WaxStaked                      = Balance(waxInfo.Staked),
-                    WaxWorkingAccount              = waxInfo.Today,
+                    WaxWorkingAccount              = waxInfo.Account,
                     WaxBalanceAvailableToday       = Balance(waxInfo.Available),
                     WaxBalanceAvailableTomorrow    = Balance(waxInfo.Unstaking),
                                                    

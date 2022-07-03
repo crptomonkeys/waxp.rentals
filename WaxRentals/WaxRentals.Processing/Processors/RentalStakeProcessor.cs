@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
-using WaxRentals.Waxp.Transact;
 
 namespace WaxRentals.Processing.Processors
 {
@@ -14,9 +13,9 @@ namespace WaxRentals.Processing.Processors
         protected override bool ProcessMultiplePerTick => false;
 
         private IRentalService Rentals { get; }
-        private IWaxAccounts Wax { get; }
+        private IWaxService Wax { get; }
         
-        public RentalStakeProcessor(ITrackService track, IRentalService rentals, IWaxAccounts wax)
+        public RentalStakeProcessor(ITrackService track, IRentalService rentals, IWaxService wax)
             : base(track)
         {
             Rentals = rentals;
@@ -37,19 +36,11 @@ namespace WaxRentals.Processing.Processors
         {
             try
             {
-                // Fund the source account.
-                var source = Wax.GetAccount(rental.Days);
-                var needed = rental.Cpu + rental.Net;
-                var (sourceSuccess, sourceBalances) = await source.GetBalances();
-                if (sourceBalances.Available < needed)
+                var result = await Wax.Stake(rental.Cpu, rental.Net, rental.WaxAccount, days: rental.Days);
+                if (result.Success)
                 {
-                    await Wax.Today.Send(source.Account, needed - sourceBalances.Available);
-                }
-
-                var (stakeSuccess, hash) = await source.Stake(rental.WaxAccount, rental.Cpu, rental.Net);
-                if (stakeSuccess)
-                {
-                    await Rentals.ProcessStake(rental.Id, source.Account, hash);
+                    var info = result.Value;
+                    await Rentals.ProcessStake(rental.Id, info.SourceAccount, info.Transaction);
                 }
             }
             catch (Exception ex)

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WaxRentals.Banano.Transact;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
 
@@ -14,9 +13,9 @@ namespace WaxRentals.Processing.Processors
         protected override bool ProcessMultiplePerTick => false;
 
         private IRentalService Rentals { get; }
-        private IBananoAccountFactory Banano { get; }
+        private IBananoService Banano { get; }
 
-        public RentalOpenProcessor(ITrackService track, IRentalService rentals, IBananoAccountFactory banano)
+        public RentalOpenProcessor(ITrackService track, IRentalService rentals, IBananoService banano)
             : base(track)
         {
             Rentals = rentals;
@@ -37,9 +36,8 @@ namespace WaxRentals.Processing.Processors
         {
             try
             {
-                var account = Banano.BuildAccount(rental.Id);
-                var balance = await account.GetBalance();
-                if (balance >= rental.Banano)
+                var result = await Banano.RentalAccountBalance(rental.Id);
+                if (result.Success && result.Value >= rental.Banano)
                 {
                     await Rentals.ProcessPayment(rental.Id);
                     Notify($"Received rental payment for {rental.WaxAccount}.");

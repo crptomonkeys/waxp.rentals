@@ -7,7 +7,7 @@
         public decimal Staked { get; set; }
         public decimal Unstaking { get; set; }
 
-        public string Today { get; set; }
+        public string Account { get; set; }
 
     }
 }

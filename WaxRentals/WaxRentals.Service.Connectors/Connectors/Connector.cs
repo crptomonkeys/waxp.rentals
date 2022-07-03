@@ -5,13 +5,15 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using WaxRentals.Service.Shared.Entities;
 
+#nullable disable
+
 namespace WaxRentals.Service.Shared.Connectors
 {
     internal abstract class Connector
     {
 
         protected HttpClient Client { get; }
-        protected ITrackService? Log { get; }
+        protected ITrackService Log { get; }
         protected static JsonSerializerOptions SerializerOptions { get; }
 
         static Connector()
@@ -19,13 +21,20 @@ namespace WaxRentals.Service.Shared.Connectors
             SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         }
 
-        public Connector(Uri baseUrl, ITrackService? log = null)
+        public Connector(Uri baseUrl, ITrackService log = null)
         {
             Client = new HttpClient
             {
                 BaseAddress = baseUrl
             };
             Log = log;
+        }
+
+        protected async Task<Result> Post(string path)
+        {
+            return await Process(async () =>
+                await Client.PostAsync(path, null)
+            );
         }
 
         protected async Task<Result> Post(string path, object data)
@@ -40,6 +49,13 @@ namespace WaxRentals.Service.Shared.Connectors
         {
             return await Process(async () =>
                 await Client.PostAsync(path, new StringContent(data, Encoding.UTF8))
+            );
+        }
+
+        protected async Task<Result<TOut>> Post<TOut>(string path)
+        {
+            return await Process<TOut>(async () =>
+                await Client.PostAsync(path, null)
             );
         }
 

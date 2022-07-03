@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WaxRentals.Banano.Transact;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentals.Service.Shared.Entities;
 
@@ -14,9 +13,9 @@ namespace WaxRentals.Processing.Processors
         protected override bool ProcessMultiplePerTick => false;
 
         private IWelcomePackageService Packages { get; }
-        private IBananoAccountFactory Banano { get; }
+        private IBananoService Banano { get; }
 
-        public WelcomePackageOpenProcessor(ITrackService track, IWelcomePackageService packages, IBananoAccountFactory banano)
+        public WelcomePackageOpenProcessor(ITrackService track, IWelcomePackageService packages, IBananoService banano)
             : base(track)
         {
             Packages = packages;
@@ -37,9 +36,8 @@ namespace WaxRentals.Processing.Processors
         {
             try
             {
-                var account = Banano.BuildWelcomeAccount(package.Id);
-                var balance = await account.GetBalance();
-                if (balance >= package.Banano)
+                var result = await Banano.WelcomeAccountBalance(package.Id);
+                if (result.Success && result.Value >= package.Banano)
                 {
                     await Packages.ProcessPayment(package.Id);
                     Notify($"Received welcome package payment for {package.Memo}.");

@@ -66,6 +66,7 @@ namespace WaxRentals.Waxp.Transact
 
             await Task.WhenAll(apiTask, jsonTask);
             balances.Staked = await jsonTask;
+            balances.Account = Account;
             return (await apiTask, balances);
         }
 
