@@ -25,7 +25,7 @@ COPY --from=build-env /app/WaxRentals/WaxRentals.Processing/out .
 WORKDIR /app/web
 COPY --from=build-env /app/WaxRentals/WaxRentalsWeb/out .
 
-RUN apt-get update && apt-get install -y curl libgdiplus
+RUN apt-get update && apt-get install -y curl
 
 ENTRYPOINT [ "dotnet" ]
 

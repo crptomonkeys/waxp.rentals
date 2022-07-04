@@ -13,12 +13,21 @@ namespace WaxRentals.Service.Caching
 
         private Mapper Mapper { get; }
         private ReaderWriterLockSlim Rwls { get; } = new();
-        private AppInsights Insights { get; set; } = new();
+        private AppInsights Insights { get; set; }
 
         public InsightsCache(IDataFactory factory, TimeSpan interval, Mapper mapper)
             : base(factory, interval)
         {
             Mapper = mapper;
+
+            // No nulls.
+            Insights = new AppInsights
+            {
+                MonthlyStats = Enumerable.Empty<MonthlyStats>(),
+                LatestRentals = Enumerable.Empty<RentalInfo>(),
+                LatestPurchases = Enumerable.Empty<PurchaseInfo>(),
+                LatestWelcomePackages = Enumerable.Empty<WelcomePackageInfo>()
+            };
         }
 
         protected async override Task Tick()
