@@ -79,35 +79,35 @@ namespace WaxRentals.Service.Controllers
             return Succeed(packages.Select(Mapper.Map));
         }
 
-        [HttpGet]
+        [HttpGet("New")]
         public async Task<JsonResult> New()
         {
             var packages = await Factory.Process.PullNewWelcomePackages();
             return Succeed(packages.Select(Mapper.Map));
         }
 
-        [HttpGet]
+        [HttpGet("Paid")]
         public async Task<JsonResult> Paid()
         {
             var packages = await Factory.Process.PullPaidWelcomePackagesToFund();
             return Succeed(packages.Select(Mapper.Map));
         }
 
-        [HttpGet]
+        [HttpGet("MissingNfts")]
         public async Task<JsonResult> MissingNfts()
         {
             var packages = await Factory.Process.PullFundedWelcomePackagesMissingNft();
             return Succeed(packages.Select(Mapper.Map));
         }
 
-        [HttpGet]
+        [HttpGet("MissingRentals")]
         public async Task<JsonResult> MissingRentals()
         {
             var packages = await Factory.Process.PullFundedWelcomePackagesMissingRental();
             return Succeed(packages.Select(Mapper.Map));
         }
 
-        [HttpGet]
+        [HttpGet("Sweepable")]
         public async Task<JsonResult> Sweepable()
         {
             var packages = await Factory.Process.PullSweepableWelcomePackages();
