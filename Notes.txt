@@ -1,8 +1,7 @@
 
-- swap to service
-- if no prices, fix New Wallet and Sell Wax screens
 - speed up initial load?
 - api
+- switch to api
 - test
 - publish out
 - admin site
