@@ -72,7 +72,7 @@ namespace WaxRentals.Service.Controllers
 
         #region " Read "
 
-        [HttpGet("ByBananoAddresses")]
+        [HttpPost("ByBananoAddresses")]
         public async Task<JsonResult> ByBananoAddresses([FromBody] IEnumerable<string> addresses)
         {
             var packages = await Factory.Explore.GetWelcomePackagesByBananoAddresses(addresses);

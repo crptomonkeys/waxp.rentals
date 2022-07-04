@@ -6,7 +6,7 @@ namespace VanityAddressGenerator
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             var vanity = "open";
             var filename = $"{vanity}.seed.txt";
