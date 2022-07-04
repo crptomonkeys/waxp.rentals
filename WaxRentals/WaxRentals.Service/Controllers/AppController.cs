@@ -55,7 +55,8 @@ namespace WaxRentals.Service.Controllers
                     WaxMinimumBuy                  = Balance(limits.WaxMinimumBuy),
                     WaxMaximumBuy                  = Balance(limits.WaxMaximumBuy),
 
-                    WelcomePackagesAvailable       = waxInfo.Available >= Wax.NewUser.OpenWax,
+                    WelcomePackagesAvailable       = costs.BananoWelcomePackagePrice > 0 &&
+                                                     waxInfo.Available >= Wax.NewUser.OpenWax,
                     WelcomePackageRentalsAvailable = waxInfo.Available >= (Wax.NewUser.OpenWax +
                                                                            Wax.NewUser.FreeCpu +
                                                                            Wax.NewUser.FreeNet),

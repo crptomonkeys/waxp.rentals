@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -62,12 +63,24 @@ namespace WaxRentals.Processing
 
         private static IServiceProvider BuildServiceProvider()
         {
+            var env = GetEnvironmentVariables();
             var services = new ServiceCollection();
 
-            ServiceDependencies.AddDependencies(services, "http://localhost:22022");
+            ServiceDependencies.AddDependencies(services, env["SERVICE"]);
             ProcessingDependencies.AddDependencies(services);
 
             return services.BuildServiceProvider();
+        }
+
+        private static IDictionary<string, string> GetEnvironmentVariables()
+        {
+            var env = Environment.GetEnvironmentVariables();
+            var dic = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string key in env.Keys)
+            {
+                dic.Add(key, (string)env[key]);
+            }
+            return dic;
         }
     }
 }

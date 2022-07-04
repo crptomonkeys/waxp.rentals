@@ -30,9 +30,12 @@ RUN apt-get update && apt-get install -y curl libgdiplus
 ENTRYPOINT [ "dotnet" ]
 
 #ENV ASPNETCORE_URLS=http://+:2022
+#ENV SERVICE=http://service:2022
 #CMD [ "WaxRentalsWeb.dll" ]
 
+#ENV SERVICE=http://service:2022
 #CMD [ "WaxRentals.Processing.dll" ]
 
 #ENV ASPNETCORE_URLS=http://+:2022
+#ENV DB_FILE=/run/secrets/wax.db
 #CMD [ "WaxRentals.Service.dll" ]
