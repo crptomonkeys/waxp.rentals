@@ -8,6 +8,8 @@ BEGIN
 		SELECT DISTINCT Year = DATEPART(year, Inserted), Month = DATEPART(month, Inserted) FROM Purchase WHERE StatusId > 1
 		UNION
 		SELECT DISTINCT Year = DATEPART(year, Paid), Month = DATEPART(month, Paid) FROM welcome.Package WHERE StatusId > 1
+		UNION
+		SELECT Year = DATEPART(year, GETUTCDATE()), Month = DATEPART(month, GETUTCDATE()) /* Always include the current month. */
 	)
 	SELECT
 		Months.Year,
@@ -50,6 +52,7 @@ BEGIN
 		) wp
 		GROUP BY Year, Month
 	) wp ON Months.Year = wp.Year AND Months.Month = wp.Month
+	WHERE Months.Year IS NOT NULL AND Months.Month IS NOT NULL
 	ORDER BY Months.Year DESC, Months.Month DESC;
 
 END

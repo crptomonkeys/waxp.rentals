@@ -108,7 +108,7 @@ namespace WaxRentals.Service.Controllers
             return Succeed(rentals.Select(Mapper.Map));
         }
 
-        [HttpGet("ByBananoAddresses")]
+        [HttpPost("ByBananoAddresses")]
         public async Task<JsonResult> ByBananoAddresses([FromBody] IEnumerable<string> addresses)
         {
             var rentals = await Factory.Explore.GetRentalsByBananoAddresses(addresses);
