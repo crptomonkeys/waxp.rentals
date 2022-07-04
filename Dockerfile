@@ -12,9 +12,14 @@ RUN dotnet publish -c Release -o out
 WORKDIR /app/WaxRentals/WaxRentals.Processing
 RUN dotnet publish -c Release -o out
 
+WORKDIR /app/WaxRentals/WaxRentals.Service
+RUN dotnet publish -c Release -o out
+
 
 FROM mcr.microsoft.com/dotnet/aspnet:5.0
 
+WORKDIR /app/service
+COPY --from=build-env /app/WaxRentals/WaxRentals.Service/out .
 WORKDIR /app/processors
 COPY --from=build-env /app/WaxRentals/WaxRentals.Processing/out .
 WORKDIR /app/web
@@ -28,3 +33,6 @@ ENTRYPOINT [ "dotnet" ]
 #CMD [ "WaxRentalsWeb.dll" ]
 
 #CMD [ "WaxRentals.Processing.dll" ]
+
+#ENV ASPNETCORE_URLS=http://+:2022
+#CMD [ "WaxRentals.Service.dll" ]
