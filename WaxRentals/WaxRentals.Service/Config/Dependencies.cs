@@ -56,7 +56,7 @@ namespace WaxRentals.Service.Config
                 var factory = provider.GetRequiredService<IDataFactory>();
                 return new PricesCache(
                     factory,
-                    TimeSpan.FromMinutes(2),
+                    TimeSpan.FromSeconds(90),
                     BuildHttpClient(CoinPrices, factory)
                 );
             });

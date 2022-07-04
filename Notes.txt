@@ -1,5 +1,4 @@
 
-- speed up initial load?
 - api
 - switch to api
 - test
@@ -8,6 +7,6 @@
 
 - announce live
   - best things about CM/banano
-    - top 5*(10cpu*5days)
+    - top 3*(19cpu*7days)
     - top 1*(CM, additional?)
   - API
