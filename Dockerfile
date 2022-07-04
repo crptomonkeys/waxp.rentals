@@ -16,7 +16,7 @@ WORKDIR /app/WaxRentals/WaxRentals.Service
 RUN dotnet publish -c Release -o out
 
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0
+FROM mcr.microsoft.com/dotnet/aspnet:6.0
 
 WORKDIR /app/service
 COPY --from=build-env /app/WaxRentals/WaxRentals.Service/out .
