@@ -9,11 +9,11 @@
         public decimal Banano { get; set; }
         public Status Status { get; set; }
 
-        public NewPurchaseInput(decimal amount, string transaction, string paymentAddress, decimal banano, Status status)
+        public NewPurchaseInput(decimal amount, string transaction, string bananoPaymentAddress, decimal banano, Status status)
         {
             Amount = amount;
             Transaction = transaction;
-            BananoPaymentAddress = paymentAddress;
+            BananoPaymentAddress = bananoPaymentAddress;
             Banano = banano;
             Status = status;
         }
