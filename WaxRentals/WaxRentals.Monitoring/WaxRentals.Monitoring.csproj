@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\WaxRentals.Data\WaxRentals.Data.csproj" />
-    <ProjectReference Include="..\WaxRentals.Service.Connectors\WaxRentals.Service.Shared.csproj" />
+    <ProjectReference Include="..\WaxRentals.Service.Shared\WaxRentals.Service.Shared.csproj" />
   </ItemGroup>
 
 </Project>
