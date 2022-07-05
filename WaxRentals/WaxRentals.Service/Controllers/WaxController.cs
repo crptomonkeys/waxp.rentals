@@ -42,7 +42,7 @@ namespace WaxRentals.Service.Controllers
             try
             {
                 var random = new Random();
-                var data = await new QuickTimeoutWebClient().DownloadStringTaskAsync(Locations.Assets, QuickTimeout);
+                var data = await new QuickTimeoutWebClient().DownloadStringTaskAsync(string.Format(Locations.Assets, Wax.Primary.Account), QuickTimeout);
                 var json = JObject.Parse(data);
                 return Succeed(json.SelectTokens(Protocol.Assets)
                                    .Select(token => token.ToObject<Nft>())
@@ -52,7 +52,7 @@ namespace WaxRentals.Service.Controllers
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: Locations.Assets);
+                await Factory.Log.Error(ex, context: string.Format(Locations.Assets, Wax.Primary.Account));
                 return Fail("Unable to pull NFTs list.");
             }
         }

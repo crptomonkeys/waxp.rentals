@@ -16,20 +16,21 @@ namespace WaxRentals.Service.Caching
         public IEnumerable<Nft> GetNfts() => Rwls.SafeRead(() => Nfts);
 
 
+        private IWaxAccounts Wax { get; }
         private ReaderWriterLockSlim Rwls { get; } = new();
         private IEnumerable<Nft> Nfts { get; set; } = Enumerable.Empty<Nft>();
 
-        public NftsCache(IDataFactory factory, TimeSpan interval)
+        public NftsCache(IWaxAccounts wax, IDataFactory factory, TimeSpan interval)
             : base(factory, interval)
         {
-            
+            Wax = wax;
         }
 
         protected async override Task Tick()
         {
             try
             {
-                var json = JObject.Parse(new QuickTimeoutWebClient().DownloadString(Locations.Assets, QuickTimeout));
+                var json = JObject.Parse(new QuickTimeoutWebClient().DownloadString(string.Format(Locations.Assets, Wax.Primary.Account), QuickTimeout));
                 Rwls.SafeWrite(() =>
                     Nfts = json.SelectTokens(Protocol.Assets)
                                .Select(token => token.ToObject<Nft>())
@@ -37,7 +38,7 @@ namespace WaxRentals.Service.Caching
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: Locations.Assets);
+                await Factory.Log.Error(ex, context: string.Format(Locations.Assets, Wax.Primary.Account));
             }
         }
 

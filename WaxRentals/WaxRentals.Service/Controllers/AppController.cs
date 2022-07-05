@@ -3,6 +3,7 @@ using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
 using WaxRentals.Service.Shared.Entities;
+using WaxRentals.Waxp.Transact;
 using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Service.Controllers
@@ -12,16 +13,19 @@ namespace WaxRentals.Service.Controllers
 
         private Cache Cache { get; }
         private IBananoAccount Banano { get; }
+        private IWaxAccounts WaxAccounts { get; }
 
         public AppController(
             IDataFactory factory,
             
             Cache cache,
-            IBananoAccount banano)
+            IBananoAccount banano,
+            IWaxAccounts waxAccounts)
             : base(factory)
         {
             Cache = cache;
             Banano = banano;
+            WaxAccounts = waxAccounts;
         }
 
         [HttpGet("State")]
@@ -39,7 +43,7 @@ namespace WaxRentals.Service.Controllers
                     BananoBalance                  = Balance(Cache.BananoInfo.GetBalance()),
                                                    
                     WaxPrice                       = Price(prices.Wax),
-                    WaxAccount                     = Wax.PrimaryAccount,
+                    WaxAccount                     = WaxAccounts.Primary.Account,
                     WaxStaked                      = Balance(waxInfo.Staked),
                     WaxWorkingAccount              = waxInfo.Account,
                     WaxBalanceAvailableToday       = Balance(waxInfo.Available),
@@ -70,6 +74,19 @@ namespace WaxRentals.Service.Controllers
         {
             return Succeed(
                 Cache.Insights.GetInsights()
+            );
+        }
+
+        [HttpGet("Constants")]
+        public JsonResult Constants()
+        {
+            return Succeed(
+                new AppConstants
+                {
+                    BananoSweepAddress  = Banano.Address,
+                    WaxPrimaryAccount   = WaxAccounts.Primary.Account,
+                    WaxTransactAccounts = WaxAccounts.Transact.Select(wax => wax.Account)
+                }
             );
         }
 

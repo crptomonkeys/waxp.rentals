@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Nano.Net;
 using Newtonsoft.Json.Linq;
@@ -21,8 +23,9 @@ namespace WaxRentals.Banano.Config
                 }
             );
 
-            var seed = JObject.Parse(File.ReadAllText(Locations.Seed)).ToObject<BananoSeed>();
-            var welcomeSeed = JObject.Parse(File.ReadAllText(Locations.WelcomeSeed)).ToObject<BananoSeed>();
+            var env = GetEnvironmentVariables();
+            var seed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE"])).ToObject<BananoSeed>();
+            var welcomeSeed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE_WELCOME"])).ToObject<BananoSeed>();
 
             services.AddSingleton(provider =>
                 new StorageAccount(
@@ -44,6 +47,17 @@ namespace WaxRentals.Banano.Config
                     provider.GetRequiredService<IDataFactory>()
                 )
             );
+        }
+
+        private static IDictionary<string, string> GetEnvironmentVariables()
+        {
+            var env = Environment.GetEnvironmentVariables();
+            var dic = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string key in env.Keys)
+            {
+                dic.Add(key, (string)env[key]);
+            }
+            return dic;
         }
 
     }

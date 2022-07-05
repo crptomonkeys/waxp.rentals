@@ -46,6 +46,7 @@ namespace WaxRentals.Service.Config
 
             services.AddSingleton(provider =>
                 new NftsCache(
+                    provider.GetRequiredService<IWaxAccounts>(),
                     provider.GetRequiredService<IDataFactory>(),
                     TimeSpan.FromMinutes(5)
                 )

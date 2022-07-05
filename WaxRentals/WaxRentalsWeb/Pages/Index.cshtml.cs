@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Config;
 using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Data.Models;
@@ -12,25 +13,29 @@ namespace WaxRentalsWeb.Pages
     public class IndexModel : PageModel
     {
 
+        public AppConstants Constants { get; private set; }
         public PageLoadModel InitialPage { get; private set; }
 
-        private IRentalService Service { get; }
+        private IAppService App { get; }
+        private IRentalService Rentals { get; }
         private ITrackService Track { get; }
 
-        public IndexModel(IRentalService service, ITrackService track)
+        public IndexModel(IAppService app, IRentalService rentals, ITrackService track)
         {
-            Service = service;
+            App = app;
+            Rentals = rentals;
             Track = track;
         }
 
-        public void OnGet()
+        public async Task OnGet()
         {
+            Constants = (await App.Constants()).Value ?? new();
             InitialPage = TempData.Get<PageLoadModel>("InitialPage") ?? new PageLoadModel { Name = "default" };
         }
 
         public async Task<JsonResult> OnPostAsync(RentalInput input)
         {
-            var result = await Service.Create(Map(input));
+            var result = await Rentals.Create(Map(input));
             if (result.Success)
             {
                 await Track.Notify($"Starting rental process for {input.Account}.");

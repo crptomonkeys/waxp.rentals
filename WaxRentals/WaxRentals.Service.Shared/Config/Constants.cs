@@ -10,8 +10,6 @@
 
         public static class Banano
         {
-            public const string SweepAddress = "ban_1waxf5j83w7eqqz3kph7u843wh3p5ddf1n48rh4i9m41zhk9nnquzwbnz9pb";
-
             public static class Protocol
             {
                 public const string AddressRegex = "^ban_[13]{1}[13456789abcdefghijkmnopqrstuwxyz]{59}$";
@@ -20,8 +18,6 @@
 
         public static class Wax
         {
-            public const string PrimaryAccount = "rentwaxp4ban";
-
             public static class NewUser
             {
                 public const string Account = "newuser.wax";

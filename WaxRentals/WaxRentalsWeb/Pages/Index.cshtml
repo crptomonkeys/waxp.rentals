@@ -144,13 +144,13 @@
                   <p>
                     <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">
                       <img src="/qr/wax" width="150" height="150" />
-                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@Wax.PrimaryAccount</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@Wax.PrimaryAccount"></i> and <strong>include your BAN address as the memo</strong>.
+                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@Model.Constants.WaxPrimaryAccount</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@Model.Constants.WaxPrimaryAccount"></i> and <strong>include your BAN address as the memo</strong>.
                     </span>
                     <span v-else-if="state.waxBuyPriceInBanano == 0"><strong>The site is still loading; please keep this page open.</strong></span>
                     <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
                     <br><br>WAX price: <strong>${{ state.waxPrice }}</strong> | BAN price: <strong>${{ state.bananoPrice }}</strong>
                     <br>Currently paying <strong>{{ state.waxBuyPriceInBanano }} BAN</strong> per WAX
-                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@Banano.SweepAddress"></i>
+                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@Model.Constants.BananoSweepAddress"></i>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -540,7 +540,7 @@
                     <br>We will also send you a <strong>starter NFT</strong>, and we will provide a <strong>free @Wax.NewUser.FreeCpu CPU / @Wax.NewUser.FreeNet NET rental</strong> to get you started.*
                     <br><br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
                     <br><br>Welcome package price: <strong><span v-if="state.bananoWelcomePackagePrice > 0">{{ state.bananoWelcomePackagePrice }}</span> BAN</strong>
-                    <br>NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@Wax.PrimaryAccount#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackageRentalsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i></span><span v-else><strong>Delayed</strong></span>
+                    <br>NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@Model.Constants.WaxPrimaryAccount#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackageRentalsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i></span><span v-else><strong>Delayed</strong></span>
                     <br><br><small>* NFT and rental will arrive as long as supplies are available.  If you don't receive your NFT or rental right away, you will receive them once supplies replenish.</small>
                   </p>
                 </div>

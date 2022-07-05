@@ -3,7 +3,6 @@ using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Shared.Entities.Input;
 using static WaxRentals.Service.Shared.Config.Constants;
-using static WaxRentals.Service.Shared.Config.Constants.Banano;
 
 namespace WaxRentals.Service.Controllers
 {
@@ -44,7 +43,7 @@ namespace WaxRentals.Service.Controllers
             var amount = await account.GetBalance();
             if (amount > 0)
             {
-                return Succeed(await account.Send(SweepAddress, amount));
+                return Succeed(await account.Send(Storage.Address, amount));
             }
             return Fail("No balance.");
         }
@@ -56,7 +55,7 @@ namespace WaxRentals.Service.Controllers
             var amount = await account.GetBalance();
             if (amount > 0)
             {
-                return Succeed(await account.Send(SweepAddress, amount));
+                return Succeed(await account.Send(Storage.Address, amount));
             }
             return Fail("No balance.");
         }

@@ -19,11 +19,13 @@ namespace WaxRentals.Waxp.History
     internal class WaxHistoryChecker : IWaxHistoryChecker
     {
 
+        private AccountNames Names { get; }
         private IDataFactory Data { get; }
         private IClientFactory Client { get; }
 
-        public WaxHistoryChecker(IDataFactory data, IClientFactory client)
+        public WaxHistoryChecker(AccountNames names, IDataFactory data, IClientFactory client)
         {
+            Names = names;
             Data = data;
             Client = client;
         }
@@ -34,9 +36,9 @@ namespace WaxRentals.Waxp.History
             var success = await Client.ProcessHistory(async client =>
             {
                 var last = (await Data.TrackWax.GetLastHistoryCheck())?.AddMilliseconds(1);
-                var history = await client.GetStringAsync(Protocol.HistoryBasePath + last?.ToString("s"));
+                var history = await client.GetStringAsync(string.Format(Protocol.HistoryBasePath, Names.Primary) + last?.ToString("s"));
 
-                foreach (var block in JObject.Parse(history).SelectTokens(Protocol.TransferBlocks))
+                foreach (var block in JObject.Parse(history).SelectTokens(string.Format(Protocol.TransferBlocks, Names.Primary)))
                 {
                     // Can't do this in a Select for some reason.
                     // Error: The expression cannot be evaluated.  A common cause of this error is attempting to pass a lambda into a delegate.
