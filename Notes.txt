@@ -1,8 +1,9 @@
 
+- test processors
+- publish processors
 - api
 - switch to api
-- test
-- publish out
+- publish web
 - admin site
 
 - announce live

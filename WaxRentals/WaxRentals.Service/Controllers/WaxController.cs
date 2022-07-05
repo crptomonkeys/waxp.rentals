@@ -72,15 +72,15 @@ namespace WaxRentals.Service.Controllers
             var today = WaxInfo.GetBalances(Wax.Today.Account);
 
             var tasks = new List<Task>();
-            if (primary.Available > 0)
+            if (primary?.Available > 0)
             {
                 tasks.Add(Wax.Primary.Send(Wax.Today.Account, primary.Available));
             }
-            if (yesterday.Available > 0)
+            if (yesterday?.Available > 0)
             {
                 tasks.Add(Wax.Yesterday.Send(Wax.Today.Account, yesterday.Available));
             }
-            if (today.Unstaking > 0)
+            if (today?.Unstaking > 0)
             {
                 tasks.Add(Wax.Today.ClaimRefund());
             }
