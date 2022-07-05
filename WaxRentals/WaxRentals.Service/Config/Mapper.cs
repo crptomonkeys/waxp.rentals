@@ -14,83 +14,103 @@ namespace WaxRentals.Service.Config
             Banano = banano;
         }
 
-        public MonthlyStats Map(Data.Entities.MonthlyStats stats)
+        public MonthlyStats? Map(Data.Entities.MonthlyStats stats)
         {
-            return new MonthlyStats
+            if (stats != null)
             {
-                Year                  = stats.Year,
-                Month                 = stats.Month,
-                WaxDaysRented         = stats.WaxDaysRented,
-                WaxDaysFree           = stats.WaxDaysFree,
-                WaxPurchasedForSite   = stats.WaxPurchasedForSite,
-                WelcomePackagesOpened = stats.WelcomePackagesOpened
-            };
+                return new MonthlyStats
+                {
+                    Year                  = stats.Year,
+                    Month                 = stats.Month,
+                    WaxDaysRented         = stats.WaxDaysRented,
+                    WaxDaysFree           = stats.WaxDaysFree,
+                    WaxPurchasedForSite   = stats.WaxPurchasedForSite,
+                    WelcomePackagesOpened = stats.WelcomePackagesOpened
+                };
+            }
+            return null;
         }
 
-        public RentalInfo Map(Data.Entities.Rental rental)
+        public RentalInfo? Map(Data.Entities.Rental rental)
         {
-            var account = Banano.BuildAccount(rental.RentalId);
-            return new RentalInfo
+            if (rental != null)
             {
-                Id                 = rental.RentalId,
-                WaxAccount         = rental.TargetWaxAccount,
-                SourceAccount      = rental.SourceWaxAccount,
-                Cpu                = Convert.ToInt32(rental.CPU),
-                Net                = Convert.ToInt32(rental.NET),
-                Days               = rental.RentalDays,
-                Banano             = rental.Banano,
-                BananoAddress      = account.Address,
-                BananoPaymentLink  = account.BuildLink(rental.Banano),
-                Paid               = rental.Paid,
-                Expires            = rental.PaidThrough,
-                StakeTransaction   = rental.StakeWaxTransaction,
-                UnstakeTransaction = rental.UnstakeWaxTransaction,
-                Status             = Map(rental.Status)
-            };
+                var account = Banano.BuildAccount(rental.RentalId);
+                return new RentalInfo
+                {
+                    Id                 = rental.RentalId,
+                    WaxAccount         = rental.TargetWaxAccount,
+                    SourceAccount      = rental.SourceWaxAccount,
+                    Cpu                = Convert.ToInt32(rental.CPU),
+                    Net                = Convert.ToInt32(rental.NET),
+                    Days               = rental.RentalDays,
+                    Banano             = rental.Banano,
+                    BananoAddress      = account.Address,
+                    BananoPaymentLink  = account.BuildLink(rental.Banano),
+                    Paid               = rental.Paid,
+                    Expires            = rental.PaidThrough,
+                    StakeTransaction   = rental.StakeWaxTransaction,
+                    UnstakeTransaction = rental.UnstakeWaxTransaction,
+                    Status             = Map(rental.Status)
+                };
+            }
+            return null;
         }
 
-        public PurchaseInfo Map(Data.Entities.Purchase purchase)
+        public PurchaseInfo? Map(Data.Entities.Purchase purchase)
         {
-            return new PurchaseInfo
+            if (purchase != null)
             {
-                Id                = purchase.PurchaseId,
-                Wax               = purchase.Wax,
-                WaxTransaction    = purchase.WaxTransaction,
-                Banano            = purchase.Banano,
-                BananoAddress     = purchase.PaymentBananoAddress,
-                BananoTransaction = purchase.BananoTransaction
-            };
+                return new PurchaseInfo
+                {
+                    Id                = purchase.PurchaseId,
+                    Wax               = purchase.Wax,
+                    WaxTransaction    = purchase.WaxTransaction,
+                    Banano            = purchase.Banano,
+                    BananoAddress     = purchase.PaymentBananoAddress,
+                    BananoTransaction = purchase.BananoTransaction
+                };
+            }
+            return null;
         }
 
-        public WelcomePackageInfo Map(Data.Entities.WelcomePackage package)
+        public WelcomePackageInfo? Map(Data.Entities.WelcomePackage package)
         {
-            var account = Banano.BuildWelcomeAccount(package.PackageId);
-            return new WelcomePackageInfo
+            if (package != null)
             {
-                Id                = package.PackageId,
-                Banano            = package.Banano,
-                BananoAddress     = account.Address,
-                BananoPaymentLink = account.BuildLink(package.Banano),
-                WaxAccount        = package.TargetWaxAccount,
-                Wax               = package.Wax,
-                Memo              = $"{package.Memo}{NewUser.MemoRefundOnExists}",
-                FundTransaction   = package.FundTransaction,
-                NftTransaction    = package.NftTransaction,
-                StakeTransaction  = package.Rental?.StakeWaxTransaction,
-                Status            = Map(package.Status)
-            };
+                var account = Banano.BuildWelcomeAccount(package.PackageId);
+                return new WelcomePackageInfo
+                {
+                    Id                = package.PackageId,
+                    Banano            = package.Banano,
+                    BananoAddress     = account.Address,
+                    BananoPaymentLink = account.BuildLink(package.Banano),
+                    WaxAccount        = package.TargetWaxAccount,
+                    Wax               = package.Wax,
+                    Memo              = $"{package.Memo}{NewUser.MemoRefundOnExists}",
+                    FundTransaction   = package.FundTransaction,
+                    NftTransaction    = package.NftTransaction,
+                    StakeTransaction  = package.Rental?.StakeWaxTransaction,
+                    Status            = Map(package.Status)
+                };
+            }
+            return null;
         }
 
-        public WaxTransferInfo Map(Waxp.History.TransferInfo transfer)
+        public WaxTransferInfo? Map(Waxp.History.TransferInfo transfer)
         {
-            return new WaxTransferInfo
+            if (transfer != null)
             {
-                Source                = transfer.Source,
-                Transaction           = transfer.Transaction,
-                Amount                = transfer.Amount,
-                BananoPaymentAddress  = transfer.BananoPaymentAddress,
-                SkipPayment           = transfer.SkipPayment
-            };
+                return new WaxTransferInfo
+                {
+                    Source                = transfer.Source,
+                    Transaction           = transfer.Transaction,
+                    Amount                = transfer.Amount,
+                    BananoPaymentAddress  = transfer.BananoPaymentAddress,
+                    SkipPayment           = transfer.SkipPayment
+                };
+            }
+            return null;
         }
 
         public Status Map(Data.Entities.Status status)
