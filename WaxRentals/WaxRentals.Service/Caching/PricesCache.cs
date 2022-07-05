@@ -14,8 +14,8 @@ namespace WaxRentals.Service.Caching
         };
 
         private HttpClient Client { get; }
-        private VolatileDecimal Banano { get; } = new VolatileDecimal();
-        private VolatileDecimal Wax { get; } = new VolatileDecimal();
+        private LockedDecimal Banano { get; } = new LockedDecimal();
+        private LockedDecimal Wax { get; } = new LockedDecimal();
 
         public PricesCache(IDataFactory factory, TimeSpan interval, HttpClient client)
             : base(factory, interval)

@@ -10,7 +10,7 @@ namespace WaxRentals.Service.Caching
         public decimal GetBalance() => Balance.Value;
 
         private IBananoAccount Account { get; }
-        private VolatileDecimal Balance { get; } = new VolatileDecimal();
+        private LockedDecimal Balance { get; } = new LockedDecimal();
 
         public BananoInfoCache(IDataFactory factory, TimeSpan interval, IBananoAccount account)
             : base(factory, interval)

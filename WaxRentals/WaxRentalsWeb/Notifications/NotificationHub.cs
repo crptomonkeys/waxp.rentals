@@ -13,7 +13,7 @@ namespace WaxRentalsWeb.Notifications
         private IAppStateMonitor AppState { get; }
         private IAppInsightsMonitor AppInsights { get; }
 
-        private volatile string _siteMessage;
+        private volatile string _siteMessage; // bad
         
         // This must be public to work.
         public NotificationHub(

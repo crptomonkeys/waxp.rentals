@@ -2,7 +2,7 @@
 
 namespace WaxRentals.Service.Caching.Values
 {
-    internal class VolatileDecimal
+    internal class LockedDecimal
     {
 
         private decimal _value = 0;
