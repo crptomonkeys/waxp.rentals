@@ -13,7 +13,7 @@ namespace WaxRentalsWeb.Notifications
         private IAppStateMonitor AppState { get; }
         private IAppInsightsMonitor AppInsights { get; }
 
-        private volatile string _siteMessage; // bad
+        private LockedString SiteMessage { get; } = new();
         
         // This must be public to work.
         public NotificationHub(
@@ -30,7 +30,7 @@ namespace WaxRentalsWeb.Notifications
             
             siteMessageMonitor.Updated += async (_, contents) =>
             {
-                _siteMessage = contents;
+                SiteMessage.Value = contents;
                 await NotifyState(hub.Clients.All);
             };
             siteMessageMonitor.Initialize();
@@ -52,7 +52,7 @@ namespace WaxRentalsWeb.Notifications
             {
                 return;
             }
-            await Notify(client, "StateChanged", () => new AppStateModel(AppState.Value, _siteMessage));
+            await Notify(client, "StateChanged", () => new AppStateModel(AppState.Value, SiteMessage.Value));
         }
 
         private async Task NotifyInsights(IClientProxy client)
