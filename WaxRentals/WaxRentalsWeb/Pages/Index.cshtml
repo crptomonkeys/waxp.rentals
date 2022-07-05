@@ -50,11 +50,9 @@
   <div class="container-fluid">
     <div class="row">
 
-      <div id="site-alert">
-        <div class="site-alert" style="display: none;" :style="{ display: 'block' }" v-if="message">
-          <div class="message">{{ message }}</div>
-          <div class="spacing mobile-show"></div>
-        </div>
+      <div id="site-alert" class="site-alert" v-if="message">
+        <div class="message">{{ message }}</div>
+        <div class="spacing mobile-show"></div>
       </div>
 
       <div class="col-md-4 col-sm-12">
