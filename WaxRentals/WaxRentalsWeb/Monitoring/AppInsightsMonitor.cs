@@ -68,7 +68,7 @@ namespace WaxRentalsWeb.Monitoring
 
             var leftIds = left.Select(get);
             var rightIds = right.Select(get);
-            return Enumerable.SequenceEqual(leftIds, rightIds, StringComparer.OrdinalIgnoreCase);
+            return !Enumerable.SequenceEqual(leftIds, rightIds, StringComparer.OrdinalIgnoreCase);
         }
 
         private bool Differ(IEnumerable<WelcomePackageInfo> left, IEnumerable<WelcomePackageInfo> right)
