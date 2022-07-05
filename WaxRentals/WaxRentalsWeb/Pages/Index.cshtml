@@ -50,9 +50,11 @@
   <div class="container-fluid">
     <div class="row">
 
-      <div class="site-alert" style="display: none;">
-        <div class="message"></div>
-        <div class="spacing mobile-show"></div>
+      <div id="site-alert">
+        <div class="site-alert" style="display: none;" :style="{ display: 'block' }" v-if="message">
+          <div class="message">{{ message }}</div>
+          <div class="spacing mobile-show"></div>
+        </div>
       </div>
 
       <div class="col-md-4 col-sm-12">
@@ -636,6 +638,15 @@
       //    VUE
       // ================
 
+      const alert = new Vue({
+        el: '#site-alert',
+        data() {
+          return {
+            message: null
+          }
+        }
+      });
+
       const rent = new Vue({
         el: '#menu-0',
         data() {
@@ -825,18 +836,14 @@
         my.state = state;
         insights.state = state;
         open.state = state;
-
-        if (state.siteMessage) {
-          $('.site-alert').show();
-          $('.site-alert .message').text(state.siteMessage);
-        } else {
-          $('.site-alert').hide();
-          $('.site-alert .message').text('');
-        }
       });
 
       _connection.on("InsightsChanged", info => {
         insights.insights = info;
+      });
+
+      _connection.on("AlertChanged", message => {
+        alert.message = message;
       });
 
     });

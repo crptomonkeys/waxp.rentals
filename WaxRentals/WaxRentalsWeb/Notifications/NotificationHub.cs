@@ -12,14 +12,13 @@ namespace WaxRentalsWeb.Notifications
 
         private IAppStateMonitor AppState { get; }
         private IAppInsightsMonitor AppInsights { get; }
-
-        private LockedString SiteMessage { get; } = new();
+        private SiteMessageMonitor SiteMessage { get; }
         
         // This must be public to work.
         public NotificationHub(
             IAppStateMonitor appState,
             IAppInsightsMonitor appInsights,
-            SiteMessageMonitor siteMessageMonitor,
+            SiteMessageMonitor siteMessage,
             IHubContext<NotificationHub> hub)
         {
             AppState = appState;
@@ -27,20 +26,18 @@ namespace WaxRentalsWeb.Notifications
             
             AppInsights = appInsights;
             AppInsights.Updated += async (_, _) => await NotifyInsights(hub.Clients.All);
-            
-            siteMessageMonitor.Updated += async (_, contents) =>
-            {
-                SiteMessage.Value = contents;
-                await NotifyState(hub.Clients.All);
-            };
-            siteMessageMonitor.Initialize();
+
+            SiteMessage = siteMessage;
+            SiteMessage.Updated += async (_, _) => await NotifyAlert(hub.Clients.All);
+            SiteMessage.Initialize();
         }
 
         public async override Task OnConnectedAsync()
         {
             var appState = NotifyState(Clients.Caller);
             var recents = NotifyInsights(Clients.Caller);
-            await Task.WhenAll(appState, recents);
+            var alert = NotifyAlert(Clients.Caller);
+            await Task.WhenAll(appState, recents, alert);
             await base.OnConnectedAsync();
         }
 
@@ -52,7 +49,7 @@ namespace WaxRentalsWeb.Notifications
             {
                 return;
             }
-            await Notify(client, "StateChanged", () => new AppStateModel(AppState.Value, SiteMessage.Value));
+            await Notify(client, "StateChanged", () => new AppStateModel(AppState.Value));
         }
 
         private async Task NotifyInsights(IClientProxy client)
@@ -62,6 +59,11 @@ namespace WaxRentalsWeb.Notifications
                 return;
             }
             await Notify(client, "InsightsChanged", () => new AppInsightsModel(AppInsights.Value));
+        }
+
+        private async Task NotifyAlert(IClientProxy client)
+        {
+            await Notify(client, "AlertChanged", () => SiteMessage.Contents);
         }
 
         private async Task Notify<T>(IClientProxy client, string method, Func<T> getData)

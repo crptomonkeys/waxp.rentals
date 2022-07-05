@@ -22,10 +22,9 @@ namespace WaxRentalsWeb.Data.Models
         public bool WelcomePackagesAvailable { get; }
         public bool WelcomePackageNftsAvailable { get; }
         public bool WelcomePackageRentalsAvailable { get; }
-        public string SiteMessage { get; }
         public string WaxAccountToday { get; }
 
-        public AppStateModel(State state, string siteMessage)
+        public AppStateModel(State state)
         {
             BananoBalance                  = decimal.Round(state.BananoBalance                 , 4);
             WaxBalanceAvailable            = decimal.Floor(state.WaxBalanceAvailableToday         );
@@ -44,7 +43,6 @@ namespace WaxRentalsWeb.Data.Models
             WelcomePackagesAvailable       =               state.WelcomePackagesAvailable          ;
             WelcomePackageNftsAvailable    =               state.WelcomePackageNftsAvailable       ;
             WelcomePackageRentalsAvailable =               state.WelcomePackageRentalsAvailable    ;
-            SiteMessage                    =                     siteMessage                       ;
             WaxAccountToday                =               state.WaxWorkingAccount                 ;
         }
 

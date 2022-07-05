@@ -1,22 +1,18 @@
 ﻿using System;
 using System.IO;
+using System.Threading;
 using Microsoft.Extensions.FileProviders;
+using WaxRentalsWeb.Extensions;
 
 namespace WaxRentalsWeb.Files
 {
     public abstract class FileMonitor : IDisposable
     {
 
-        #region " Event "
+        public string Contents { get { return SafeContents.Value; } }
+        protected LockedString SafeContents { get; } = new();
 
-        public event EventHandler<string> Updated;
-
-        protected void RaiseEvent(string contents)
-        {
-            Updated?.Invoke(this, contents);
-        }
-
-        #endregion
+        public event EventHandler Updated;
 
         #region " Watcher "
 
@@ -56,16 +52,42 @@ namespace WaxRentalsWeb.Files
             var filename = (string)f;
             _watcher.Watch(filename)
                     .RegisterChangeCallback(Activated, filename);
-            RaiseEvent(
+            SafeContents.Value =
                 File.ReadAllText(
                     Path.Combine(_watcher.Root, filename)
-                )
-            );
+                );
+            Updated?.Invoke(this, EventArgs.Empty);
         }
 
         public void Dispose()
         {
             _watcher.Dispose();
+        }
+
+        #endregion
+
+        #region " LockedString "
+
+        protected class LockedString
+        {
+
+            private string _value = null;
+            private readonly ReaderWriterLockSlim _deadbolt = new();
+
+            public string Value
+            {
+                get
+                {
+                    var @this = this;
+                    return _deadbolt.SafeRead(() => @this._value);
+                }
+                set
+                {
+                    var @this = this;
+                    _deadbolt.SafeWrite(() => @this._value = value);
+                }
+            }
+
         }
 
         #endregion
