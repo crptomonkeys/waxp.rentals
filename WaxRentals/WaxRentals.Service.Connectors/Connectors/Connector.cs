@@ -48,7 +48,7 @@ namespace WaxRentals.Service.Shared.Connectors
         protected async Task<Result> Post(string path, string data)
         {
             return await Process(async () =>
-                await Client.PostAsync(path, new StringContent(data, Encoding.UTF8))
+                await Client.PostAsync(path, new StringContent($"\"{data}\"", Encoding.UTF8, "application/json"))
             );
         }
 
