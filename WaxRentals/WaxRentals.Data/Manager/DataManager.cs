@@ -147,6 +147,7 @@ namespace WaxRentals.Data.Manager
             var rental = Context.Rentals.SingleOrDefault(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
             if (rental != null)
             {
+                rental.Paid = DateTime.UtcNow; // Start time from stake to cover any delay.
                 rental.SourceWaxAccount = source;
                 rental.StakeWaxTransaction = transaction;
                 rental.Status = Status.Processed;
