@@ -21,7 +21,7 @@ namespace WaxRentals.Processing.Processors
         protected override Func<Task<Result<RentalInfo>>> Get => Rentals.NextClosing;
         protected async override Task Process(Result<RentalInfo> result)
         {
-            if (result.Success)
+            if (result.Success && result.Value != null)
             {
                 await Process(result.Value);
             }

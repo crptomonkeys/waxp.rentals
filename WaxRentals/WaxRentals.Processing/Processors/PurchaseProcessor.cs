@@ -25,7 +25,7 @@ namespace WaxRentals.Processing.Processors
 
         protected async override Task Process(Result<PurchaseInfo> result)
         {
-            if (result.Success)
+            if (result.Success && result.Value != null)
             {
                 await Process(result.Value);
             }

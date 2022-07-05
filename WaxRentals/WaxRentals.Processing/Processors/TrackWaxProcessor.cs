@@ -34,7 +34,7 @@ namespace WaxRentals.Processing.Processors
             if (state.Success && state.Value.WaxBuyPriceInBanano > 0)
             {
                 var result = await Wax.LatestTransfers();
-                if (result.Success)
+                if (result.Success && result.Value != null)
                 {
                     return (result.Value, state.Value);
                 }

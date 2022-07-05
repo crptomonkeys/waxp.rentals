@@ -14,8 +14,30 @@ namespace WaxRentals.Processing
         static void Main()
         {
             Console.WriteLine("Starting up; please wait.");
+            var processors = BuildProcessors();
+
+            var stop = new ManualResetEventSlim();
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => stop.Set();
+            Console.WriteLine("Processors running.  Awaiting SIGTERM.");
+
+            stop.Wait();
+            Console.WriteLine("Shutting down; please wait.");
+            var complete = processors.Select(processor => processor.Stop());
+            while (complete.Any(mres => !mres.IsSet))
+            {
+                var first = complete.FirstOrDefault(mres => !mres.IsSet);
+                if (first != null)
+                {
+                    first.Wait();
+                }
+            }
+            Console.WriteLine("Shutdown complete.");
+        }
+
+        private static IProcessor[] BuildProcessors()
+        {
             var provider = BuildServiceProvider();
-            var processors = new IProcessor[]
+            return new IProcessor[]
             {
                 // Be responsive on credits.
                 provider.BuildProcessor<RentalOpenProcessor>(TimeSpan.FromSeconds(10)),
@@ -42,23 +64,6 @@ namespace WaxRentals.Processing
                 // This is just for tracking purposes; don't have to check that often.
                 provider.BuildProcessor<TrackBananoProcessor>(TimeSpan.FromMinutes(1)),
             };
-
-            var stop = new ManualResetEventSlim();
-            AppDomain.CurrentDomain.ProcessExit += (_, _) => stop.Set();
-            Console.WriteLine("Processors running.  Awaiting SIGTERM.");
-
-            stop.Wait();
-            Console.WriteLine("Shutting down; please wait.");
-            var complete = processors.Select(processor => processor.Stop());
-            while (complete.Any(mres => !mres.IsSet))
-            {
-                var first = complete.FirstOrDefault(mres => !mres.IsSet);
-                if (first != null)
-                {
-                    first.Wait();
-                }
-            }
-            Console.WriteLine("Shutdown complete.");
         }
 
         private static IServiceProvider BuildServiceProvider()

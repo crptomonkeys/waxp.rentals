@@ -28,7 +28,7 @@ namespace WaxRentals.Processing.Processors
         protected override Func<Task<Result<IEnumerable<WelcomePackageInfo>>>> Get => Packages.MissingNfts;
         protected async override Task Process(Result<IEnumerable<WelcomePackageInfo>> result)
         {
-            if (result.Success)
+            if (result.Success && result.Value != null)
             {
                 await Process(result.Value);
             }

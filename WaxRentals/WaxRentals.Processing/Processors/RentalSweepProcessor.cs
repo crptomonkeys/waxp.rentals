@@ -25,7 +25,7 @@ namespace WaxRentals.Processing.Processors
         protected override Func<Task<Result<IEnumerable<RentalInfo>>>> Get => Rentals.Sweepable;
         protected async override Task Process(Result<IEnumerable<RentalInfo>> result)
         {
-            if (result.Success)
+            if (result.Success && result.Value != null)
             {
                 var tasks = result.Value.Select(Process);
                 await Task.WhenAll(tasks);
