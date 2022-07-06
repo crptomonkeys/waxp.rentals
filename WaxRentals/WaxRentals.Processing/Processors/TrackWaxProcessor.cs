@@ -11,8 +11,6 @@ namespace WaxRentals.Processing.Processors
     internal class TrackWaxProcessor : Processor<(IEnumerable<WaxTransferInfo>, AppState)>
     {
 
-        protected override bool ProcessMultiplePerTick => false;
-
         private IWaxService Wax { get; }
         private IPurchaseService Purchases { get; }
         private IAppService App { get; }
@@ -42,7 +40,7 @@ namespace WaxRentals.Processing.Processors
             return (Enumerable.Empty<WaxTransferInfo>(), state.Value);
         }
 
-        protected async override Task Process((IEnumerable<WaxTransferInfo>, AppState) info)
+        protected async override Task<bool> Process((IEnumerable<WaxTransferInfo>, AppState) info)
         {
             var (transfers, state) = info;
 
@@ -70,6 +68,8 @@ namespace WaxRentals.Processing.Processors
             {
                 await Wax.Sweep();
             }
+
+            return false;
         }
 
     }

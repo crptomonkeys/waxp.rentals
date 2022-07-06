@@ -23,12 +23,14 @@ namespace WaxRentals.Processing.Processors
 
         protected override Func<Task<Result<PurchaseInfo>>> Get => Purchases.Next;
 
-        protected async override Task Process(Result<PurchaseInfo> result)
+        protected async override Task<bool> Process(Result<PurchaseInfo> result)
         {
             if (result.Success && result.Value != null)
             {
                 await Process(result.Value);
+                return true; // Check for another.
             }
+            return false;
         }
 
         private async Task Process(PurchaseInfo purchase)

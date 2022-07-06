@@ -244,11 +244,14 @@ namespace WaxRentals.Data.Manager
 
         public async Task<Purchase> PullNextPurchase()
         {
-            return await ProcessWithFactory(async context =>
+            return await ProcessWithFactory(context =>
             {
-                return await context.Purchases
-                .FromSqlRaw("[dbo].[PullNextPurchase]")
-                .SingleOrDefaultAsync();
+                return Task.FromResult(
+                    context.Purchases
+                           .FromSqlRaw("[dbo].[PullNextPurchase]")
+                           .AsEnumerable()
+                           .SingleOrDefault()
+                    );
             });
         }
 
@@ -518,9 +521,30 @@ namespace WaxRentals.Data.Manager
         {
             return await ProcessWithFactory(async context =>
             {
-                return await context.MonthlyStats
-                                    .FromSqlRaw("[reporting].[MonthlyStats]")
-                                    .ToArrayAsync();
+                // Can't seem to execute a stored procedure without
+                // having a set on the context, so just go direct.
+                using var connection = context.Database.GetDbConnection();
+                await connection.OpenAsync();
+                using var command = connection.CreateCommand();
+                command.CommandText = "[reporting].[MonthlyStats]";
+                using var reader = await command.ExecuteReaderAsync();
+
+                var stats = new List<MonthlyStats>();
+                while (reader.Read())
+                {
+                    stats.Add(
+                        new MonthlyStats
+                        {
+                            Year                  = reader.GetInt32  (reader.GetOrdinal(nameof(MonthlyStats.Year))),
+                            Month                 = reader.GetInt32  (reader.GetOrdinal(nameof(MonthlyStats.Month))),
+                            WaxDaysRented         = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxDaysRented))),
+                            WaxDaysFree           = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxDaysRented))),
+                            WaxPurchasedForSite   = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxDaysRented))),
+                            WelcomePackagesOpened = reader.GetInt32  (reader.GetOrdinal(nameof(MonthlyStats.WelcomePackagesOpened)))
+                        }
+                    );
+                }
+                return stats;
             });
         }
 

@@ -17,10 +17,10 @@ namespace WaxRentals.Processing.Processors
         }
 
         protected override Func<Task<Result>> Get => Wax.Sweep;
-        protected override Task Process(Result result)
+        protected override Task<bool> Process(Result result)
         {
             // no-op
-            return Task.CompletedTask;
+            return Task.FromResult(false);
         }
 
     }

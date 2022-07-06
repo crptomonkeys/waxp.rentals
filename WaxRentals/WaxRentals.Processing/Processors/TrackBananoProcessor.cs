@@ -9,8 +9,6 @@ namespace WaxRentals.Processing.Processors
     internal class TrackBananoProcessor : Processor<Result<decimal>>
     {
 
-        protected override bool ProcessMultiplePerTick => false;
-
         private IBananoService Banano { get; }
         private IAppService App { get; }
 
@@ -22,12 +20,13 @@ namespace WaxRentals.Processing.Processors
         }
 
         protected override Func<Task<Result<decimal>>> Get => Banano.CompleteSweeps;
-        protected async override Task Process(Result<decimal> result)
+        protected async override Task<bool> Process(Result<decimal> result)
         {
             if (result.Success && result.Value > 0)
             {
                 LogTransaction("Received BAN", result.Value, Coins.Banano, earned: decimal.Round(await ToUsd(result.Value), 2));
             }
+            return false;
         }
 
         private async Task<decimal> ToUsd(decimal banano)

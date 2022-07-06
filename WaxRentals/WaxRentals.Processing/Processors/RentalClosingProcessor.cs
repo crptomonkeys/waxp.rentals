@@ -19,12 +19,14 @@ namespace WaxRentals.Processing.Processors
         }
 
         protected override Func<Task<Result<RentalInfo>>> Get => Rentals.NextClosing;
-        protected async override Task Process(Result<RentalInfo> result)
+        protected async override Task<bool> Process(Result<RentalInfo> result)
         {
             if (result.Success && result.Value != null)
             {
                 await Process(result.Value);
+                return true; // Check for another.
             }
+            return false;
         }
 
         private async Task Process(RentalInfo rental)

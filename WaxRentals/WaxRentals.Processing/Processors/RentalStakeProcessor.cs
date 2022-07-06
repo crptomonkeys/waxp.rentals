@@ -10,8 +10,6 @@ namespace WaxRentals.Processing.Processors
     internal class RentalStakeProcessor : Processor<Result<IEnumerable<RentalInfo>>>
     {
 
-        protected override bool ProcessMultiplePerTick => false;
-
         private IRentalService Rentals { get; }
         private IWaxService Wax { get; }
         
@@ -23,13 +21,14 @@ namespace WaxRentals.Processing.Processors
         }
 
         protected override Func<Task<Result<IEnumerable<RentalInfo>>>> Get => Rentals.Paid;
-        protected async override Task Process(Result<IEnumerable<RentalInfo>> result)
+        protected async override Task<bool> Process(Result<IEnumerable<RentalInfo>> result)
         {
             if (result.Success && result.Value != null)
             {
                 var tasks = result.Value.Select(Process);
                 await Task.WhenAll(tasks);
             }
+            return false;
         }
 
         private async Task Process(RentalInfo rental)

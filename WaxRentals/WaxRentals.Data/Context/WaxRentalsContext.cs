@@ -21,9 +21,6 @@ namespace WaxRentals.Data.Context
         public DbSet<Error> Errors { get; set; }
         public DbSet<Message> Messages { get; set; }
 
-        // other
-        public DbSet<MonthlyStats> MonthlyStats { get; set; }
-
         #region " Setup "
 
         public WaxRentalsContext(DbContextOptions<WaxRentalsContext> options) : base(options) { }

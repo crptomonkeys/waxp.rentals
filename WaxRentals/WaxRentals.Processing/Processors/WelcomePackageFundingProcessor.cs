@@ -11,8 +11,6 @@ namespace WaxRentals.Processing.Processors
     internal class WelcomePackageFundingProcessor : Processor<Result<IEnumerable<WelcomePackageInfo>>>
     {
 
-        protected override bool ProcessMultiplePerTick => false;
-
         private IWelcomePackageService Packages { get; }
         private IWaxService Wax { get; }
         private IAppService App { get; }
@@ -26,13 +24,14 @@ namespace WaxRentals.Processing.Processors
         }
 
         protected override Func<Task<Result<IEnumerable<WelcomePackageInfo>>>> Get => Packages.Paid;
-        protected async override Task Process(Result<IEnumerable<WelcomePackageInfo>> result)
+        protected async override Task<bool> Process(Result<IEnumerable<WelcomePackageInfo>> result)
         {
             if (result.Success && result.Value != null)
             {
                 var tasks = result.Value.Select(Process);
                 await Task.WhenAll(tasks);
             }
+            return false;
         }
 
         private async Task Process(WelcomePackageInfo package)

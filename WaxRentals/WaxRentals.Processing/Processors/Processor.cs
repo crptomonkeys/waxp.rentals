@@ -19,8 +19,7 @@ namespace WaxRentals.Processing.Processors
         private readonly ManualResetEventSlim _complete = new();
 
         private ITrackService Track { get; }
-        protected virtual bool ProcessMultiplePerTick { get; } = true;
-
+        
         protected Processor(ITrackService track)
         {
             Track = track;
@@ -105,17 +104,9 @@ namespace WaxRentals.Processing.Processors
                 // Process one at a time.
                 // Revisit if this ends up being too slow.
                 target = await Get();
-                if (ProcessMultiplePerTick)
+                while (await Process(target))
                 {
-                    while (target != null)
-                    {
-                        await Process(target);
-                        target = await Get();
-                    }
-                }
-                else if (target != null)
-                {
-                    await Process(target);
+                    target = await Get();
                 }
             }
             catch (Exception ex)
@@ -126,7 +117,7 @@ namespace WaxRentals.Processing.Processors
         }
 
         protected abstract Func<Task<T>> Get { get; }
-        protected abstract Task Process(T target);
+        protected abstract Task<bool> Process(T target);
 
         #endregion
 

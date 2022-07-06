@@ -12,8 +12,6 @@ namespace WaxRentals.Processing.Processors
     internal class WelcomePackageNftProcessor : Processor<Result<IEnumerable<WelcomePackageInfo>>>
     {
 
-        protected override bool ProcessMultiplePerTick => false;
-
         private IWelcomePackageService Packages { get; }
         private IWaxService Wax { get; }
 
@@ -26,12 +24,13 @@ namespace WaxRentals.Processing.Processors
         }
 
         protected override Func<Task<Result<IEnumerable<WelcomePackageInfo>>>> Get => Packages.MissingNfts;
-        protected async override Task Process(Result<IEnumerable<WelcomePackageInfo>> result)
+        protected async override Task<bool> Process(Result<IEnumerable<WelcomePackageInfo>> result)
         {
             if (result.Success && result.Value != null)
             {
                 await Process(result.Value);
             }
+            return false;
         }
 
         private async Task Process(IEnumerable<WelcomePackageInfo> packages)
