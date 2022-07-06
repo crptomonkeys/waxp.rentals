@@ -22,14 +22,14 @@ namespace WaxRentals.Service.Controllers
             Storage = storage;
         }
 
-        [HttpGet("RentalAccountBalance")]
+        [HttpGet("RentalAccountBalance/{id}")]
         public async Task<JsonResult> RentalAccountBalance(int id)
         {
             var account = Banano.BuildAccount(id);
             return Succeed(await account.GetBalance());
         }
 
-        [HttpGet("WelcomeAccountBalance")]
+        [HttpGet("WelcomeAccountBalance/{id}")]
         public async Task<JsonResult> WelcomeAccountBalance(int id)
         {
             var account = Banano.BuildWelcomeAccount(id);

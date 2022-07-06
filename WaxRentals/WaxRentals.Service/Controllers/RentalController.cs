@@ -101,7 +101,7 @@ namespace WaxRentals.Service.Controllers
 
         #region " Read "
 
-        [HttpGet("ByWaxAccount")]
+        [HttpGet("ByWaxAccount/{account}")]
         public async Task<JsonResult> ByWaxAccount(string account)
         {
             var rentals = await Factory.Explore.GetRentalsByWaxAccount(account);
