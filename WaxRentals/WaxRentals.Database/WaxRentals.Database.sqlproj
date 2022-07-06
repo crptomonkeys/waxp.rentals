@@ -71,6 +71,8 @@
     <Folder Include="welcome\Tables" />
     <Folder Include="reporting" />
     <Folder Include="reporting\Stored Procedures" />
+    <Folder Include="dbo\Views" />
+    <Folder Include="welcome\Views" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Status.sql" />
@@ -88,6 +90,8 @@
     <Build Include="welcome\Tables\Package.sql" />
     <Build Include="Security\reporting.sql" />
     <Build Include="reporting\Stored Procedures\MonthlyStats.sql" />
+    <Build Include="dbo\Views\Rentals.sql" />
+    <Build Include="welcome\Views\Packages.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeploy.sql" />

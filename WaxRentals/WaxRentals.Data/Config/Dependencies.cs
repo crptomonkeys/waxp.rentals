@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity.SqlServer;
 using System.IO;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Context;
@@ -23,12 +23,14 @@ namespace WaxRentals.Data.Config
                 ).ToObject<WaxDb>()
             );
 
-            services.AddTransient<WaxRentalsContext>();
-            services.AddTransient<DataManager>();
-            services.AddSingleton<IDataFactory, DataFactory>();
-
-            // Allow the database scale to do rounding where necessary.
-            SqlProviderServices.TruncateDecimalsToScale = false;
+            services.AddDbContextFactory<WaxRentalsContext>((provider, options) =>
+                options.UseSqlServer(provider.GetRequiredService<WaxDb>().ConnectionString)
+            );
+            services.AddSingleton<IExplore, DataManager>();
+            services.AddSingleton<IInsert, DataManager>();
+            services.AddSingleton<ILog, DataManager>();
+            services.AddSingleton<IProcess, DataManager>();
+            services.AddSingleton<ITrackWax, DataManager>();
         }
 
         private static IDictionary<string, string> GetEnvironmentVariables()

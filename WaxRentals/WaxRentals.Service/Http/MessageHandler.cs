@@ -9,22 +9,22 @@ namespace WaxRentals.Service.Http
     internal class MessageHandler : InspectingHandler
     {
 
-        private IDataFactory Factory { get; }
+        private ILog Log { get; }
 
-        public MessageHandler(HttpMessageHandler innerHandler, IDataFactory factory)
+        public MessageHandler(HttpMessageHandler innerHandler, ILog log)
             : base(innerHandler)
         {
-            Factory = factory;
+            Log = log;
         }
 
         protected async override Task HandleRequest(string url, string fullRequest, Guid correlationId)
         {
-            await Factory.Log.Message(correlationId, url, MessageDirection.Out, fullRequest);
+            await Log.Message(correlationId, url, MessageDirection.Out, fullRequest);
         }
 
         protected async override Task HandleResponse(string url, string fullResponse, Guid correlationId)
         {
-            await Factory.Log.Message(correlationId, url, MessageDirection.In, fullResponse);
+            await Log.Message(correlationId, url, MessageDirection.In, fullResponse);
         }
 
     }

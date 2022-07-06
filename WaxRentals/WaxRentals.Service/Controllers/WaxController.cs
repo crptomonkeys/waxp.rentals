@@ -23,12 +23,12 @@ namespace WaxRentals.Service.Controllers
         private Mapper Mapper { get; }
 
         public WaxController(
-            IDataFactory factory,
+            ILog log,
             IWaxAccounts wax,
             IWaxHistoryChecker history,
             WaxInfoCache waxInfo,
             Mapper mapper)
-            : base(factory)
+            : base(log)
         {
             Wax = wax;
             History = history;
@@ -52,7 +52,7 @@ namespace WaxRentals.Service.Controllers
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: string.Format(Locations.Assets, Wax.Primary.Account));
+                await Log.Error(ex, context: string.Format(Locations.Assets, Wax.Primary.Account));
                 return Fail("Unable to pull NFTs list.");
             }
         }
@@ -153,7 +153,7 @@ namespace WaxRentals.Service.Controllers
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: input.Recipient);
+                await Log.Error(ex, context: input.Recipient);
                 return Fail($"Failed to send NFT to {input.Recipient}.");
             }
         }

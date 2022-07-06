@@ -10,13 +10,13 @@ namespace WaxRentals.Monitoring.Notifications
 
         private ITelegramBotClient Telegram { get; }
         private ChatId TargetChat { get; }
-        private IDataFactory Factory { get; }
+        private ILog Log { get; }
 
-        public TelegramNotifier(ITelegramBotClient telegram, ChatId targetChat, IDataFactory factory)
+        public TelegramNotifier(ITelegramBotClient telegram, ChatId targetChat, ILog log)
         {
             Telegram = telegram;
             TargetChat = targetChat;
-            Factory = factory;
+            Log = log;
         }
 
         public async void Send(string message)
@@ -27,7 +27,7 @@ namespace WaxRentals.Monitoring.Notifications
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: new { message });
+                await Log.Error(ex, context: new { message });
             }
         }
 

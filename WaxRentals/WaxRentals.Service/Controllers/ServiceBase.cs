@@ -10,11 +10,11 @@ namespace WaxRentals.Service.Controllers
     public abstract class ServiceBase : ControllerBase
     {
 
-        protected IDataFactory Factory { get; }
+        protected ILog Log { get; }
 
-        protected ServiceBase(IDataFactory factory)
+        protected ServiceBase(ILog log)
         {
-            Factory = factory;
+            Log = log;
         }
 
         protected JsonResult Json(object value)

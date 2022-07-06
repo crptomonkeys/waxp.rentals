@@ -48,10 +48,12 @@ namespace WaxRentalsWeb.Monitoring
 
         public void Dispose()
         {
+            _timer.Elapsed -= async (_, _) => await Elapsed();
             using (_timer)
             {
                 _timer.Stop();
             }
+            GC.SuppressFinalize(this);
         }
 
         protected virtual async Task Elapsed()

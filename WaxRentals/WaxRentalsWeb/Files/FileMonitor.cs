@@ -62,6 +62,7 @@ namespace WaxRentalsWeb.Files
         public void Dispose()
         {
             _watcher.Dispose();
+            GC.SuppressFinalize(this);
         }
 
         #endregion

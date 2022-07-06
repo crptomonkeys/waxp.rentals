@@ -61,9 +61,9 @@ namespace WaxRentals.Waxp.Transact
         };
         private readonly Random _random = new();
 
-        public ClientFactory(EndpointMonitor monitor, IDataFactory factory)
+        public ClientFactory(EndpointMonitor monitor, ILog log)
         {
-            Factory = factory;
+            Log = log;
 
             monitor.Updated += Monitor_Updated;
             monitor.Initialize();
@@ -155,7 +155,7 @@ namespace WaxRentals.Waxp.Transact
 
         #region " Requests "
 
-        private IDataFactory Factory { get; }
+        private ILog Log { get; }
 
         public async Task<bool> ProcessApi(Func<NodeApiClient, Task> action)
         {
@@ -171,11 +171,11 @@ namespace WaxRentals.Waxp.Transact
                 status.Fail();
                 if (ex is ApiException er && er.Error != null)
                 {
-                    await Factory.Log.Error(er, error: JObject.FromObject(er.Error).ToString(), context: endpoint);
+                    await Log.Error(er, error: JObject.FromObject(er.Error).ToString(), context: endpoint);
                 }
                 else
                 {
-                    await Factory.Log.Error(ex, context: endpoint);
+                    await Log.Error(ex, context: endpoint);
                 }
                 return false;
             }
@@ -193,7 +193,7 @@ namespace WaxRentals.Waxp.Transact
             catch (Exception ex)
             {
                 status.Fail();
-                await Factory.Log.Error(ex, context: endpoint);
+                await Log.Error(ex, context: endpoint);
                 return false;
             }
         }
@@ -208,13 +208,13 @@ namespace WaxRentals.Waxp.Transact
             var httpClient = (HttpClient)HttpClientField.GetValue(client);
             httpClient.Timeout = QuickTimeout;
             var handler = (HttpClientHandler)HandlerField.GetValue(httpClient);
-            HandlerField.SetValue(httpClient, new MessageHandler(handler, Factory));
+            HandlerField.SetValue(httpClient, new MessageHandler(handler, Log));
             return client;
         }
 
         private HttpClient BuildHttpClient(string endpoint)
         {
-            var handler = new MessageHandler(new HttpClientHandler(), Factory);
+            var handler = new MessageHandler(new HttpClientHandler(), Log);
             return new HttpClient(handler) { BaseAddress = new Uri(endpoint), Timeout = QuickTimeout };
         }
 

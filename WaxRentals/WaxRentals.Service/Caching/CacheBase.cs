@@ -5,11 +5,11 @@ namespace WaxRentals.Service.Caching
     public abstract class CacheBase
     {
 
-        protected IDataFactory Factory { get; }
+        protected ILog Log { get; }
 
-        public CacheBase(IDataFactory factory)
+        public CacheBase(ILog log)
         {
-            Factory = factory;
+            Log = log;
         }
 
     }

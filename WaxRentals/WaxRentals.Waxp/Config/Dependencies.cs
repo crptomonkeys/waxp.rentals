@@ -41,7 +41,7 @@ namespace WaxRentals.Waxp.Config
             services.AddSingleton(provider =>
                 new EndpointMonitor(
                     TimeSpan.FromHours(1),
-                    provider.GetRequiredService<IDataFactory>()
+                    provider.GetRequiredService<ILog>()
                 )
             );
 

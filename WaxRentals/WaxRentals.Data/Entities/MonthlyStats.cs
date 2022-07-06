@@ -1,4 +1,6 @@
-﻿namespace WaxRentals.Data.Entities
+﻿#nullable disable
+
+namespace WaxRentals.Data.Entities
 {
     public class MonthlyStats
     {

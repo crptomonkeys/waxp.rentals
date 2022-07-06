@@ -12,8 +12,8 @@ namespace WaxRentals.Service.Caching
         private IBananoAccount Account { get; }
         private LockedDecimal Balance { get; } = new LockedDecimal();
 
-        public BananoInfoCache(IDataFactory factory, TimeSpan interval, IBananoAccount account)
-            : base(factory, interval)
+        public BananoInfoCache(ILog log, TimeSpan interval, IBananoAccount account)
+            : base(log, interval)
         {
             Account = account;
         }

@@ -13,10 +13,10 @@ namespace WaxRentals.Service.Controllers
         private IBananoAccount Storage { get; }
 
         public BananoController(
-            IDataFactory factory,
+            ILog log,
             IBananoAccountFactory banano,
             IBananoAccount storage)
-            : base(factory)
+            : base(log)
         {
             Banano = banano;
             Storage = storage;

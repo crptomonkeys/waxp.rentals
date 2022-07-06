@@ -13,6 +13,10 @@ namespace WaxRentals.Service.Controllers
     public class RentalController : ServiceBase
     {
 
+        private IInsert Insert { get; }
+        private IProcess Process { get; }
+        private IExplore Explore { get; }
+
         private CostsCache Costs { get; }
         private LimitsCache Limits { get; }
 
@@ -20,15 +24,22 @@ namespace WaxRentals.Service.Controllers
         private Mapper Mapper { get; }
 
         public RentalController(
-            IDataFactory factory,
+            ILog log,
+            IInsert insert,
+            IProcess process,
+            IExplore explore,
             
             CostsCache costs,
             LimitsCache limits,
             
             IBananoAccountFactory banano,
             Mapper mapper)
-            : base(factory)
+            : base(log)
         {
+            Insert = insert;
+            Process = process;
+            Explore = explore;
+
             Costs = costs;
             Limits = limits;
 
@@ -65,14 +76,14 @@ namespace WaxRentals.Service.Controllers
                 int id;
                 if (input.Free)
                 {
-                    id = await Factory.Insert.OpenRental(input.Account, input.Days, input.Cpu, input.Net, 0, Status.Pending);
+                    id = await Insert.OpenRental(input.Account, input.Days, input.Cpu, input.Net, 0, Status.Pending);
                 }
                 else
                 {
                     var cost = (input.Cpu + input.Net) * input.Days * Costs.GetCosts().WaxRentPriceInBanano;
                     cost = decimal.Round(cost, 4);
 
-                    id = await Factory.Insert.OpenRental(input.Account, RentalDays(input.Days), input.Cpu, input.Net, cost);
+                    id = await Insert.OpenRental(input.Account, RentalDays(input.Days), input.Cpu, input.Net, cost);
                 }
 
                 var account = Banano.BuildAccount(id);
@@ -82,7 +93,7 @@ namespace WaxRentals.Service.Controllers
             {
                 try
                 {
-                    await Factory.Log.Error(ex);
+                    await Log.Error(ex);
                     return Fail(ex.Message);
                 }
                 catch
@@ -104,42 +115,42 @@ namespace WaxRentals.Service.Controllers
         [HttpGet("ByWaxAccount/{account}")]
         public async Task<JsonResult> ByWaxAccount(string account)
         {
-            var rentals = await Factory.Explore.GetRentalsByWaxAccount(account);
+            var rentals = await Explore.GetRentalsByWaxAccount(account);
             return Succeed(rentals.Select(Mapper.Map));
         }
 
         [HttpPost("ByBananoAddresses")]
         public async Task<JsonResult> ByBananoAddresses([FromBody] IEnumerable<string> addresses)
         {
-            var rentals = await Factory.Explore.GetRentalsByBananoAddresses(addresses);
+            var rentals = await Explore.GetRentalsByBananoAddresses(addresses);
             return Succeed(rentals.Select(Mapper.Map));
         }
 
         [HttpGet("New")]
         public async Task<JsonResult> New()
         {
-            var rentals = await Factory.Process.PullNewRentals();
+            var rentals = await Process.PullNewRentals();
             return Succeed(rentals.Select(Mapper.Map));
         }
 
         [HttpGet("Paid")]
         public async Task<JsonResult> Paid()
         {
-            var rentals = await Factory.Process.PullPaidRentalsToStake();
+            var rentals = await Process.PullPaidRentalsToStake();
             return Succeed(rentals.Select(Mapper.Map));
         }
 
         [HttpGet("Sweepable")]
         public async Task<JsonResult> Sweepable()
         {
-            var rentals = await Factory.Process.PullSweepableRentals();
+            var rentals = await Process.PullSweepableRentals();
             return Succeed(rentals.Select(Mapper.Map));
         }
 
         [HttpGet("NextClosing")]
         public async Task<JsonResult> NextClosing()
         {
-            var rental = await Factory.Process.PullNextClosingRental();
+            var rental = await Process.PullNextClosingRental();
             return Succeed(Mapper.Map(rental));
         }
 
@@ -150,28 +161,28 @@ namespace WaxRentals.Service.Controllers
         [HttpPost("ProcessPayment")]
         public async Task<JsonResult> ProcessPayment([FromBody] ProcessInput input)
         {
-            await Factory.Process.ProcessRentalPayment(input.Id);
+            await Process.ProcessRentalPayment(input.Id);
             return Succeed();
         }
 
         [HttpPost("ProcessStake")]
         public async Task<JsonResult> ProcessStake([FromBody] ProcessRentalInput input)
         {
-            await Factory.Process.ProcessRentalStaking(input.Id, input.Source, input.Transaction);
+            await Process.ProcessRentalStaking(input.Id, input.Source, input.Transaction);
             return Succeed();
         }
 
         [HttpPost("ProcessSweep")]
         public async Task<JsonResult> ProcessSweep([FromBody] ProcessInput input)
         {
-            await Factory.Process.ProcessRentalSweep(input.Id, input.Transaction);
+            await Process.ProcessRentalSweep(input.Id, input.Transaction);
             return Succeed();
         }
 
         [HttpPost("ProcessClosing")]
         public async Task<JsonResult> ProcessClosing([FromBody] ProcessInput input)
         {
-            await Factory.Process.ProcessRentalClosing(input.Id, input.Transaction);
+            await Process.ProcessRentalClosing(input.Id, input.Transaction);
             return Succeed();
         }
 

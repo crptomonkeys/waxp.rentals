@@ -21,7 +21,7 @@ namespace WaxRentals.Monitoring.Config
                 new TelegramNotifier(
                     new TelegramBotClient(telegram.Token, new HttpClient { Timeout = QuickTimeout }),
                     new ChatId(telegram.TargetChat),
-                    provider.GetRequiredService<IDataFactory>()
+                    provider.GetRequiredService<ILog>()
                 )
             );
         }

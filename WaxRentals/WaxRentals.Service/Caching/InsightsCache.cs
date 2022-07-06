@@ -11,13 +11,15 @@ namespace WaxRentals.Service.Caching
         public AppInsights GetInsights() => Rwls.SafeRead(() => Insights);
 
 
+        private IExplore Explore { get; }
         private Mapper Mapper { get; }
         private ReaderWriterLockSlim Rwls { get; } = new();
         private AppInsights Insights { get; set; }
 
-        public InsightsCache(IDataFactory factory, TimeSpan interval, Mapper mapper)
-            : base(factory, interval)
+        public InsightsCache(ILog log, IExplore explore, TimeSpan interval, Mapper mapper)
+            : base(log, interval)
         {
+            Explore = explore;
             Mapper = mapper;
 
             // No nulls.
@@ -32,10 +34,10 @@ namespace WaxRentals.Service.Caching
 
         protected async override Task Tick()
         {
-            var stats = Factory.Explore.GetMonthlyStats();
-            var rentals = Factory.Explore.GetLatestRentals();
-            var purchases = Factory.Explore.GetLatestPurchases();
-            var packages = Factory.Explore.GetLatestWelcomePackages();
+            var stats = Explore.GetMonthlyStats();
+            var rentals = Explore.GetLatestRentals();
+            var purchases = Explore.GetLatestPurchases();
+            var packages = Explore.GetLatestWelcomePackages();
             await Task.WhenAll(stats, rentals, purchases, packages);
 
             Rwls.SafeWrite(async () =>

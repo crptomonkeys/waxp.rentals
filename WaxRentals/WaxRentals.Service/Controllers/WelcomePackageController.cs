@@ -13,13 +13,26 @@ namespace WaxRentals.Service.Controllers
     public class WelcomePackageController : ServiceBase
     {
 
+        private IInsert Insert { get; }
+        private IProcess Process { get; }
+        private IExplore Explore { get; }
         private CostsCache Costs { get; }
         private IBananoAccountFactory Banano { get; }
         private Mapper Mapper { get; }
 
-        public WelcomePackageController(IDataFactory factory, CostsCache costs, IBananoAccountFactory banano, Mapper mapper)
-            : base(factory)
+        public WelcomePackageController(
+            ILog log,
+            IInsert insert,
+            IProcess process,
+            IExplore explore,
+            CostsCache costs,
+            IBananoAccountFactory banano,
+            Mapper mapper)
+            : base(log)
         {
+            Insert = insert;
+            Process = process;
+            Explore = explore;
             Costs = costs;
             Banano = banano;
             Mapper = mapper;
@@ -44,7 +57,7 @@ namespace WaxRentals.Service.Controllers
                     return Fail("Something went wrong; please try again in a few minutes.");
                 }
 
-                var id = await Factory.Insert.OpenWelcomePackage(NewUser.Account, memo, NewUser.OpenWax, cost);
+                var id = await Insert.OpenWelcomePackage(NewUser.Account, memo, NewUser.OpenWax, cost);
                 var account = Banano.BuildWelcomeAccount(id);
                 return Succeed(
                     new NewWelcomePackage(
@@ -58,7 +71,7 @@ namespace WaxRentals.Service.Controllers
             {
                 try
                 {
-                    await Factory.Log.Error(ex);
+                    await Log.Error(ex);
                     return Fail(ex.Message);
                 }
                 catch
@@ -75,42 +88,42 @@ namespace WaxRentals.Service.Controllers
         [HttpPost("ByBananoAddresses")]
         public async Task<JsonResult> ByBananoAddresses([FromBody] IEnumerable<string> addresses)
         {
-            var packages = await Factory.Explore.GetWelcomePackagesByBananoAddresses(addresses);
+            var packages = await Explore.GetWelcomePackagesByBananoAddresses(addresses);
             return Succeed(packages.Select(Mapper.Map));
         }
 
         [HttpGet("New")]
         public async Task<JsonResult> New()
         {
-            var packages = await Factory.Process.PullNewWelcomePackages();
+            var packages = await Process.PullNewWelcomePackages();
             return Succeed(packages.Select(Mapper.Map));
         }
 
         [HttpGet("Paid")]
         public async Task<JsonResult> Paid()
         {
-            var packages = await Factory.Process.PullPaidWelcomePackagesToFund();
+            var packages = await Process.PullPaidWelcomePackagesToFund();
             return Succeed(packages.Select(Mapper.Map));
         }
 
         [HttpGet("MissingNfts")]
         public async Task<JsonResult> MissingNfts()
         {
-            var packages = await Factory.Process.PullFundedWelcomePackagesMissingNft();
+            var packages = await Process.PullFundedWelcomePackagesMissingNft();
             return Succeed(packages.Select(Mapper.Map));
         }
 
         [HttpGet("MissingRentals")]
         public async Task<JsonResult> MissingRentals()
         {
-            var packages = await Factory.Process.PullFundedWelcomePackagesMissingRental();
+            var packages = await Process.PullFundedWelcomePackagesMissingRental();
             return Succeed(packages.Select(Mapper.Map));
         }
 
         [HttpGet("Sweepable")]
         public async Task<JsonResult> Sweepable()
         {
-            var packages = await Factory.Process.PullSweepableWelcomePackages();
+            var packages = await Process.PullSweepableWelcomePackages();
             return Succeed(packages.Select(Mapper.Map));
         }
 
@@ -121,35 +134,35 @@ namespace WaxRentals.Service.Controllers
         [HttpPost("ProcessPayment")]
         public async Task<JsonResult> ProcessPayment([FromBody] ProcessInput input)
         {
-            await Factory.Process.ProcessWelcomePackagePayment(input.Id);
+            await Process.ProcessWelcomePackagePayment(input.Id);
             return Succeed();
         }
 
         [HttpPost("ProcessFunding")]
         public async Task<JsonResult> ProcessFunding([FromBody] ProcessInput input)
         {
-            await Factory.Process.ProcessWelcomePackageFunding(input.Id, input.Transaction);
+            await Process.ProcessWelcomePackageFunding(input.Id, input.Transaction);
             return Succeed();
         }
 
         [HttpPost("ProcessNft")]
         public async Task<JsonResult> ProcessNft([FromBody] ProcessInput input)
         {
-            await Factory.Process.ProcessWelcomePackageNft(input.Id, input.Transaction);
+            await Process.ProcessWelcomePackageNft(input.Id, input.Transaction);
             return Succeed();
         }
 
         [HttpPost("ProcessRental")]
         public async Task<JsonResult> ProcessRental([FromBody] ProcessWelcomePackageInput input)
         {
-            await Factory.Process.ProcessWelcomePackageRental(input.Id, input.RentalId);
+            await Process.ProcessWelcomePackageRental(input.Id, input.RentalId);
             return Succeed();
         }
 
         [HttpPost("ProcessSweep")]
         public async Task<JsonResult> ProcessSweep([FromBody] ProcessInput input)
         {
-            await Factory.Process.ProcessWelcomePackageSweep(input.Id, input.Transaction);
+            await Process.ProcessWelcomePackageSweep(input.Id, input.Transaction);
             return Succeed();
         }
 

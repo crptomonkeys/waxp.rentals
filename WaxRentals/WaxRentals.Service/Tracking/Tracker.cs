@@ -6,11 +6,11 @@ namespace WaxRentals.Service.Tracking
     internal class Tracker : ITracker
     {
 
-        private IDataFactory Factory { get; }
+        private ILog Log { get; }
 
-        public Tracker(IDataFactory factory)
+        public Tracker(ILog log)
         {
-            Factory = factory;
+            Log = log;
         }
 
         private static readonly object _deadbolt = new();
@@ -27,7 +27,7 @@ namespace WaxRentals.Service.Tracking
                 }
                 catch (Exception ex)
                 {
-                    Factory.Log.Error(ex);
+                    Log.Error(ex);
                 }
             }
         }

@@ -16,12 +16,12 @@ namespace WaxRentals.Service.Controllers
         private IWaxAccounts WaxAccounts { get; }
 
         public AppController(
-            IDataFactory factory,
+            ILog log,
             
             Cache cache,
             IBananoAccount banano,
             IWaxAccounts waxAccounts)
-            : base(factory)
+            : base(log)
         {
             Cache = cache;
             Banano = banano;

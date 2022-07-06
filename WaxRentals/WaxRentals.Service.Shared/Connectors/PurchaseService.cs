@@ -19,7 +19,7 @@ namespace WaxRentals.Service.Shared.Connectors
 
         public async Task<Result> Create(decimal amount, string transaction, string paymentAddress, decimal banano, Status status)
         {
-            var input = new NewPurchaseInput(amount, transaction, paymentAddress, banano, status);
+            var input = new NewPurchaseInput { Amount = amount, Transaction = transaction, BananoPaymentAddress = paymentAddress, Banano = banano, Status = status };
             return await Post("Create", input);
         }
 

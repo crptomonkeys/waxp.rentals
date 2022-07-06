@@ -17,8 +17,8 @@ namespace WaxRentals.Service.Caching
         private LockedDecimal Banano { get; } = new LockedDecimal();
         private LockedDecimal Wax { get; } = new LockedDecimal();
 
-        public PricesCache(IDataFactory factory, TimeSpan interval, HttpClient client)
-            : base(factory, interval)
+        public PricesCache(ILog log, TimeSpan interval, HttpClient client)
+            : base(log, interval)
         {
             Client = client;
         }

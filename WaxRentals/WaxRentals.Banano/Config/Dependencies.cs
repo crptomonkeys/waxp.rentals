@@ -31,7 +31,7 @@ namespace WaxRentals.Banano.Config
                 new StorageAccount(
                     seed,
                     provider.GetRequiredService<RpcClients>(),
-                    provider.GetRequiredService<IDataFactory>()
+                    provider.GetRequiredService<ILog>()
                 )
             );
 
@@ -44,7 +44,7 @@ namespace WaxRentals.Banano.Config
                     seed,
                     welcomeSeed,
                     provider.GetRequiredService<RpcClients>(),
-                    provider.GetRequiredService<IDataFactory>()
+                    provider.GetRequiredService<ILog>()
                 )
             );
         }

@@ -8,8 +8,8 @@ namespace WaxRentals.Service.Caching
 
         private Timer Timer { get; }
 
-        public TimedCacheBase(IDataFactory factory, TimeSpan interval)
-            : base(factory)
+        public TimedCacheBase(ILog log, TimeSpan interval)
+            : base(log)
         {
             Timer = new Timer(interval.TotalMilliseconds);
             Timer.Elapsed += async (_, _) => await Elapsed();
@@ -19,6 +19,7 @@ namespace WaxRentals.Service.Caching
 
         public void Dispose()
         {
+            Timer.Elapsed -= async (_, _) => await Elapsed();
             using (Timer)
             {
                 Timer.Stop();
@@ -33,7 +34,7 @@ namespace WaxRentals.Service.Caching
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex);
+                await Log.Error(ex);
             }
         }
 

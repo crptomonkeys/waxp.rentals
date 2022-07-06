@@ -19,15 +19,15 @@ namespace WaxRentals.Waxp.Transact
 
         private readonly PrivateKey _active;
         private readonly IClientFactory _client;
-        private readonly IDataFactory _factory;
+        private readonly ILog _log;
         private readonly List<Authorization> _authorization;
 
-        public WrappedAccount(string account, PrivateKey active, IClientFactory client, IDataFactory factory)
+        public WrappedAccount(string account, PrivateKey active, IClientFactory client, ILog log)
         {
             Account = account;
             _active = active;
             _client = client;
-            _factory = factory;
+            _log = log;
 
             _authorization = new List<Authorization>
             {
@@ -88,7 +88,7 @@ namespace WaxRentals.Waxp.Transact
             }
             catch (Exception ex)
             {
-                await _factory.Log.Error(ex);
+                await _log.Error(ex);
                 return 0;
             }
         }

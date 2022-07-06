@@ -8,20 +8,26 @@ namespace WaxRentals.Service.Controllers
     public class PurchaseController : ServiceBase
     {
 
+        private IInsert Insert { get; }
+        private IProcess Processor { get; }
         private Mapper Mapper { get; }
 
         public PurchaseController(
-            IDataFactory factory,
+            ILog log,
+            IInsert insert,
+            IProcess processor,
             Mapper mapper)
-            : base(factory)
+            : base(log)
         {
+            Insert = insert;
+            Processor = processor;
             Mapper = mapper;
         }
 
         [HttpPost("Create")]
         public async Task<JsonResult> Create([FromBody] NewPurchaseInput input)
         {
-            var success = await Factory.Insert.OpenPurchase(
+            var success = await Insert.OpenPurchase(
                 input.Amount,
                 input.Transaction,
                 input.BananoPaymentAddress,
@@ -34,14 +40,14 @@ namespace WaxRentals.Service.Controllers
         [HttpGet("Next")]
         public async Task<JsonResult> Next()
         {
-            var purchase = await Factory.Process.PullNextPurchase();
+            var purchase = await Processor.PullNextPurchase();
             return Succeed(Mapper.Map(purchase));
         }
 
         [HttpPost("Process")]
         public async Task<JsonResult> Process([FromBody] ProcessInput input)
         {
-            await Factory.Process.ProcessPurchase(input.Id, input.Transaction);
+            await Processor.ProcessPurchase(input.Id, input.Transaction);
             return Succeed();
         }
 

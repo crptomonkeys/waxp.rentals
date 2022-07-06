@@ -14,7 +14,7 @@ namespace WaxRentals.Processing.Processors
         ManualResetEventSlim Stop();
     }
 
-    internal abstract class Processor<T> : IProcessor
+    internal abstract class Processor<T> : IProcessor, IDisposable
     {
         private readonly ManualResetEventSlim _complete = new();
 
@@ -38,6 +38,16 @@ namespace WaxRentals.Processing.Processors
                 _timer.Elapsed += async (_, _) => await Tick();
                 _timer.Start();
             }
+        }
+
+        public void Dispose()
+        {
+            _timer.Elapsed -= async (_, _) => await Tick();
+            using (_timer)
+            {
+                _timer.Stop();
+            }
+            GC.SuppressFinalize(this);
         }
 
         public ManualResetEventSlim Stop()

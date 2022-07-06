@@ -31,14 +31,15 @@ namespace WaxRentals.Service.Config
 
             services.AddSingleton(provider =>
                 new BananoInfoCache(
-                    provider.GetRequiredService<IDataFactory>(),
+                    provider.GetRequiredService<ILog>(),
                     TimeSpan.FromMinutes(1),
                     provider.GetRequiredService<IBananoAccount>())
             );
 
             services.AddSingleton(provider =>
                 new InsightsCache(
-                    provider.GetRequiredService<IDataFactory>(),
+                    provider.GetRequiredService<ILog>(),
+                    provider.GetRequiredService<IExplore>(),
                     TimeSpan.FromMinutes(1),
                     provider.GetRequiredService<Mapper>()
                 )
@@ -47,14 +48,14 @@ namespace WaxRentals.Service.Config
             services.AddSingleton(provider =>
                 new NftsCache(
                     provider.GetRequiredService<IWaxAccounts>(),
-                    provider.GetRequiredService<IDataFactory>(),
+                    provider.GetRequiredService<ILog>(),
                     TimeSpan.FromMinutes(5)
                 )
             );
 
             services.AddSingleton(provider =>
             {
-                var factory = provider.GetRequiredService<IDataFactory>();
+                var factory = provider.GetRequiredService<ILog>();
                 return new PricesCache(
                     factory,
                     TimeSpan.FromSeconds(90),
@@ -64,7 +65,7 @@ namespace WaxRentals.Service.Config
 
             services.AddSingleton(provider =>
                 new WaxInfoCache(
-                    provider.GetRequiredService<IDataFactory>(),
+                    provider.GetRequiredService<ILog>(),
                     TimeSpan.FromMinutes(2),
                     provider.GetRequiredService<IWaxAccounts>()
                 )
@@ -81,9 +82,9 @@ namespace WaxRentals.Service.Config
 
         #region " HttpClient "
 
-        private static HttpClient BuildHttpClient(string endpoint, IDataFactory factory)
+        private static HttpClient BuildHttpClient(string endpoint, ILog log)
         {
-            var handler = new MessageHandler(new HttpClientHandler(), factory);
+            var handler = new MessageHandler(new HttpClientHandler(), log);
             return new HttpClient(handler) { BaseAddress = new Uri(endpoint), Timeout = QuickTimeout };
         }
 

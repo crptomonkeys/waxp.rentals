@@ -31,8 +31,8 @@ namespace WaxRentals.Service.Caching
         private IWaxAccounts Accounts { get; }
         private ConcurrentDictionary<string, AccountBalances> Balances { get; } = new ConcurrentDictionary<string, AccountBalances>(StringComparer.OrdinalIgnoreCase);
         
-        public WaxInfoCache(IDataFactory factory, TimeSpan interval, IWaxAccounts accounts)
-            : base(factory, interval)
+        public WaxInfoCache(ILog log, TimeSpan interval, IWaxAccounts accounts)
+            : base(log, interval)
         {
             Accounts = accounts;
         }

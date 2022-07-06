@@ -25,8 +25,8 @@ namespace WaxRentals.Service.Caching
         private BananoInfoCache BananoInfo { get; }
         private WaxInfoCache WaxInfo { get; }
 
-        public LimitsCache(IDataFactory factory, CostsCache costs, BananoInfoCache bananoInfo, WaxInfoCache waxInfo)
-            : base(factory)
+        public LimitsCache(ILog log, CostsCache costs, BananoInfoCache bananoInfo, WaxInfoCache waxInfo)
+            : base(log)
         {
             Costs = costs;
             BananoInfo = bananoInfo;

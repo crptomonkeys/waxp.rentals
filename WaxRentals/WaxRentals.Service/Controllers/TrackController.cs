@@ -13,8 +13,8 @@ namespace WaxRentals.Service.Controllers
         private ITelegramNotifier Telegram { get; }
         private ITracker Tracker { get; }
 
-        public TrackController(IDataFactory factory, ITelegramNotifier telegram, ITracker tracker)
-            : base(factory)
+        public TrackController(ILog log, ITelegramNotifier telegram, ITracker tracker)
+            : base(log)
         {
             Telegram = telegram;
             Tracker = tracker;
@@ -23,7 +23,7 @@ namespace WaxRentals.Service.Controllers
         [HttpPost("Error")]
         public async Task<JsonResult> Error([FromBody] ErrorLog log)
         {
-            await Factory.Log.Error(log.Exception, log.Error, log.Context);
+            await Log.Error(log.Exception, log.Error, log.Context);
             return Succeed();
         }
 
@@ -36,7 +36,7 @@ namespace WaxRentals.Service.Controllers
                 MessageLogDirection.Out => MessageDirection.Out,
                 _ => throw new ArgumentOutOfRangeException(nameof(log.Direction), log.Direction, "Unsupported value.")
             };
-            await Factory.Log.Message(log.RequestId, log.Url, direction, log.Message);
+            await Log.Message(log.RequestId, log.Url, direction, log.Message);
             return Succeed();
         }
 

@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable disable
+
 namespace WaxRentals.Data.Entities
 {
 	[Table("Address", Schema = "welcome")]

@@ -22,8 +22,8 @@ namespace WaxRentals.Service.Caching
 
         private PricesCache Prices { get; }
 
-        public CostsCache(IDataFactory factory, PricesCache prices)
-            : base(factory)
+        public CostsCache(ILog log, PricesCache prices)
+            : base(log)
         {
             Prices = prices;
         }

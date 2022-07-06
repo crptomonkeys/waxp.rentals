@@ -20,13 +20,13 @@ namespace WaxRentals.Waxp.History
     {
 
         private AccountNames Names { get; }
-        private IDataFactory Data { get; }
+        private ITrackWax Track { get; }
         private IClientFactory Client { get; }
 
-        public WaxHistoryChecker(AccountNames names, IDataFactory data, IClientFactory client)
+        public WaxHistoryChecker(AccountNames names, ITrackWax track, IClientFactory client)
         {
             Names = names;
-            Data = data;
+            Track = track;
             Client = client;
         }
 
@@ -35,7 +35,7 @@ namespace WaxRentals.Waxp.History
             List<TransferBlock> blocks = new();
             var success = await Client.ProcessHistory(async client =>
             {
-                var last = (await Data.TrackWax.GetLastHistoryCheck())?.AddMilliseconds(1);
+                var last = (await Track.GetLastHistoryCheck())?.AddMilliseconds(1);
                 var history = await client.GetStringAsync(string.Format(Protocol.HistoryBasePath, Names.Primary) + last?.ToString("s"));
 
                 foreach (var block in JObject.Parse(history).SelectTokens(string.Format(Protocol.TransferBlocks, Names.Primary)))
@@ -49,7 +49,7 @@ namespace WaxRentals.Waxp.History
             if (success)
             {
                 var result = blocks.Select(Map);
-                await Data.TrackWax.SetLastHistoryCheck(DateTime.UtcNow);
+                await Track.SetLastHistoryCheck(DateTime.UtcNow);
                 return result.Select(Map);
             }
             return Enumerable.Empty<TransferInfo>();

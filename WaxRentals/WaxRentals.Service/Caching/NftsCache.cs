@@ -20,8 +20,8 @@ namespace WaxRentals.Service.Caching
         private ReaderWriterLockSlim Rwls { get; } = new();
         private IEnumerable<Nft> Nfts { get; set; } = Enumerable.Empty<Nft>();
 
-        public NftsCache(IWaxAccounts wax, IDataFactory factory, TimeSpan interval)
-            : base(factory, interval)
+        public NftsCache(IWaxAccounts wax, ILog log, TimeSpan interval)
+            : base(log, interval)
         {
             Wax = wax;
         }
@@ -38,7 +38,7 @@ namespace WaxRentals.Service.Caching
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: string.Format(Locations.Assets, Wax.Primary.Account));
+                await Log.Error(ex, context: string.Format(Locations.Assets, Wax.Primary.Account));
             }
         }
 
