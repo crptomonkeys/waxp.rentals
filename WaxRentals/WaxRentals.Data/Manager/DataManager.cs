@@ -425,7 +425,7 @@ namespace WaxRentals.Data.Manager
 
         public async Task Error(Exception exception, string error = null, object context = null)
         {
-            await ProcessWithFactory(async context =>
+            await ProcessWithFactory(async ctx =>
             {
                 try
                 {
@@ -442,8 +442,8 @@ namespace WaxRentals.Data.Manager
                         log.Context = JToken.FromObject(context).ToString();
                     }
 
-                    context.Errors.Add(log);
-                    await context.SaveChangesAsync();
+                    ctx.Errors.Add(log);
+                    await ctx.SaveChangesAsync();
                 }
                 catch (Exception ex)
                 {
