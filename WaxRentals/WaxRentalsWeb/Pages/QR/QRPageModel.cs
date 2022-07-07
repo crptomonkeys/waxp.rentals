@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SkiaSharp;
@@ -13,6 +14,13 @@ namespace WaxRentalsWeb.Pages.QR
 
         protected FileContentResult GenerateQRCode(string value)
         {
+            var image = Generate(value);
+            GC.Collect(); // This can't be the right way to do this, but it keeps the memory from ballooning wildly.
+            return File(image, "image/png");
+        }
+
+        private byte[] Generate(string value)
+        {
             var code = new QRCodeGenerator().CreateQrCode(value, ECCLevel.Q, quietZoneSize: 0);
             var icon = new IconData { Icon = SKBitmap.Decode(Images.Logo), IconSizePercent = 30 };
 
@@ -24,7 +32,7 @@ namespace WaxRentalsWeb.Pages.QR
             using var data = snapshot.Encode(SKEncodedImageFormat.Png, 100);
             using var stream = new MemoryStream();
             data.SaveTo(stream);
-            return File(stream.ToArray(), "image/png");
+            return stream.ToArray();
         }
 
     }
