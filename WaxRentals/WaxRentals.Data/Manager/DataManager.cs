@@ -538,8 +538,8 @@ namespace WaxRentals.Data.Manager
                             Year                  = reader.GetInt32  (reader.GetOrdinal(nameof(MonthlyStats.Year))),
                             Month                 = reader.GetInt32  (reader.GetOrdinal(nameof(MonthlyStats.Month))),
                             WaxDaysRented         = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxDaysRented))),
-                            WaxDaysFree           = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxDaysRented))),
-                            WaxPurchasedForSite   = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxDaysRented))),
+                            WaxDaysFree           = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxDaysFree))),
+                            WaxPurchasedForSite   = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxPurchasedForSite))),
                             WelcomePackagesOpened = reader.GetInt32  (reader.GetOrdinal(nameof(MonthlyStats.WelcomePackagesOpened)))
                         }
                     );
