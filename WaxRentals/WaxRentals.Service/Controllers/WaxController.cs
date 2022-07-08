@@ -102,7 +102,11 @@ namespace WaxRentals.Service.Controllers
             var (sourceSuccess, sourceBalances) = await source.GetBalances();
             if (sourceSuccess && sourceBalances.Available < needed)
             {
-                await Wax.Today.Send(source.Account, needed - sourceBalances.Available);
+                var (success, _) = await Wax.Today.Send(source.Account, needed - sourceBalances.Available);
+                if (!success)
+                {
+                    return Fail($"Failed to transfer {needed} {Coins.Wax} to from {Wax.Today.Account} to {source.Account} to support stake.");
+                }
             }
 
             var (stakeSuccess, hash) = await source.Stake(input.Target, input.Cpu, input.Net);

@@ -13,7 +13,7 @@ namespace WaxRentals.Service.Config
 
         public static class Http
         {
-            public static readonly TimeSpan QuickTimeout = TimeSpan.FromSeconds(5);
+            public static readonly TimeSpan QuickTimeout = TimeSpan.FromSeconds(15);
         }
 
         public static class Locations
