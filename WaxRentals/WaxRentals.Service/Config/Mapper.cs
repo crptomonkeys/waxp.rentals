@@ -87,7 +87,7 @@ namespace WaxRentals.Service.Config
                     BananoPaymentLink = account.BuildLink(package.Banano),
                     WaxAccount        = package.TargetWaxAccount,
                     Wax               = package.Wax,
-                    Memo              = $"{package.Memo}{NewUser.MemoRefundOnExists}",
+                    Memo              = package.Memo,
                     FundTransaction   = package.FundTransaction,
                     NftTransaction    = package.NftTransaction,
                     StakeTransaction  = package.Rental?.StakeWaxTransaction,

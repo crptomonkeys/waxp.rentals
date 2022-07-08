@@ -38,7 +38,7 @@ namespace WaxRentals.Processing.Processors
         {
             try
             {
-                var result = await Wax.Send(package.WaxAccount, package.Wax, memo: package.Memo);
+                var result = await Wax.Send(package.WaxAccount, package.Wax, memo: $"{package.Memo}:refund_on_exists");
                 if (result.Success)
                 {
                     var task = Packages.ProcessFunding(package.Id, result.Value);
