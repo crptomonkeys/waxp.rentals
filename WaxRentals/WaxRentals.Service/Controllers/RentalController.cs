@@ -60,14 +60,15 @@ namespace WaxRentals.Service.Controllers
                 // Validate.
 
                 var limits = Limits.GetLimits();
+                var waxBalances = WaxInfo.GetBalances();
 
                 if (input.Cpu + input.Net < limits.WaxMinimumRent)
                 {
                     return Fail($"Must rent at least {limits.WaxMinimumRent} WAX.");
                 }
-                else if (input.Free && (input.Cpu + input.Net) > WaxInfo.GetBalances().Available)
+                else if (input.Free && (input.Cpu + input.Net) > waxBalances.Available)
                 {
-                    return Fail($"Cannot provide a free rental of more than {limits.WaxMaximumRent} WAX right now.");
+                    return Fail($"Cannot provide a free rental of more than {waxBalances.Available} WAX right now.");
                 }
                 else if (input.Cpu + input.Net > limits.WaxMaximumRent)
                 {
