@@ -19,6 +19,7 @@ namespace WaxRentals.Service.Controllers
 
         private CostsCache Costs { get; }
         private LimitsCache Limits { get; }
+        private WaxInfoCache WaxInfo { get; }
 
         private IBananoAccountFactory Banano { get; }
         private Mapper Mapper { get; }
@@ -31,6 +32,7 @@ namespace WaxRentals.Service.Controllers
             
             CostsCache costs,
             LimitsCache limits,
+            WaxInfoCache waxInfo,
             
             IBananoAccountFactory banano,
             Mapper mapper)
@@ -42,6 +44,7 @@ namespace WaxRentals.Service.Controllers
 
             Costs = costs;
             Limits = limits;
+            WaxInfo = waxInfo;
 
             Banano = banano;
             Mapper = mapper;
@@ -61,6 +64,10 @@ namespace WaxRentals.Service.Controllers
                 if (input.Cpu + input.Net < limits.WaxMinimumRent)
                 {
                     return Fail($"Must rent at least {limits.WaxMinimumRent} WAX.");
+                }
+                else if (input.Free && (input.Cpu + input.Net) > WaxInfo.GetBalances().Available)
+                {
+                    return Fail($"Cannot provide a free rental of more than {limits.WaxMaximumRent} WAX right now.");
                 }
                 else if (input.Cpu + input.Net > limits.WaxMaximumRent)
                 {
