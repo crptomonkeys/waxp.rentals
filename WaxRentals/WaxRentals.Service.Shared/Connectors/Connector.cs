@@ -79,7 +79,8 @@ namespace WaxRentals.Service.Shared.Connectors
                 var response = await target();
                 if (response.IsSuccessStatusCode)
                 {
-                    return Result.Succeed();
+                    var content = await response.Content.ReadAsStringAsync();
+                    return JsonSerializer.Deserialize<Result>(content, SerializerOptions) ?? Result.Fail($"Unable to deserialize response from server:{Environment.NewLine}{content}");
                 }
                 return Result.Fail($"Unsuccessful response from server: {(int)response.StatusCode} {response.StatusCode}");
             }
