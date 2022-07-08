@@ -91,7 +91,7 @@ span.address-highlight {
   }
 
   .message {
-    display: flex;
+    display: inline-grid;
     align-items: center;
     height: 50px;
   }

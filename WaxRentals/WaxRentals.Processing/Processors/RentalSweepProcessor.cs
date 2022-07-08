@@ -2,45 +2,48 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
-using static WaxRentals.Banano.Config.Constants;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class RentalSweepProcessor : Processor<IEnumerable<Rental>>
+    internal class RentalSweepProcessor : Processor<Result<IEnumerable<RentalInfo>>>
     {
 
-        protected override bool ProcessMultiplePerTick => false;
+        private IRentalService Rentals { get; }
+        private IBananoService Banano { get; }
 
-        private IBananoAccountFactory Banano { get; }
-
-        public RentalSweepProcessor(IDataFactory factory, IBananoAccountFactory banano)
-            : base(factory)
+        public RentalSweepProcessor(ITrackService track, IRentalService rentals, IBananoService banano)
+            : base(track)
         {
+            Rentals = rentals;
             Banano = banano;
         }
 
-        protected override Func<Task<IEnumerable<Rental>>> Get => Factory.Process.PullSweepableRentals;
-        protected async override Task Process(IEnumerable<Rental> rentals)
+        protected override Func<Task<Result<IEnumerable<RentalInfo>>>> Get => Rentals.Sweepable;
+        protected async override Task<bool> Process(Result<IEnumerable<RentalInfo>> result)
         {
-            var tasks = rentals.Select(Process);
-            await Task.WhenAll(tasks);
+            if (result.Success && result.Value != null)
+            {
+                var tasks = result.Value.Select(Process);
+                await Task.WhenAll(tasks);
+            }
+            return false;
         }
 
-        private async Task Process(Rental rental)
+        private async Task Process(RentalInfo rental)
         {
             try
             {
-                var account = Banano.BuildAccount((uint)rental.RentalId);
-                var amount = await account.GetBalance();
-                var hash = await account.Send(Protocol.Address, amount);
-                await Factory.Process.ProcessRentalSweep(rental.RentalId, hash);
+                var result = await Banano.SweepRentalAccount(rental.Id);
+                if (result.Success)
+                {
+                    await Rentals.ProcessSweep(rental.Id, result.Value);
+                }
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: rental);
+                Log(ex, context: rental);
             }
         }
 

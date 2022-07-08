@@ -8,9 +8,9 @@
             public const decimal BananoPerWaxPerDay = 1;
         }
 
-        internal static class Locations
+        internal static class EnvironmentVariables
         {
-            public const string Db = "/run/secrets/wax.db";
+            public const string DbFile = "DB_FILE";
         }
 
         internal static class Display

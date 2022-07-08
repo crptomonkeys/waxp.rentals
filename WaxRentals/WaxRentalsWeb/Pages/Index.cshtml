@@ -1,5 +1,6 @@
 ﻿@page
 @model IndexModel
+@using static WaxRentals.Service.Shared.Config.Constants
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
 @{
@@ -49,8 +50,8 @@
   <div class="container-fluid">
     <div class="row">
 
-      <div class="site-alert" style="display: none;">
-        <div class="message"></div>
+      <div id="site-alert" class="site-alert" v-if="message">
+        <div class="message">{{ message }}</div>
         <div class="spacing mobile-show"></div>
       </div>
 
@@ -72,7 +73,7 @@
               <li><a class="show-1" href="/direct/sell">Sell WAX</a></li>
               <li><a class="show-2" href="/direct/get">Get Banano</a></li>
               <li><a class="show-3" href="/direct/my">My Rentals</a></li>
-              <li><a class="show-4" href="/direct/recents">Site Insights</a></li>
+              <li><a class="show-4" href="/direct/insights">Site Insights</a></li>
               <li><a class="show-5" href="/direct/open">New Wallet</a></li>
             </ul> <!-- /.menu -->
             <a href="/" class="toggle-menu"><i class="fa fa-bars"></i></a>
@@ -108,7 +109,7 @@
                   <div class="row">
                     <form id="open-rental" action="/" method="post">
                       <fieldset class="col-md-3">
-                        <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.WaxAddressRegex" placeholder="WAX Account" required>
+                        <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@Wax.Protocol.AccountRegex" placeholder="WAX Account" required>
                       </fieldset>
                       <fieldset class="col-md-3">
                         <input type="number" name="cpu" id="cpu" min="0" :max="state.waxMaximumRent" step="1" placeholder="# CPU">
@@ -143,12 +144,13 @@
                   <p>
                     <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">
                       <img src="/qr/wax" width="150" height="150" />
-                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@WaxRentals.Waxp.Config.Constants.Protocol.Account</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@WaxRentals.Waxp.Config.Constants.Protocol.Account"></i> and <strong>include your BAN address as the memo</strong>.
+                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@Model.Constants.WaxPrimaryAccount</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@Model.Constants.WaxPrimaryAccount"></i> and <strong>include your BAN address as the memo</strong>.
                     </span>
+                    <span v-else-if="state.waxBuyPriceInBanano == 0"><strong>The site is still loading; please keep this page open.</strong></span>
                     <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
                     <br><br>WAX price: <strong>${{ state.waxPrice }}</strong> | BAN price: <strong>${{ state.bananoPrice }}</strong>
                     <br>Currently paying <strong>{{ state.waxBuyPriceInBanano }} BAN</strong> per WAX
-                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@WaxRentals.Banano.Config.Constants.Protocol.Address"></i>
+                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@Model.Constants.BananoSweepAddress"></i>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -169,17 +171,17 @@
               </div> <!-- /.col-md-4 -->
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
-                  <img src="images/links/banano-trade.png" alt="Kuyumcu">
-                  <a rel="nofollow" class="overlay" href="https://banano.trade/" target="_blank">
-                    <span>Kuyumcu</span>
+                  <img src="images/links/nanswap.png" alt="Nanswap">
+                  <a rel="nofollow" class="overlay" href="https://nanswap.com/convert?ref=waxp.rentals" target="_blank">
+                    <span>Nanswap</span>
                   </a>
                 </div> <!-- /.g-item -->
               </div> <!-- /.col-md-4 -->
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
-                  <img src="images/links/nanswap.png" alt="Nanswap">
-                  <a rel="nofollow" class="overlay" href="https://nanswap.com/convert?ref=waxp.rentals" target="_blank">
-                    <span>Nanswap</span>
+                  <img src="images/links/banano-trade.png" alt="Kuyumcu">
+                  <a rel="nofollow" class="overlay" href="https://banano.trade/" target="_blank">
+                    <span>Kuyumcu</span>
                   </a>
                 </div> <!-- /.g-item -->
               </div> <!-- /.col-md-4 -->
@@ -226,7 +228,7 @@
                     </a>
                     <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
                     <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.address.full"></i>.
-                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} days
+                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} day<span v-if="detail.days > 1">s</span>
                   </p>
                 </div>
               </div>
@@ -287,7 +289,7 @@
                     </a>
                     <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
                     <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.address.full"></i>.
-                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} days
+                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} day<span v-if="detail.days > 1">s</span>
                   </p>
                 </div>
               </div>
@@ -414,7 +416,7 @@
 
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
-                  <h3>Recent Wax Rentals</h3>
+                  <h3>Latest Wax Rentals</h3>
                   <table class="table table-striped table-sm">
                     <thead>
                       <tr>
@@ -424,7 +426,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="rental in insights.recentRentals">
+                      <tr v-for="rental in insights.latestRentals">
                         <td class="text-center">
                           {{ rental.cpu + rental.net }} WAX
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
@@ -449,7 +451,7 @@
 
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
-                  <h3>Recent Wax Purchases</h3>
+                  <h3>Latest Wax Purchases</h3>
                   <table class="table table-dark table-striped table-sm">
                     <thead>
                       <tr>
@@ -458,7 +460,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="purchase in insights.recentPurchases">
+                      <tr v-for="purchase in insights.latestPurchases">
                         <td class="text-center">
                           {{ purchase.wax }} WAX
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction" v-if="purchase.waxTransaction"></i>
@@ -475,7 +477,7 @@
 
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
-                  <h3>Recent Welcome Packages</h3>
+                  <h3>Latest Welcome Packages</h3>
                   <table class="table table-dark table-striped table-sm">
                     <thead>
                       <tr>
@@ -486,7 +488,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="package in insights.recentWelcomePackages">
+                      <tr v-for="package in insights.latestWelcomePackages">
                         <td class="text-center">
                           {{ package.banano }} BAN
                           <i class="fa fa-external-link banano-address-link" :data-address="package.bananoAddress"></i>
@@ -535,22 +537,22 @@
                   <p>
                     Open a new <a rel="nofollow" href="https://all-access.wax.io/" target="_blank"><strong>WAX Cloud Wallet</strong></a>.
                     <br>We will send <strong>5 WAX to newuser.wax</strong> for you.
-                    <br>We will also send you a <strong>starter NFT</strong>, and we will provide a <strong>free @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeCpu CPU / @WaxRentals.Waxp.Config.Constants.Protocol.NewUser.FreeNet NET rental</strong> to get you started.*
+                    <br>We will also send you a <strong>starter NFT</strong>, and we will provide a <strong>free @Wax.NewUser.FreeCpu CPU / @Wax.NewUser.FreeNet NET rental</strong> to get you started.*
                     <br><br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
-                    <br><br>Welcome package price: <strong>{{ state.bananoWelcomePackagePrice }} BAN</strong>
-                    <br>NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@WaxRentals.Waxp.Config.Constants.Protocol.Account#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackageRentalsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i></span><span v-else><strong>Delayed</strong></span>
+                    <br><br>Welcome package price: <strong><span v-if="state.bananoWelcomePackagePrice > 0">{{ state.bananoWelcomePackagePrice }}</span> BAN</strong>
+                    <br>NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@Model.Constants.WaxPrimaryAccount#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackageRentalsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i></span><span v-else><strong>Delayed</strong></span>
                     <br><br><small>* NFT and rental will arrive as long as supplies are available.  If you don't receive your NFT or rental right away, you will receive them once supplies replenish.</small>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
 
               <div class="col-md-12" v-if="!package">
-                <div class="contact-form" v-if="state.waxBalanceAvailable >= state.waxWelcomePackageMinimumAvailable">
+                <div class="contact-form" v-if="state.welcomePackagesAvailable">
                   <div class="row">
                     <form id="open-welcome-package" action="/api/WelcomePackage" method="post">
 
                       <fieldset class="col-md-3">
-                        <input type="text" name="memo" id="memo" minlength="1" maxlength="30" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.NewUser.MemoRegex" placeholder="Memo" required>
+                        <input type="text" name="memo" id="memo" minlength="1" maxlength="30" pattern="@Wax.NewUser.MemoRegex" placeholder="Memo" required>
                       </fieldset>
 
                       <fieldset class="col-md-12" v-if="loading">
@@ -633,6 +635,15 @@
       // ================
       //    VUE
       // ================
+
+      const alert = new Vue({
+        el: '#site-alert',
+        data() {
+          return {
+            message: null
+          }
+        }
+      });
 
       const rent = new Vue({
         el: '#menu-0',
@@ -758,9 +769,9 @@
           return {
             state: {},
             insights: {
-              recentRentals: [],
-              recentPurchases: [],
-              recentWelcomePackages: [],
+              latestRentals: [],
+              latestPurchases: [],
+              latestWelcomePackages: [],
               monthlyStats: []
             }
           }
@@ -817,24 +828,20 @@
         return console.error(err.toString());
       });
 
-      _connection.on("AppStateChanged", state => {
+      _connection.on("StateChanged", state => {
         rent.state = state;
         sell.state = state;
         my.state = state;
         insights.state = state;
         open.state = state;
-
-        if (state.siteMessage) {
-          $('.site-alert').show();
-          $('.site-alert .message').text(state.siteMessage);
-        } else {
-          $('.site-alert').hide();
-          $('.site-alert .message').text('');
-        }
       });
 
       _connection.on("InsightsChanged", info => {
         insights.insights = info;
+      });
+
+      _connection.on("AlertChanged", message => {
+        alert.message = message;
       });
 
     });

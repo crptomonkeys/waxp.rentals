@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable disable
+
 namespace WaxRentals.Data.Entities
 {
+    [Table("Address")]
     public class Address
     {
 		
@@ -9,8 +12,6 @@ namespace WaxRentals.Data.Entities
 
 		[Column("Address"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 		public string BananoAddress { get; set; }
-
-		public string Work { get; set; }
 
 	}
 }

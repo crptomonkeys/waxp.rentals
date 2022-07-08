@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Context;
 using WaxRentals.Data.Entities;
@@ -10,100 +10,125 @@ using static WaxRentals.Data.Config.Constants;
 
 namespace WaxRentals.Data.Manager
 {
-    internal class DataManager : IInsert, IProcess, ITrackWax, IWork, ILog, IExplore
+    internal class DataManager : IInsert, IProcess, ITrackWax, ILog, IExplore
     {
 
-        private WaxRentalsContext Context { get; }
-        private static DateTime Abandoned { get { return DateTime.UtcNow.AddDays(-1); } } // Abandon New Rentals after one day.
+        private IDbContextFactory<WaxRentalsContext> Factory { get; }
+        private static DateTime Abandoned { get { return DateTime.UtcNow.AddDays(-1); } } // Abandon New Rentals/Packages after one day.
 
-        public DataManager(WaxRentalsContext context)
+        public DataManager(IDbContextFactory<WaxRentalsContext> factory)
         {
-            Context = context;
+            Factory = factory;
         }
+
+        #region " ProcessWithFactory "
+
+        private async Task ProcessWithFactory(Func<WaxRentalsContext, Task> action)
+        {
+            using var context = await Factory.CreateDbContextAsync();
+            await action(context);
+        }
+
+        private async Task<T> ProcessWithFactory<T>(Func<WaxRentalsContext, Task<T>> func)
+        {
+            using var context = await Factory.CreateDbContextAsync();
+            return await func(context);
+        }
+
+        #endregion
 
         #region " IInsert "
 
         public async Task<int> OpenRental(string account, int days, decimal cpu, decimal net, decimal banano, Status status = Status.New)
         {
-            // Prevent spamming of the same unpaid account info.
-            var existing = Context.Rentals.SingleOrDefault(rental =>
-                rental.TargetWaxAccount == account &&
-                rental.RentalDays == days &&
-                rental.CPU == cpu &&
-                rental.NET == net &&
-                rental.Banano == banano &&
-                rental.StatusId == (int)status &&
-                rental.Inserted > Abandoned);
-            if (existing != null)
+            return await ProcessWithFactory(async context =>
             {
-                return existing.RentalId;
-            }
-
-            var rental = Context.Rentals.Add(
-                new Rental
+                // Prevent spamming of the same unpaid account info.
+                var existing = context.Rentals.SingleOrDefault(rental =>
+                    rental.TargetWaxAccount == account &&
+                    rental.RentalDays == days &&
+                    rental.CPU == cpu &&
+                    rental.NET == net &&
+                    rental.Banano == banano &&
+                    rental.StatusId == (int)status &&
+                    rental.Inserted > Abandoned);
+                if (existing != null)
                 {
-                    TargetWaxAccount = account,
-                    RentalDays = days,
-                    CPU = cpu,
-                    NET = net,
-                    Banano = banano,
-                    Status = status
+                    return existing.RentalId;
                 }
-            );
-            await Context.SaveChangesAsync();
-            return rental.RentalId;
-        }
 
-        public async Task<bool> OpenPurchase(decimal wax, string transaction, string bananoAddress, decimal banano, Status status)
-        {
-            // Some endpoints don't filter very accurately, so make sure we're not trying to insert the same transaction more than once.
-            // (Note that WaxTransaction has to be unique in the database, so this is just preventing an exception.)
-            var exists = Context.Purchases.Any(purchase => purchase.WaxTransaction == transaction);
-            if (!exists)
-            {
-                Context.Purchases.Add(
-                    new Purchase
+                var rental = context.Rentals.Add(
+                    new Rental
                     {
-                        Wax = wax,
-                        WaxTransaction = transaction,
-                        PaymentBananoAddress = bananoAddress,
+                        TargetWaxAccount = account,
+                        RentalDays = days,
+                        CPU = cpu,
+                        NET = net,
                         Banano = banano,
                         Status = status
                     }
                 );
-                await Context.SaveChangesAsync();
-                return true;
-            }
-            return false;
+                await context.SaveChangesAsync();
+                return rental.Entity.RentalId;
+            });
+        }
+
+        public async Task<bool> OpenPurchase(decimal wax, string transaction, string bananoAddress, decimal banano, Status status)
+        {
+            return await ProcessWithFactory(async context =>
+            {
+                // Some endpoints don't filter very accurately, so make sure we're not trying to insert the same transaction more than once.
+                // (Note that WaxTransaction has to be unique in the database, so this is just preventing an exception.)
+                var exists = context.Purchases.Any(purchase => purchase.WaxTransaction == transaction);
+                if (!exists)
+                {
+                    context.Purchases.Add(
+                        new Purchase
+                        {
+                            Wax = wax,
+                            WaxTransaction = transaction,
+                            PaymentBananoAddress = bananoAddress,
+                            Banano = banano,
+                            Status = status
+                        }
+                    );
+                    await context.SaveChangesAsync();
+                    return true;
+                }
+                return false;
+            });
         }
 
         public async Task<int> OpenWelcomePackage(string account, string memo, decimal wax, decimal banano)
         {
-            // Prevent spamming of the same unpaid package info.
-            var existing = Context.WelcomePackages.SingleOrDefault(package =>
-                package.TargetWaxAccount == account &&
-                package.Memo == memo &&
-                package.Inserted > Abandoned);
-            if (existing != null)
+            return await ProcessWithFactory(async context =>
             {
-                existing.Wax = wax;
-                existing.Banano = banano;
-                await Context.SaveChangesAsync();
-                return existing.PackageId;
-            }
-
-            var package = Context.WelcomePackages.Add(
-                new WelcomePackage
+                // Prevent spamming of the same unpaid package info.
+                var existing = context.WelcomePackages.SingleOrDefault(package =>
+                    package.TargetWaxAccount == account &&
+                    package.Memo == memo &&
+                    package.Inserted > Abandoned);
+                if (existing != null)
                 {
-                    TargetWaxAccount = account,
-                    Memo = memo,
-                    Wax = wax,
-                    Banano = banano,
-                    Status = Status.New
+                    existing.Wax = wax;
+                    existing.Banano = banano;
+                    await context.SaveChangesAsync();
+                    return existing.PackageId;
                 }
-            );
-            await Context.SaveChangesAsync();
-            return package.PackageId;
+
+                var package = context.WelcomePackages.Add(
+                    new WelcomePackage
+                    {
+                        TargetWaxAccount = account,
+                        Memo = memo,
+                        Wax = wax,
+                        Banano = banano,
+                        Status = Status.New
+                    }
+                );
+                await context.SaveChangesAsync();
+                return package.Entity.PackageId;
+            });
         }
 
         #endregion
@@ -112,77 +137,105 @@ namespace WaxRentals.Data.Manager
 
         #region " Rentals "
 
-        public Task<IEnumerable<Rental>> PullNewRentals()
+        public async Task<IEnumerable<Rental>> PullNewRentals()
         {
-            // If the rental hasn't been funded within 24 hours, assume it's abandoned.
-            // If it needs to be reactivated, change the Inserted date in the database.
-            // But probably, the user will just make a new one.
-            IEnumerable<Rental> rentals = Context.Rentals.Where(
-                rental => rental.StatusId == (int)Status.New && rental.Inserted > Abandoned
-            ).ToList();
-            return Task.FromResult(rentals);
+            return await ProcessWithFactory(context =>
+            {
+                // If the rental hasn't been funded within 24 hours, assume it's abandoned.
+                // If it needs to be reactivated, change the Inserted date in the database.
+                // But probably, the user will just make a new one.
+                IEnumerable<Rental> rentals = context.Rentals.Where(
+                    rental => rental.StatusId == (int)Status.New && rental.Inserted > Abandoned
+                ).ToList();
+                return Task.FromResult(rentals);
+            });
         }
 
         public async Task ProcessRentalPayment(int rentalId)
         {
-            var rental = Context.Rentals.SingleOrDefault(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.New);
-            if (rental != null)
+            await ProcessWithFactory(async context =>
             {
-                rental.Paid = DateTime.UtcNow;
-                rental.Status = Status.Pending;
-                await Context.SaveChangesAsync();
-            }
+                var rental = context.Rentals.SingleOrDefault(rental =>
+                    rental.RentalId == rentalId && rental.StatusId == (int)Status.New);
+                if (rental != null)
+                {
+                    rental.Paid = DateTime.UtcNow;
+                    rental.Status = Status.Pending;
+                    await context.SaveChangesAsync();
+                }
+            });
         }
 
-        public Task<IEnumerable<Rental>> PullPaidRentalsToStake()
+        public async Task<IEnumerable<Rental>> PullPaidRentalsToStake()
         {
-            IEnumerable<Rental> rentals = Context.Rentals.Where(
-                rental => rental.StatusId == (int)Status.Pending && rental.StakeWaxTransaction == null
-            ).ToList();
-            return Task.FromResult(rentals);
+            return await ProcessWithFactory(context =>
+            {
+                IEnumerable<Rental> rentals = context.Rentals.Where(
+                    rental => rental.StatusId == (int)Status.Pending && rental.StakeWaxTransaction == null
+                ).ToList();
+                return Task.FromResult(rentals);
+            });
         }
 
         public async Task ProcessRentalStaking(int rentalId, string source, string transaction)
         {
-            var rental = Context.Rentals.SingleOrDefault(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
-            if (rental != null)
+            await ProcessWithFactory(async context =>
             {
-                rental.SourceWaxAccount = source;
-                rental.StakeWaxTransaction = transaction;
-                rental.Status = Status.Processed;
-                await Context.SaveChangesAsync();
-            }
+                var rental = context.Rentals.SingleOrDefault(rental =>
+                    rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
+                if (rental != null)
+                {
+                    rental.Paid = DateTime.UtcNow; // Start time from stake to cover any delay (and to support free rentals).
+                    rental.SourceWaxAccount = source;
+                    rental.StakeWaxTransaction = transaction;
+                    rental.Status = Status.Processed;
+                    await context.SaveChangesAsync();
+                }
+            });
         }
 
-        public Task<IEnumerable<Rental>> PullSweepableRentals()
+        public async Task<IEnumerable<Rental>> PullSweepableRentals()
         {
-            IEnumerable<Rental> rentals = Context.Rentals.Where(
-                rental => rental.StatusId == (int)Status.Processed && rental.SweepBananoTransaction == null && rental.Banano > 0 // Filter out free rentals.
-            ).ToList();
-            return Task.FromResult(rentals);
+            return await ProcessWithFactory(context =>
+            {
+                IEnumerable<Rental> rentals = context.Rentals.Where(
+                    rental => rental.StatusId == (int)Status.Processed && rental.SweepBananoTransaction == null && rental.Banano > 0 // Filter out free rentals.
+                ).ToList();
+                return Task.FromResult(rentals);
+            });
         }
 
         public async Task ProcessRentalSweep(int rentalId, string transaction)
         {
-            var rental = Context.Rentals.Single(rental => rental.RentalId == rentalId && rental.StatusId == (int)Status.Processed);
-            rental.SweepBananoTransaction = transaction;
-            await Context.SaveChangesAsync();
+            await ProcessWithFactory(async context =>
+            {
+                var rental = context.Rentals.Single(rental =>
+                    rental.RentalId == rentalId && rental.StatusId == (int)Status.Processed);
+                rental.SweepBananoTransaction = transaction;
+                await context.SaveChangesAsync();
+            });
         }
 
-        public Task<Rental> PullNextClosingRental()
+        public async Task<Rental> PullNextClosingRental()
         {
-            var rental = Context.Rentals.FirstOrDefault(rental =>
-                rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
-            return Task.FromResult(rental);
+            return await ProcessWithFactory(context =>
+            {
+                var rental = context.Rentals.FirstOrDefault(rental =>
+                    rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
+                return Task.FromResult(rental);
+            });
         }
 
         public async Task ProcessRentalClosing(int rentalId, string transaction)
         {
-            var rental = Context.Rentals.FirstOrDefault(rental =>
-                rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
-            rental.UnstakeWaxTransaction = transaction;
-            rental.Status = Status.Closed;
-            await Context.SaveChangesAsync();
+            await ProcessWithFactory(async context =>
+            {
+                var rental = context.Rentals.FirstOrDefault(rental =>
+                    rental.StatusId == (int)Status.Processed && rental.PaidThrough < DateTime.UtcNow);
+                rental.UnstakeWaxTransaction = transaction;
+                rental.Status = Status.Closed;
+                await context.SaveChangesAsync();
+            });
         }
 
         #endregion
@@ -191,17 +244,27 @@ namespace WaxRentals.Data.Manager
 
         public async Task<Purchase> PullNextPurchase()
         {
-            return await Context.Database
-                                .SqlQuery<Purchase>("[dbo].[PullNextPurchase]")
-                                .SingleOrDefaultAsync();
+            return await ProcessWithFactory(context =>
+            {
+                return Task.FromResult(
+                    context.Purchases
+                           .FromSqlRaw("[dbo].[PullNextPurchase]")
+                           .AsEnumerable()
+                           .SingleOrDefault()
+                    );
+            });
         }
 
         public async Task ProcessPurchase(int purchaseId, string transaction)
         {
-            var purchase = Context.Purchases.Single(purchase => purchase.PurchaseId == purchaseId && purchase.StatusId == (int)Status.Pending);
-            purchase.BananoTransaction = transaction;
-            purchase.Status = Status.Processed;
-            await Context.SaveChangesAsync();
+            await ProcessWithFactory(async context =>
+            {
+                var purchase = context.Purchases.Single(purchase =>
+                    purchase.PurchaseId == purchaseId && purchase.StatusId == (int)Status.Pending);
+                purchase.BananoTransaction = transaction;
+                purchase.Status = Status.Processed;
+                await context.SaveChangesAsync();
+            });
         }
 
         #endregion
@@ -210,89 +273,124 @@ namespace WaxRentals.Data.Manager
 
         public async Task<IEnumerable<WelcomePackage>> PullNewWelcomePackages()
         {
-            // If the package hasn't been funded within 24 hours, assume it's abandoned.
-            // If it needs to be reactivated, change the Inserted date in the database.
-            // But probably, the user will just make a new one.
-            return await (from package in Context.WelcomePackages
-                          where package.StatusId == (int)Status.New && package.Inserted > Abandoned
-                          select package).ToArrayAsync();
+            return await ProcessWithFactory(async context =>
+            {
+                // If the package hasn't been funded within 24 hours, assume it's abandoned.
+                // If it needs to be reactivated, change the Inserted date in the database.
+                // But probably, the user will just make a new one.
+                return await (from package in context.WelcomePackages
+                              where package.StatusId == (int)Status.New && package.Inserted > Abandoned
+                              select package).ToArrayAsync();
+            });
         }
 
         public async Task ProcessWelcomePackagePayment(int packageId)
         {
-            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.New);
-            if (package != null)
+            await ProcessWithFactory(async context =>
             {
-                package.Paid = DateTime.UtcNow;
-                package.Status = Status.Pending;
-                await Context.SaveChangesAsync();
-            }
+                var package = context.WelcomePackages.SingleOrDefault(
+                    package => package.PackageId == packageId && package.StatusId == (int)Status.New);
+                if (package != null)
+                {
+                    package.Paid = DateTime.UtcNow;
+                    package.Status = Status.Pending;
+                    await context.SaveChangesAsync();
+                }
+            });
         }
 
         public async Task<IEnumerable<WelcomePackage>> PullPaidWelcomePackagesToFund()
         {
-            return await (from package in Context.WelcomePackages
-                          where package.StatusId == (int)Status.Pending && package.FundTransaction == null
-                          select package).ToArrayAsync();
+            return await ProcessWithFactory(async context =>
+            {
+                return await (from package in context.WelcomePackages
+                              where package.StatusId == (int)Status.Pending && package.FundTransaction == null
+                              select package).ToArrayAsync();
+            });
         }
 
         public async Task ProcessWelcomePackageFunding(int packageId, string fundTransaction)
         {
-            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.Pending);
-            if (package != null)
+            await ProcessWithFactory(async context =>
             {
-                package.FundTransaction = fundTransaction;
-                package.Status = Status.Processed;
-                await Context.SaveChangesAsync();
-            }
+                var package = context.WelcomePackages.SingleOrDefault(
+                    package => package.PackageId == packageId && package.StatusId == (int)Status.Pending);
+                if (package != null)
+                {
+                    package.FundTransaction = fundTransaction;
+                    package.Status = Status.Processed;
+                    await context.SaveChangesAsync();
+                }
+            });
         }
 
         public async Task<IEnumerable<WelcomePackage>> PullFundedWelcomePackagesMissingNft()
         {
-            return await (from package in Context.WelcomePackages
-                          where package.StatusId == (int)Status.Processed && package.NftTransaction == null
-                          select package).ToArrayAsync();
+            return await ProcessWithFactory(async context =>
+            {
+                return await (from package in context.WelcomePackages
+                              where package.StatusId == (int)Status.Processed && package.NftTransaction == null
+                              select package).ToArrayAsync();
+            });
         }
 
         public async Task ProcessWelcomePackageNft(int packageId, string nftTransaction)
         {
-            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.Processed);
-            if (package != null)
+            await ProcessWithFactory(async context =>
             {
-                package.NftTransaction = nftTransaction;
-                await Context.SaveChangesAsync();
-            }
+                var package = context.WelcomePackages.SingleOrDefault(
+                    package => package.PackageId == packageId && package.StatusId == (int)Status.Processed);
+                if (package != null)
+                {
+                    package.NftTransaction = nftTransaction;
+                    await context.SaveChangesAsync();
+                }
+            });
         }
 
         public async Task<IEnumerable<WelcomePackage>> PullFundedWelcomePackagesMissingRental()
         {
-            return await (from package in Context.WelcomePackages
-                          where package.StatusId == (int)Status.Processed && package.RentalId == null
-                          select package).ToArrayAsync();
+            return await ProcessWithFactory(async context =>
+            {
+                return await (from package in context.WelcomePackages
+                              where package.StatusId == (int)Status.Processed && package.RentalId == null
+                              select package).ToArrayAsync();
+            });
         }
 
         public async Task ProcessWelcomePackageRental(int packageId, int rentalId)
         {
-            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.Processed);
-            if (package != null)
+            await ProcessWithFactory(async context =>
             {
-                package.RentalId = rentalId;
-                await Context.SaveChangesAsync();
-            }
+                var package = context.WelcomePackages.SingleOrDefault(
+                    package => package.PackageId == packageId && package.StatusId == (int)Status.Processed);
+                if (package != null)
+                {
+                    package.RentalId = rentalId;
+                    await context.SaveChangesAsync();
+                }
+            });
         }
 
         public async Task<IEnumerable<WelcomePackage>> PullSweepableWelcomePackages()
         {
-            return await (from package in Context.WelcomePackages
-                          where package.StatusId == (int)Status.Processed && package.SweepBananoTransaction == null
-                          select package).ToArrayAsync();
+            return await ProcessWithFactory(async context =>
+            {
+                return await (from package in context.WelcomePackages
+                              where package.StatusId == (int)Status.Processed && package.SweepBananoTransaction == null
+                              select package).ToArrayAsync();
+            });
         }
 
         public async Task ProcessWelcomePackageSweep(int packageId, string transaction)
         {
-            var package = Context.WelcomePackages.SingleOrDefault(package => package.PackageId == packageId && package.StatusId == (int)Status.Processed);
-            package.SweepBananoTransaction = transaction;
-            await Context.SaveChangesAsync();
+            await ProcessWithFactory(async context =>
+            {
+                var package = context.WelcomePackages.SingleOrDefault(
+                    package => package.PackageId == packageId && package.StatusId == (int)Status.Processed);
+                package.SweepBananoTransaction = transaction;
+                await context.SaveChangesAsync();
+            });
         }
 
         #endregion
@@ -301,39 +399,24 @@ namespace WaxRentals.Data.Manager
 
         #region " ITrackWax "
 
-        public DateTime? GetLastHistoryCheck()
+        public async Task<DateTime?> GetLastHistoryCheck()
         {
-            return Context.WaxHistory
-                          .OrderByDescending(history => history.LastRun)
-                          .FirstOrDefault()
-                         ?.LastRun;
-        }
-
-        public void SetLastHistoryCheck(DateTime last)
-        {
-            Context.WaxHistory.Add(new WaxHistory { LastRun = last });
-            Context.SaveChanges();
-        }
-
-        #endregion
-
-        #region " IWork "
-
-        public Task<int?> PullNextAddress()
-        {
-            return Task.FromResult(
-                Context.Addresses.FirstOrDefault(address => address.Work == null)?.AddressId
-            );
-        }
-
-        public async Task SaveWork(int addressId, string work)
-        {
-            var address = Context.Addresses.SingleOrDefault(address => address.AddressId == addressId && address.Work == null);
-            if (address != null)
+            return await ProcessWithFactory(async context =>
             {
-                address.Work = work;
-                await Context.SaveChangesAsync();
-            }
+                var history = await context.WaxHistory
+                                           .OrderByDescending(history => history.LastRun)
+                                           .FirstOrDefaultAsync();
+                return history?.LastRun;
+            });
+        }
+
+        public async Task SetLastHistoryCheck(DateTime last)
+        {
+            await ProcessWithFactory(async context =>
+            {
+                context.WaxHistory.Add(new WaxHistory { LastRun = last });
+                await context.SaveChangesAsync();
+            });
         }
 
         #endregion
@@ -342,110 +425,158 @@ namespace WaxRentals.Data.Manager
 
         public async Task Error(Exception exception, string error = null, object context = null)
         {
-            try
+            await ProcessWithFactory(async ctx =>
             {
-                var log = new Error
+                try
                 {
-                    Message = exception.Message,
-                    ErrorObject = error,
-                    StackTrace = exception.StackTrace,
-                    TargetSite = exception.TargetSite?.Name,
-                    InnerExceptions = exception.InnerException?.ToString()
-                };
-                if (context != null)
-                {
-                    log.Context = JToken.FromObject(context).ToString();
-                }
+                    var log = new Error
+                    {
+                        Message = exception.Message,
+                        ErrorObject = error,
+                        StackTrace = exception.StackTrace,
+                        TargetSite = exception.TargetSite?.Name,
+                        InnerExceptions = exception.InnerException?.ToString()
+                    };
+                    if (context != null)
+                    {
+                        log.Context = JToken.FromObject(context).ToString();
+                    }
 
-                Context.Errors.Add(log);
-                await Context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
+                    ctx.Errors.Add(log);
+                    await ctx.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            });
         }
 
         public async Task Message(Guid requestId, string url, MessageDirection direction, string message)
         {
-            try
+            await ProcessWithFactory(async context =>
             {
-                var log = new Message
+                try
                 {
-                    RequestId = requestId,
-                    Url = url,
-                    Direction = Enum.GetName(direction),
-                    MessageObject = message
-                };
+                    var log = new Message
+                    {
+                        RequestId = requestId,
+                        Url = url,
+                        Direction = Enum.GetName(direction),
+                        MessageObject = message
+                    };
 
-                Context.Messages.Add(log);
-                await Context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
+                    context.Messages.Add(log);
+                    await context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+            });
         }
 
         #endregion
 
         #region " IExplore "
 
-        public IEnumerable<Rental> GetRecentRentals()
+        public async Task<IEnumerable<Rental>> GetLatestRentals()
         {
-            return Context.Rentals
-                          .Where(rental => rental.StatusId == (int)Status.Processed || rental.StatusId == (int)Status.Closed)
-                          .OrderByDescending(rental => rental.RentalId)
-                          .Take(Display.Recents)
-                          .ToArray();
+            return await ProcessWithFactory(async context =>
+            {
+                return await context.Rentals
+                                    .Where(rental => rental.StatusId == (int)Status.Processed || rental.StatusId == (int)Status.Closed)
+                                    .OrderByDescending(rental => rental.RentalId)
+                                    .Take(Display.Recents)
+                                    .ToArrayAsync();
+            });
         }
 
-        public IEnumerable<Purchase> GetRecentPurchases()
+        public async Task<IEnumerable<Purchase>> GetLatestPurchases()
         {
-            return Context.Purchases
-                          .Where(purchase => purchase.StatusId == (int)Status.Processed && purchase.BananoTransaction != null)
-                          .OrderByDescending(purchase => purchase.PurchaseId)
-                          .Take(Display.Recents)
-                          .ToArray();
+            return await ProcessWithFactory(async context =>
+            {
+                return await context.Purchases
+                                    .Where(purchase => purchase.StatusId == (int)Status.Processed && purchase.BananoTransaction != null)
+                                    .OrderByDescending(purchase => purchase.PurchaseId)
+                                    .Take(Display.Recents)
+                                    .ToArrayAsync();
+            });
         }
 
-        public IEnumerable<WelcomePackage> GetRecentWelcomePackages()
+        public async Task<IEnumerable<WelcomePackage>> GetLatestWelcomePackages()
         {
-            return Context.WelcomePackages
-                          .Where(package => package.StatusId == (int)Status.Processed)
-                          .OrderByDescending(package => package.PackageId)
-                          .Take(Display.Recents)
-                          .Include(package => package.Rental)
-                          .ToArray();
+            return await ProcessWithFactory(async context =>
+            {
+                return await context.WelcomePackages
+                                    .Where(package => package.StatusId == (int)Status.Processed)
+                                    .OrderByDescending(package => package.PackageId)
+                                    .Take(Display.Recents)
+                                    .Include(package => package.Rental)
+                                    .ToArrayAsync();
+            });
         }
 
-        public IEnumerable<MonthlyStats> GetMonthlyStats()
+        public async Task<IEnumerable<MonthlyStats>> GetMonthlyStats()
         {
-            return Context.Database
-                    .SqlQuery<MonthlyStats>("[reporting].[MonthlyStats]")
-                    .ToArray();
+            return await ProcessWithFactory(async context =>
+            {
+                // Can't seem to execute a stored procedure without
+                // having a set on the context, so just go direct.
+                using var connection = context.Database.GetDbConnection();
+                await connection.OpenAsync();
+                using var command = connection.CreateCommand();
+                command.CommandText = "[reporting].[MonthlyStats]";
+                using var reader = await command.ExecuteReaderAsync();
+
+                var stats = new List<MonthlyStats>();
+                while (reader.Read())
+                {
+                    stats.Add(
+                        new MonthlyStats
+                        {
+                            Year                  = reader.GetInt32  (reader.GetOrdinal(nameof(MonthlyStats.Year))),
+                            Month                 = reader.GetInt32  (reader.GetOrdinal(nameof(MonthlyStats.Month))),
+                            WaxDaysRented         = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxDaysRented))),
+                            WaxDaysFree           = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxDaysFree))),
+                            WaxPurchasedForSite   = reader.GetDecimal(reader.GetOrdinal(nameof(MonthlyStats.WaxPurchasedForSite))),
+                            WelcomePackagesOpened = reader.GetInt32  (reader.GetOrdinal(nameof(MonthlyStats.WelcomePackagesOpened)))
+                        }
+                    );
+                }
+                return stats;
+            });
         }
 
-        public IEnumerable<Rental> GetRentalsByBananoAddresses(IEnumerable<string> addresses)
+        public async Task<IEnumerable<Rental>> GetRentalsByBananoAddresses(IEnumerable<string> addresses)
         {
-            return from rental in Context.Rentals
-                   join banano in Context.Addresses on rental.RentalId equals banano.AddressId
-                   where addresses.Contains(banano.BananoAddress) && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned)
-                   select rental;
+            return await ProcessWithFactory(async context =>
+            {
+                return await (from rental in context.Rentals
+                              where addresses.Contains(rental.BananoAddress) && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned)
+                              select rental).ToArrayAsync();
+            });
         }
 
-        public IEnumerable<Rental> GetRentalsByWaxAccount(string account)
+        public async Task<IEnumerable<Rental>> GetRentalsByWaxAccount(string account)
         {
-            return Context.Rentals.Where(rental =>
-                rental.TargetWaxAccount == account && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned));
+            return await ProcessWithFactory(async context =>
+            {
+                return await context.Rentals
+                                    .Where(rental => rental.TargetWaxAccount == account &&
+                                                     (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned))
+                                    .ToArrayAsync();
+            });
         }
 
-        public IEnumerable<WelcomePackage> GetWelcomePackagesByBananoAddresses(IEnumerable<string> addresses)
+        public async Task<IEnumerable<WelcomePackage>> GetWelcomePackagesByBananoAddresses(IEnumerable<string> addresses)
         {
-            return from package in Context.WelcomePackages
-                   join banano in Context.WelcomeAddresses on package.PackageId equals banano.AddressId
-                   where addresses.Contains(banano.BananoAddress) && (package.StatusId != (int)Status.New || package.Inserted > Abandoned)
-                   select package;
+            return await ProcessWithFactory(async context =>
+            {
+                return await (from package in context.WelcomePackages
+                              where addresses.Contains(package.BananoAddress) && (package.StatusId != (int)Status.New || package.Inserted > Abandoned)
+                              select package).ToArrayAsync();
+            });
         }
 
         #endregion

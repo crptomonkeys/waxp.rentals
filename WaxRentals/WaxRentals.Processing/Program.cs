@@ -1,52 +1,20 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using WaxRentals.Processing.Processors;
-using BananoDependencies = WaxRentals.Banano.Config.Dependencies;
-using DataDependencies = WaxRentals.Data.Config.Dependencies;
-using MonitoringDependencies = WaxRentals.Monitoring.Config.Dependencies;
 using ProcessingDependencies = WaxRentals.Processing.Config.Dependencies;
-using WaxDependencies = WaxRentals.Waxp.Config.Dependencies;
+using ServiceDependencies = WaxRentals.Service.Shared.Config.Dependencies;
 
 namespace WaxRentals.Processing
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             Console.WriteLine("Starting up; please wait.");
-            var provider = BuildServiceProvider();
-            var processors = new IProcessor[]
-            {
-                // Be responsive on credits.
-                provider.BuildProcessor<RentalOpenProcessor>(TimeSpan.FromSeconds(10)),
-                provider.BuildProcessor<RentalStakeProcessor>(TimeSpan.FromSeconds(10)),
-                provider.BuildProcessor<PurchaseProcessor>(TimeSpan.FromSeconds(10)),
-                provider.BuildProcessor<WelcomePackageOpenProcessor>(TimeSpan.FromSeconds(10)),
-                provider.BuildProcessor<WelcomePackageFundingProcessor>(TimeSpan.FromSeconds(10)),
-                provider.BuildProcessor<WelcomePackageNftProcessor>(TimeSpan.FromSeconds(10)),
-                provider.BuildProcessor<WelcomePackageRentalProcessor>(TimeSpan.FromSeconds(10)),
-
-                // Be responsive on credits but don't annoy the node operators.
-                provider.BuildProcessor<TrackWaxProcessor>(TimeSpan.FromSeconds(30)),
-
-                // Be generous on debits.
-                provider.BuildProcessor<RentalClosingProcessor>(TimeSpan.FromMinutes(5)),
-
-                // Be very responsive to work needs.
-                //provider.BuildProcessor<WorkProcessor>(TimeSpan.FromSeconds(5)),
-
-                // Be very responsive to the day changing.
-                provider.BuildProcessor<DayChangeProcessor>(TimeSpan.FromSeconds(5)),
-
-                // Don't have to be that quick on sweeping transactions.
-                provider.BuildProcessor<RentalSweepProcessor>(TimeSpan.FromMinutes(1)),
-                provider.BuildProcessor<WelcomePackageSweepProcessor>(TimeSpan.FromMinutes(1)),
-                
-                // This is just for tracking purposes; don't have to check that often.
-                provider.BuildProcessor<TrackBananoProcessor>(TimeSpan.FromMinutes(1)),
-            };
+            var processors = BuildProcessors();
 
             var stop = new ManualResetEventSlim();
             AppDomain.CurrentDomain.ProcessExit += (_, _) => stop.Set();
@@ -66,17 +34,58 @@ namespace WaxRentals.Processing
             Console.WriteLine("Shutdown complete.");
         }
 
+        private static IProcessor[] BuildProcessors()
+        {
+            var provider = BuildServiceProvider();
+            return new IProcessor[]
+            {
+                // Be responsive on credits.
+                provider.BuildProcessor<RentalOpenProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<RentalStakeProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<PurchaseProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<WelcomePackageOpenProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<WelcomePackageFundingProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<WelcomePackageNftProcessor>(TimeSpan.FromSeconds(10)),
+                provider.BuildProcessor<WelcomePackageRentalProcessor>(TimeSpan.FromSeconds(10)),
+
+                // Be responsive on credits but don't annoy the node operators.
+                provider.BuildProcessor<TrackWaxProcessor>(TimeSpan.FromSeconds(30)),
+
+                // Be generous on debits.
+                provider.BuildProcessor<RentalClosingProcessor>(TimeSpan.FromMinutes(5)),
+
+                // Be very responsive to the day changing.
+                provider.BuildProcessor<DayChangeProcessor>(TimeSpan.FromSeconds(5)),
+
+                // Don't have to be that quick on sweeping transactions.
+                provider.BuildProcessor<RentalSweepProcessor>(TimeSpan.FromMinutes(1)),
+                provider.BuildProcessor<WelcomePackageSweepProcessor>(TimeSpan.FromMinutes(1)),
+                
+                // This is just for tracking purposes; don't have to check that often.
+                provider.BuildProcessor<TrackBananoProcessor>(TimeSpan.FromMinutes(1)),
+            };
+        }
+
         private static IServiceProvider BuildServiceProvider()
         {
+            var env = GetEnvironmentVariables();
             var services = new ServiceCollection();
 
-            DataDependencies.AddDependencies(services);
-            BananoDependencies.AddDependencies(services);
-            WaxDependencies.AddDependencies(services);
-            MonitoringDependencies.AddDependencies(services);
+            ServiceDependencies.AddDependencies(services, env["SERVICE"]);
             ProcessingDependencies.AddDependencies(services);
 
             return services.BuildServiceProvider();
+        }
+
+        private static IDictionary<string, string> GetEnvironmentVariables()
+        {
+            var env = Environment.GetEnvironmentVariables();
+            var dic = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string key in env.Keys)
+            {
+                dic.Add(key, (string)env[key]);
+            }
+            return dic;
         }
     }
 }

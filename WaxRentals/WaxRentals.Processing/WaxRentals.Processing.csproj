@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -11,9 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WaxRentals.Banano\WaxRentals.Banano.csproj" />
-    <ProjectReference Include="..\WaxRentals.Data\WaxRentals.Data.csproj" />
-    <ProjectReference Include="..\WaxRentals.Waxp\WaxRentals.Waxp.csproj" />
+    <ProjectReference Include="..\WaxRentals.Service.Shared\WaxRentals.Service.Shared.csproj" />
   </ItemGroup>
 
 </Project>

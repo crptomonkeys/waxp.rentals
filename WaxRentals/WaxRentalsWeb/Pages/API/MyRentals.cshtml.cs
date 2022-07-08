@@ -2,69 +2,71 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Data.Models;
-using static WaxRentals.Waxp.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentalsWeb.Pages
 {
     public class MyRentalsModel : PageModel
     {
 
-        private readonly IDataFactory _data;
-        private readonly IBananoAccountFactory _banano;
+        private IRentalService Rentals { get; }
+        private ITrackService Track { get; }
 
-        public MyRentalsModel(IDataFactory data, IBananoAccountFactory banano)
+        public MyRentalsModel(IRentalService rentals)
         {
-            _data = data;
-            _banano = banano;
+            Rentals = rentals;
         }
 
-        public JsonResult OnGet(string account)
+        public async Task<JsonResult> OnGet(string account)
         {
             // Filter invalid accounts.
-            if (!string.IsNullOrWhiteSpace(account) && Regex.IsMatch(account, Protocol.WaxAddressRegex))
+            if (!string.IsNullOrWhiteSpace(account) && Regex.IsMatch(account, Wax.Protocol.AccountRegex))
             {
-                return Process(() => _data.Explore.GetRentalsByWaxAccount(account));
+                return await Process(async () => await Rentals.ByWaxAccount(account));
             }
             return new JsonResult(Enumerable.Empty<TrackedRentalModel>());
         }
 
-        public JsonResult OnPost([FromBody] IEnumerable<string> addresses)
+        public async Task<JsonResult> OnPost([FromBody] IEnumerable<string> addresses)
         {
             // Filter invalid addresses.
             addresses = addresses.Where(address => !string.IsNullOrWhiteSpace(address) &&
-                                                   Regex.IsMatch(address, Protocol.BananoAddressRegex));
-            return Process(() => _data.Explore.GetRentalsByBananoAddresses(addresses));
+                                                   Regex.IsMatch(address, Banano.Protocol.AddressRegex));
+            return await Process(async () => await Rentals.ByBananoAddresses(addresses));
         }
 
-        private JsonResult Process(Func<IEnumerable<Rental>> get)
+        private async Task<JsonResult> Process(Func<Task<Result<IEnumerable<RentalInfo>>>> get)
         {
             try
             {
-                var results = get();
-                var mapped = results.Select(rental => new TrackedRentalModel(rental, _banano));
-                var grouped = mapped.GroupBy(rental => rental.Status)
-                                    .ToDictionary(g => g.Key, g => g.OrderBy(rental => rental.Expires).AsEnumerable());
-                // Make sure every status is represented, because making new arrays in Vue messes things up.
-                foreach (var status in Enum.GetValues<Status>())
+                var result = await get();
+                if (result.Success)
                 {
-                    if (!grouped.ContainsKey(status))
+                    var mapped = result.Value.Select(rental => new TrackedRentalModel(rental));
+                    var grouped = mapped.GroupBy(rental => rental.Status)
+                                        .ToDictionary(g => g.Key, g => g.OrderBy(rental => rental.Expires).AsEnumerable());
+                    // Make sure every status is represented, because making new arrays in Vue messes things up.
+                    foreach (var status in Enum.GetValues<Status>())
                     {
-                        grouped.Add(status, Enumerable.Empty<TrackedRentalModel>());
+                        if (!grouped.ContainsKey(status))
+                        {
+                            grouped.Add(status, Enumerable.Empty<TrackedRentalModel>());
+                        }
                     }
+                    return new JsonResult(grouped);
                 }
-                return new JsonResult(grouped);
             }
             catch (Exception ex)
             {
-                _data.Log.Error(ex);
-                return new JsonResult(Enumerable.Empty<TrackedRentalModel>());
+                await Track.Error(ex);
             }
+            return new JsonResult(Enumerable.Empty<TrackedRentalModel>());
         }
 
     }

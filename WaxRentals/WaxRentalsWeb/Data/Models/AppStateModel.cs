@@ -1,4 +1,6 @@
-﻿namespace WaxRentalsWeb.Data.Models
+﻿using State = WaxRentals.Service.Shared.Entities.AppState;
+
+namespace WaxRentalsWeb.Data.Models
 {
     public class AppStateModel
     {
@@ -17,33 +19,31 @@
         public decimal WaxMinimumBuy { get; }
         public decimal WaxMaximumBuy { get; }
         public decimal BananoWelcomePackagePrice { get; }
-        public decimal WaxWelcomePackageMinimumAvailable { get; }
+        public bool WelcomePackagesAvailable { get; }
         public bool WelcomePackageNftsAvailable { get; }
         public bool WelcomePackageRentalsAvailable { get; }
-        public string SiteMessage { get; }
         public string WaxAccountToday { get; }
 
-        public AppStateModel(AppState state)
+        public AppStateModel(State state)
         {
-            BananoBalance                     = decimal.Round(state.BananoBalance.Value              , 4);
-            WaxBalanceAvailable               = decimal.Floor(state.WaxBalanceAvailable.Value           );
-            WaxBalanceStaked                  = decimal.Round(state.WaxBalanceStaked.Value           , 0);
-            WaxBalanceUnstaking               = decimal.Round(state.WaxBalanceUnstaking.Value        , 4);
-            BananoPrice                       = decimal.Round(state.BananoPrice.Value                , 4);
-            WaxPrice                          = decimal.Round(state.WaxPrice.Value                   , 4);
-            WaxRentPriceInBanano              = decimal.Round(state.WaxRentPriceInBanano             , 4);
-            WaxBuyPriceInBanano               = decimal.Round(state.WaxBuyPriceInBanano              , 4);
-            BananoMinimumCredit               = decimal.Round(state.BananoMinimumCredit              , 4);
-            WaxMinimumRent                    = decimal.Round(state.WaxMinimumRent                   , 0);
-            WaxMaximumRent                    = decimal.Round(state.WaxMaximumRent                   , 0);
-            WaxMinimumBuy                     = decimal.Round(state.WaxMinimumBuy                    , 0);
-            WaxMaximumBuy                     = decimal.Round(state.WaxMaximumBuy                    , 0);
-            BananoWelcomePackagePrice         = decimal.Round(state.BananoWelcomePackagePrice        , 0);
-            WaxWelcomePackageMinimumAvailable = decimal.Round(state.WaxWelcomePackageMinimumAvailable, 0);
-            WelcomePackageNftsAvailable       =               state.WelcomePackageNftsAvailable          ;
-            WelcomePackageRentalsAvailable    =               state.WelcomePackageRentalsAvailable       ;
-            SiteMessage                       =               state.SiteMessage                          ;
-            WaxAccountToday                   =               state.WaxAccountToday                      ;
+            BananoBalance                  = decimal.Round(state.BananoBalance                 , 4);
+            WaxBalanceAvailable            = decimal.Floor(state.WaxBalanceAvailableToday         );
+            WaxBalanceStaked               = decimal.Floor(state.WaxStaked                        );
+            WaxBalanceUnstaking            = decimal.Floor(state.WaxBalanceAvailableTomorrow      );
+            BananoPrice                    = decimal.Round(state.BananoPrice                   , 4);
+            WaxPrice                       = decimal.Round(state.WaxPrice                      , 4);
+            WaxRentPriceInBanano           = decimal.Round(state.WaxRentPriceInBanano          , 4);
+            WaxBuyPriceInBanano            = decimal.Round(state.WaxBuyPriceInBanano           , 4);
+            BananoMinimumCredit            = decimal.Round(state.BananoMinimumCredit           , 4);
+            WaxMinimumRent                 = decimal.Round(state.WaxMinimumRent                , 0);
+            WaxMaximumRent                 = decimal.Round(state.WaxMaximumRent                , 0);
+            WaxMinimumBuy                  = decimal.Round(state.WaxMinimumBuy                 , 0);
+            WaxMaximumBuy                  = decimal.Round(state.WaxMaximumBuy                 , 0);
+            BananoWelcomePackagePrice      = decimal.Round(state.BananoWelcomePackagePrice     , 0);
+            WelcomePackagesAvailable       =               state.WelcomePackagesAvailable          ;
+            WelcomePackageNftsAvailable    =               state.WelcomePackageNftsAvailable       ;
+            WelcomePackageRentalsAvailable =               state.WelcomePackageRentalsAvailable    ;
+            WaxAccountToday                =               state.WaxWorkingAccount                 ;
         }
 
     }

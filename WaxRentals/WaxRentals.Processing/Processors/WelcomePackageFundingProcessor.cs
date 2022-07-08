@@ -2,64 +2,60 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Notifications;
-using WaxRentals.Monitoring.Prices;
-using WaxRentals.Processing.Tracking;
-using WaxRentals.Waxp.Transact;
-using static WaxRentals.Monitoring.Config.Constants;
-using static WaxRentals.Waxp.Config.Constants;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
+using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class WelcomePackageFundingProcessor : Processor<IEnumerable<WelcomePackage>>
+    internal class WelcomePackageFundingProcessor : Processor<Result<IEnumerable<WelcomePackageInfo>>>
     {
 
-        protected override bool ProcessMultiplePerTick => false;
-
-        private IWaxAccounts Wax { get; }
-        private IPriceMonitor Prices { get; }
-        private ITracker Tracker { get; }
+        private IWelcomePackageService Packages { get; }
+        private IWaxService Wax { get; }
+        private IAppService App { get; }
         
-        public WelcomePackageFundingProcessor(IDataFactory factory, IWaxAccounts wax, IPriceMonitor prices, ITracker tracker)
-            : base(factory)
+        public WelcomePackageFundingProcessor(ITrackService track, IWelcomePackageService packages, IWaxService wax, IAppService app)
+            : base(track)
         {
+            Packages = packages;
             Wax = wax;
-            Prices = prices;
-            Tracker = tracker;
+            App = app;
         }
 
-        protected override Func<Task<IEnumerable<WelcomePackage>>> Get => Factory.Process.PullPaidWelcomePackagesToFund;
-        protected async override Task Process(IEnumerable<WelcomePackage> packages)
+        protected override Func<Task<Result<IEnumerable<WelcomePackageInfo>>>> Get => Packages.Paid;
+        protected async override Task<bool> Process(Result<IEnumerable<WelcomePackageInfo>> result)
         {
-            var tasks = packages.Select(Process);
-            await Task.WhenAll(tasks);
+            if (result.Success && result.Value != null)
+            {
+                var tasks = result.Value.Select(Process);
+                await Task.WhenAll(tasks);
+            }
+            return false;
         }
 
-        private async Task Process(WelcomePackage package)
+        private async Task Process(WelcomePackageInfo package)
         {
             try
             {
-                var (todaySuccess, todayBalances) = await Wax.Today.GetBalances();
-                if (todaySuccess && todayBalances.Available > package.Wax)
+                var result = await Wax.Send(package.WaxAccount, package.Wax, memo: $"{package.Memo}:refund_on_exists");
+                if (result.Success)
                 {
-                    var (sendSuccess, fund) = await Wax.Today.Send(
-                        package.TargetWaxAccount,
-                        package.Wax,
-                        $"{package.Memo}{Protocol.NewUser.MemoRefundOnExists}");
-                    if (sendSuccess)
-                    {
-                        var task = Factory.Process.ProcessWelcomePackageFunding(package.PackageId, fund);
-                        Tracker.Track("Sent WAX", package.Wax, Coins.Wax, spent: package.Wax * Prices.Wax);
-                        await task;
-                    }
+                    var task = Packages.ProcessFunding(package.Id, result.Value);
+                    LogTransaction("Sent WAX", package.Wax, Coins.Wax, spent: await ToUsd(package.Wax));
+                    await task;
                 }
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: package);
+                Log(ex, context: package);
             }
+        }
+
+        private async Task<decimal> ToUsd(decimal wax)
+        {
+            var result = await App.State();
+            return wax * (result.Value?.WaxPrice ?? 0);
         }
 
     }

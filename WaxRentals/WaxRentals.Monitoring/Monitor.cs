@@ -10,7 +10,7 @@ namespace WaxRentals.Monitoring
         #region " Event "
 
         public event EventHandler Updated;
-        protected IDataFactory Factory { get; }
+        protected ILog Log { get; }
 
         protected void RaiseEvent()
         {
@@ -20,7 +20,7 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                Log.Error(ex);
             }
         }
 
@@ -36,9 +36,9 @@ namespace WaxRentals.Monitoring
 
         private readonly Timer _timer;
 
-        protected Monitor(TimeSpan interval, IDataFactory factory)
+        protected Monitor(TimeSpan interval, ILog log)
         {
-            Factory = factory;
+            Log = log;
 
             _timer = new Timer(interval.TotalMilliseconds);
             _timer.Elapsed += (_, _) => Elapsed();
@@ -47,10 +47,12 @@ namespace WaxRentals.Monitoring
 
         public void Dispose()
         {
+            _timer.Elapsed -= (_, _) => Elapsed();
             using (_timer)
             {
                 _timer.Stop();
             }
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Elapsed()
@@ -64,7 +66,7 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                Log.Error(ex);
             }
         }
 
@@ -79,7 +81,7 @@ namespace WaxRentals.Monitoring
 
         #region " Event "
 
-        protected Monitor(TimeSpan interval, IDataFactory factory) : base(interval, factory) { }
+        protected Monitor(TimeSpan interval, ILog log) : base(interval, log) { }
 
         public new event EventHandler<T> Updated;
 
@@ -92,7 +94,7 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                Log.Error(ex);
             }
         }
 
@@ -111,7 +113,7 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                Log.Error(ex);
             }
         }
 

@@ -19,14 +19,14 @@ namespace WaxRentals.Banano.Transact
         private readonly Account _account;
         private readonly uint _index;
         private readonly RpcClients _rpc;
-        private readonly IDataFactory _factory;
+        private readonly ILog _log;
 
-        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, IDataFactory factory)
+        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, ILog log)
         {
             _account = new Account(seed.Seed, index, Protocol.Prefix);
             _index = index;
             _rpc = rpc;
-            _factory = factory;
+            _log = log;
         }
 
         public string BuildLink(decimal amount)
@@ -76,7 +76,7 @@ namespace WaxRentals.Banano.Transact
                 }
                 catch (Exception ex)
                 {
-                    await _factory.Log.Error(ex, context: block);
+                    await _log.Error(ex, context: block);
                 }
             }
             return Scale(result);
@@ -101,7 +101,7 @@ namespace WaxRentals.Banano.Transact
                     }
                     catch (Exception ex)
                     {
-                        await _factory.Log.Error(ex, context: block);
+                        await _log.Error(ex, context: block);
                     }
                 }
             }
@@ -154,7 +154,7 @@ namespace WaxRentals.Banano.Transact
 
         #region " Scale "
 
-        private decimal Scale(BigDecimal value)
+        private static decimal Scale(BigDecimal value)
         {
             // Converting implicitly to decimal uses the full Mantissa rather
             // than the scaled value, so have to use string in between.

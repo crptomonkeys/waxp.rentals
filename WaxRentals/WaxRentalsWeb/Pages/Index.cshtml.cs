@@ -1,102 +1,66 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Notifications;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Config;
 using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Data.Models;
-using static WaxRentalsWeb.Config.Constants;
+using ServiceEntities = WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentalsWeb.Pages
 {
     public class IndexModel : PageModel
     {
 
+        public AppConstants Constants { get; private set; }
         public PageLoadModel InitialPage { get; private set; }
 
-        private readonly IDataCache _cache;
-        private readonly IDataFactory _data;
-        private readonly IBananoAccountFactory _banano;
-        private readonly ITelegramNotifier _telegram;
+        private IAppService App { get; }
+        private IRentalService Rentals { get; }
+        private ITrackService Track { get; }
 
-        public IndexModel(IDataCache cache, IDataFactory data, IBananoAccountFactory banano, ITelegramNotifier telegram)
+        public IndexModel(IAppService app, IRentalService rentals, ITrackService track)
         {
-            _cache = cache;
-            _data = data;
-            _banano = banano;
-            _telegram = telegram;
+            App = app;
+            Rentals = rentals;
+            Track = track;
         }
 
-        public void OnGet()
+        public async Task OnGet()
         {
+            Constants = (await App.Constants()).Value ?? new();
             InitialPage = TempData.Get<PageLoadModel>("InitialPage") ?? new PageLoadModel { Name = "default" };
         }
 
         public async Task<JsonResult> OnPostAsync(RentalInput input)
         {
-            try
+            var result = await Rentals.Create(Map(input));
+            if (result.Success)
             {
-                var (valid, error) = Validate(input);
-                if (!valid)
-                {
-                    return Fail(error);
-                }
-
-                var cost = (input.CPU + input.NET) * input.Days * _cache.AppState.WaxRentPriceInBanano;
-                var id = await _data.Insert.OpenRental(input.Account, RentalDays(input.Days), input.CPU, input.NET, decimal.Round(cost, 4));
-                var account = _banano.BuildAccount((uint)id);
-                _telegram.Send($"Starting rental process for {input.Account}.");
-                return Succeed(account.Address);
+                await Track.Notify($"Starting rental process for {input.Account}.");
+                return Succeed(result.Value.Address);
             }
-            catch (Exception ex)
+            else
             {
-                try
-                {
-                    await _data.Log.Error(ex);
-                    return Fail(ex.Message);
-                }
-                catch
-                {
-                    return Fail("Unknown error.");
-                }
+                return Fail(result.Error);
             }
         }
 
-        private (bool valid, string error) Validate(RentalInput input)
+        private static ServiceEntities.Input.NewRentalInput Map(RentalInput input)
         {
-            if (!ModelState.IsValid)
+            return new ServiceEntities.Input.NewRentalInput
             {
-                var (name, state) = ModelState.First(kvp => kvp.Value.Errors.Any());
-                var errors = string.Join(" ", state.Errors.Select(e => e.ErrorMessage));
-                return (false, $"{name}: {errors}");
-            }
-            else if (input.CPU + input.NET < _cache.AppState.WaxMinimumRent)
-            {
-                return (false, $"Must rent at least {_cache.AppState.WaxMinimumRent} WAX.");
-            }
-            else if (input.CPU + input.NET > _cache.AppState.WaxMaximumRent)
-            {
-                return (false, $"Cannot rent more than {_cache.AppState.WaxMaximumRent} WAX in one transaction right now.");
-            }
-            else if (input.Days < 1)
-            {
-                return (false, $"Must rent for at least one day.");
-            }
-            return (true, null);
+                Account = input.Account,
+                Days = (int)input.Days,
+                Cpu = input.CPU,
+                Net = input.NET,
+                Free = false
+            };
         }
 
-        private int RentalDays(uint input)
-        {
-            int days = (int)input;
-            return (days >= Calculations.DaysDoubleThreshold) ? (days * 2) : days;
-        }
-
-        private JsonResult Succeed(string address) => new JsonResult(RentalResult.Succeed(address));
-        private JsonResult Fail(string error) => new JsonResult(RentalResult.Fail(error));
+        private static JsonResult Succeed(string address) => new(RentalResult.Succeed(address));
+        private static JsonResult Fail(string error) => new(RentalResult.Fail(error));
 
     }
 }

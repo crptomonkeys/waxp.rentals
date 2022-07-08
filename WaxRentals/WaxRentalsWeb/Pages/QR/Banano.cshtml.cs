@@ -1,8 +1,7 @@
-﻿using System.Linq;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Pages.QR;
 
 namespace WaxRentalsWeb.Pages
@@ -10,40 +9,46 @@ namespace WaxRentalsWeb.Pages
     public class BananoModel : QRPageModel
     {
 
-        private readonly IDataFactory _data;
-        private readonly IBananoAccountFactory _banano;
+        private IRentalService Rentals { get; }
+        private IWelcomePackageService WelcomePackages { get; }
 
-        public BananoModel(IDataFactory data, IBananoAccountFactory banano)
+        public BananoModel(IRentalService rentals, IWelcomePackageService welcomePackages)
         {
-            _data = data;
-            _banano = banano;
+            Rentals = rentals;
+            WelcomePackages = welcomePackages;
         }
 
-        public IActionResult OnGetRental(string address)
+        public async Task<IActionResult> OnGetRental(string address)
         {
+            // Filter invalid accounts.
             if (!string.IsNullOrWhiteSpace(address))
             {
-                var rental = _data.Explore.GetRentalsByBananoAddresses(new string[] { address }).SingleOrDefault();
-                if (rental?.Status == Status.New || rental?.Status == Status.Pending)
+                var result = await Rentals.ByBananoAddress(address);
+                if (result.Success && result.Value != null)
                 {
-                    var account = _banano.BuildAccount((uint)rental.RentalId);
-                    var link = account.BuildLink(rental.Banano);
-                    return GenerateQRCode(link);
+                    var rental = result.Value;
+                    if (rental.Status == Status.New || rental.Status == Status.Pending)
+                    {
+                        return GenerateQRCode(rental.BananoPaymentLink);
+                    }
                 }
             }
             return null;
         }
 
-        public IActionResult OnGetWelcome(string address)
+        public async Task<IActionResult> OnGetWelcome(string address)
         {
+            // Filter invalid accounts.
             if (!string.IsNullOrWhiteSpace(address))
             {
-                var package = _data.Explore.GetWelcomePackagesByBananoAddresses(new string[] { address }).SingleOrDefault();
-                if (package?.Status == Status.New)
+                var result = await WelcomePackages.ByBananoAddress(address);
+                if (result.Success && result.Value != null)
                 {
-                    var account = _banano.BuildWelcomeAccount((uint)package.PackageId);
-                    var link = account.BuildLink(package.Banano);
-                    return GenerateQRCode(link);
+                    var package = result.Value;
+                    if (package.Status == Status.New)
+                    {
+                        return GenerateQRCode(package.BananoPaymentLink);
+                    }
                 }
             }
             return null;

@@ -14,5 +14,10 @@
             public const int DaysDoubleThreshold = 15;
         }
 
+        public static class EnvironmentVariables
+        {
+            public const string Service = "SERVICE";
+        }
+
     }
 }

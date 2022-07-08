@@ -1,15 +1,24 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using WaxRentals.Service.Shared.Connectors;
 using WaxRentalsWeb.Pages.QR;
-using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentalsWeb.Pages
 {
     public class WaxModel : QRPageModel
     {
 
-        public IActionResult OnGet()
+        private IAppService Service { get; }
+
+        public WaxModel(IAppService service)
         {
-            return GenerateQRCode(Protocol.Account);
+            Service = service;
+        }
+
+        public async Task<IActionResult> OnGet()
+        {
+            var state = await Service.State();
+            return state.Success ? GenerateQRCode(state.Value.WaxAccount) : null;
         }
 
     }

@@ -1,3 +1,13 @@
 
-- let run for a few weeks
+- test processors
+- publish processors
+- api
+- switch to api
+- publish web
+- admin site
+
 - announce live
+  - best things about CM/banano
+    - top 3*(19cpu*7days)
+    - top 1*(CM, additional?)
+  - API

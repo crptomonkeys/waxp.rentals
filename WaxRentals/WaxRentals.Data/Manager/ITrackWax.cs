@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace WaxRentals.Data.Manager
 {
     public interface ITrackWax
     {
 
-        DateTime? GetLastHistoryCheck();
-        void SetLastHistoryCheck(DateTime last);
+        Task<DateTime?> GetLastHistoryCheck();
+        Task SetLastHistoryCheck(DateTime last);
 
     }
 }

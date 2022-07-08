@@ -1,6 +1,4 @@
-﻿using System;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
+﻿using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentalsWeb.Data.Models
 {
@@ -14,15 +12,14 @@ namespace WaxRentalsWeb.Data.Models
         public int Days { get; }
         public decimal Banano { get; }
 
-        public RentalDetailModel(Rental rental, IBananoAccountFactory banano)
+        public RentalDetailModel(RentalInfo rental)
         {
-            var account = banano.BuildAccount((uint)rental.RentalId);
-            Address = new BananoAddressModel(account.Address);
-            Link = account.BuildLink(rental.Banano);
-            Cpu = Convert.ToInt32(rental.CPU);
-            Net = Convert.ToInt32(rental.NET);
-            Days = rental.RentalDays;
-            Banano = decimal.Round(rental.Banano, 4);
+            Address = new BananoAddressModel(rental.BananoAddress);
+            Link    = rental.BananoPaymentLink;
+            Cpu     = rental.Cpu;
+            Net     = rental.Net;
+            Days    = rental.Days;
+            Banano  = decimal.Round(rental.Banano, 4);
         }
 
     }

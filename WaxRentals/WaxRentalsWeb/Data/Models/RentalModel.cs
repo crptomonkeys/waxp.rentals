@@ -1,6 +1,4 @@
-﻿using System;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
+﻿using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentalsWeb.Data.Models
 {
@@ -14,14 +12,14 @@ namespace WaxRentalsWeb.Data.Models
         public string BananoAddress { get; }
         public string StakeTransaction { get; }
 
-        public RentalModel(Rental rental, IBananoAccountFactory banano)
+        public RentalModel(RentalInfo rental)
         {
-            Cpu              = Convert.ToInt32(rental.CPU);
-            Net              = Convert.ToInt32(rental.NET);
-            Days             = rental.RentalDays;
+            Cpu              = rental.Cpu;
+            Net              = rental.Net;
+            Days             = rental.Days;
             Banano           = decimal.Round(rental.Banano, 4);
-            BananoAddress    = banano.BuildAccount((uint)rental.RentalId).Address;
-            StakeTransaction = rental.StakeWaxTransaction;
+            BananoAddress    = rental.BananoAddress;
+            StakeTransaction = rental.StakeTransaction;
         }
 
     }
