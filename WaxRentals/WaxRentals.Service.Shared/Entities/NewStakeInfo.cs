@@ -1,6 +1,8 @@
-﻿namespace WaxRentals.Service.Shared.Entities
+﻿#nullable disable
+
+namespace WaxRentals.Service.Shared.Entities
 {
-    public struct NewStakeInfo
+    public class NewStakeInfo
     {
 
         public string SourceAccount { get; set; }

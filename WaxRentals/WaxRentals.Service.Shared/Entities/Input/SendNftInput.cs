@@ -1,6 +1,8 @@
-﻿namespace WaxRentals.Service.Shared.Entities.Input
+﻿#nullable disable
+
+namespace WaxRentals.Service.Shared.Entities.Input
 {
-    public struct SendNftInput
+    public class SendNftInput
     {
 
         public string Recipient { get; set; }

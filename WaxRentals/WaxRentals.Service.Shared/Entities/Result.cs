@@ -1,10 +1,12 @@
-﻿namespace WaxRentals.Service.Shared.Entities
+﻿#nullable disable
+
+namespace WaxRentals.Service.Shared.Entities
 {
     public class Result
     {
 
         public bool Success { get; set; }
-        public string? Error { get; set; }
+        public string Error { get; set; }
 
         public static Result Succeed()
         {
@@ -21,7 +23,7 @@
     public class Result<T> : Result
     {
 
-        public T? Value { get; set; }
+        public T Value { get; set; }
 
         public static Result<T> Succeed(T value)
         {

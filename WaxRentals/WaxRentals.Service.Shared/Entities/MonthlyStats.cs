@@ -1,4 +1,6 @@
-﻿namespace WaxRentals.Service.Shared.Entities
+﻿#nullable disable
+
+namespace WaxRentals.Service.Shared.Entities
 {
     public class MonthlyStats
     {

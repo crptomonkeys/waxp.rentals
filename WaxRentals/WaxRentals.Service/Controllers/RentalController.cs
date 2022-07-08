@@ -87,7 +87,7 @@ namespace WaxRentals.Service.Controllers
                 }
 
                 var account = Banano.BuildAccount(id);
-                return Succeed(new NewRental(id, account.Address));
+                return Succeed(new NewRental { Id = id, Address = account.Address });
             }
             catch (Exception ex)
             {

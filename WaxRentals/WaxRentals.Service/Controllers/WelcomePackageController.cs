@@ -60,11 +60,13 @@ namespace WaxRentals.Service.Controllers
                 var id = await Insert.OpenWelcomePackage(NewUser.Account, memo, NewUser.OpenWax, cost);
                 var account = Banano.BuildWelcomeAccount(id);
                 return Succeed(
-                    new NewWelcomePackage(
-                        account.Address,
-                        account.BuildLink(cost),
-                        NewUser.Account,
-                        memo)
+                    new NewWelcomePackage
+                    {
+                        Address = account.Address,
+                        Link = account.BuildLink(cost),
+                        Account = NewUser.Account,
+                        Memo = memo
+                    }
                 );
             }
             catch (Exception ex)

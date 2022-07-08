@@ -1,6 +1,8 @@
-﻿namespace WaxRentals.Service.Shared.Entities.Input
+﻿#nullable disable
+
+namespace WaxRentals.Service.Shared.Entities.Input
 {
-    public struct StakeInput
+    public class StakeInput
     {
 
         public string Source { get; set; }

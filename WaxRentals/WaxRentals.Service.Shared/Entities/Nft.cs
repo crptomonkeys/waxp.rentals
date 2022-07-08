@@ -1,6 +1,8 @@
-﻿namespace WaxRentals.Service.Shared.Entities
+﻿#nullable disable
+
+namespace WaxRentals.Service.Shared.Entities
 {
-    public struct Nft
+    public class Nft
     {
 
         public string AssetId { get; set; }

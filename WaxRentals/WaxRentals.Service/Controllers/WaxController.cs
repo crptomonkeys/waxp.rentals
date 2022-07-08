@@ -110,7 +110,7 @@ namespace WaxRentals.Service.Controllers
             {
                 return Succeed(new Entities.NewStakeInfo { SourceAccount = source.Account, Transaction = hash });
             }
-            return Fail($"Failed ot stake {input.Cpu + input.Net} {Coins.Wax} from {source.Account} to {input.Target}.");
+            return Fail($"Failed to stake {input.Cpu + input.Net} {Coins.Wax} from {source.Account} to {input.Target}.");
         }
 
         [HttpPost("Unstake")]
