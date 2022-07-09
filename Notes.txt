@@ -1,6 +1,4 @@
 
-- test processors
-- publish processors
 - api
 - switch to api
 - publish web

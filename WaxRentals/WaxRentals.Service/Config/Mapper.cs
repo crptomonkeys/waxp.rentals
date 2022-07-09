@@ -1,6 +1,5 @@
 ﻿using WaxRentals.Banano.Transact;
 using WaxRentals.Service.Shared.Entities;
-using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
 namespace WaxRentals.Service.Config
 {

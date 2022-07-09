@@ -92,12 +92,12 @@ namespace WaxRentals.Service.Controllers
 
         #region " Rounding "
 
-        private decimal Price(decimal value)
+        private static decimal Price(decimal value)
         {
             return Math.Round(value, 6);
         }
 
-        private decimal Balance(decimal value)
+        private static decimal Balance(decimal value)
         {
             return Math.Round(value, 4);
         }
