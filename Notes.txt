@@ -1,8 +1,10 @@
 
-- api
+- Add Staked and base Expires off that
 - switch to api
+- publish api
 - publish web
 - admin site
+- README
 
 - announce live
   - best things about CM/banano

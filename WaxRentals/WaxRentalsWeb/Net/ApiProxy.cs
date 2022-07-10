@@ -23,7 +23,7 @@ namespace WaxRentalsWeb.Net
             SerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         }
 
-        public ApiProxy(ApiContext endpoints, ITrackService log = null)
+        public ApiProxy(ApiContext endpoints, ITrackService log)
         {
             Endpoints = endpoints;
             Client = new();
@@ -71,10 +71,7 @@ namespace WaxRentalsWeb.Net
             {
                 try
                 {
-                    if (Log != null)
-                    {
-                        await Log.Error(ex);
-                    }
+                    await Log.Error(ex);
                     return Result<TOut>.Fail(ex.Message);
                 }
                 catch

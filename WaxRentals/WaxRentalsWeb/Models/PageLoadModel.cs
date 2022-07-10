@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace WaxRentalsWeb.Data.Models
+namespace WaxRentalsWeb.Models
 {
     public class PageLoadModel
     {

@@ -47,6 +47,10 @@ namespace WaxRentals.Api.Config
                         BananoAddressRegex = ServiceConstants.Banano.Protocol.AddressRegex,
                         WaxAccountRegex    = ServiceConstants.Wax.Protocol.AccountRegex
                     },
+                    Rentals = new Entities.App.NewRentalInfo
+                    {
+                        DaysDoubleThreshold = ServiceConstants.Rentals.DaysDoubleThreshold
+                    },
                     WelcomePackages = new Entities.App.NewAccountPackageInfo
                     {
                         WaxReceivingAccount = ServiceConstants.Wax.NewUser.Account,

@@ -9,11 +9,6 @@
             public const int Size = 150;
         }
 
-        public static class Calculations
-        {
-            public const int DaysDoubleThreshold = 15;
-        }
-
         public static class EnvironmentVariables
         {
             public const string Api = "API";

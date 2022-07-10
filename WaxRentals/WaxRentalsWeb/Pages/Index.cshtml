@@ -1,6 +1,5 @@
 ﻿@page
 @model IndexModel
-@using static WaxRentals.Service.Shared.Config.Constants
 
 <!DOCTYPE html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -91,33 +90,33 @@
                 <div class="toggle-content text-center spacing">
                   <h3>Rent WAX</h3>
                   <p>
-                    <strong>Stake CPU and NET to your WAX account for {{ state.waxRentPriceInBanano }} BAN per WAX per day.</strong>
-                    <br><br>Currently staked: <strong>{{ state.waxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.waxBalanceAvailable }}</strong> WAX <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i>
-                    <span v-if="state.waxBalanceUnstaking > 0"><br>Available tomorrow: <strong>+{{ state.waxBalanceUnstaking }}</strong> WAX</span>
-                    <br><br><small>Rentals of at least @WaxRentalsWeb.Config.Constants.Calculations.DaysDoubleThreshold days will have their time <strong>doubled</strong> for free.</small>
+                    <strong>Stake CPU and NET to your WAX account for {{ state.costs?.waxRentPriceInBanano }} BAN per WAX per day.</strong>
+                    <br><br>Currently staked: <strong>{{ state.wax?.staked }}</strong> WAX | Available: <strong>{{ state.wax?.availableToday }}</strong> WAX <i class="fa fa-external-link wax-account-link" :data-account="state.wax?.workingAccount"></i>
+                    <span v-if="state.wax?.additionalAvailableTomorrow > 0"><br>Available tomorrow: <strong>+{{ state.wax?.additionalAvailableTomorrow }}</strong> WAX</span>
+                    <br><br><small>Rentals of at least @Model.Constants.Rentals.DaysDoubleThreshold days will have their time <strong>doubled</strong> for free.</small>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
 
               <div class="col-md-12">
-                <div class="contact-form" v-if="state.waxMaximumRent >= state.waxMinimumRent">
+                <div class="contact-form" v-if="state.limits?.waxMaximumRent >= state.limits?.waxMinimumRent">
                   <div class="row">
                     <form id="open-rental" action="@Model.Endpoints.CreateRental" method="post">
                       <fieldset class="col-md-3">
-                        <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@Wax.Protocol.AccountRegex" placeholder="WAX Account" required>
+                        <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@Model.Constants.Validations.WaxAccountRegex" placeholder="WAX Account" required>
                       </fieldset>
                       <fieldset class="col-md-3">
-                        <input type="number" name="cpu" id="cpu" min="0" :max="state.waxMaximumRent" step="1" placeholder="# CPU">
+                        <input type="number" name="cpu" id="cpu" min="0" :max="state.limits?.waxMaximumRent" step="1" placeholder="# CPU">
                       </fieldset>
                       <fieldset class="col-md-3">
-                        <input type="number" name="net" id="net" min="0" :max="state.waxMaximumRent" step="1" placeholder="# NET">
+                        <input type="number" name="net" id="net" min="0" :max="state.limits?.waxMaximumRent" step="1" placeholder="# NET">
                       </fieldset>
                       <fieldset class="col-md-3">
                         <input type="number" name="days" id="days" min="1" step="1" placeholder="# Days" required v-model="days">
                       </fieldset>
                       <fieldset class="col-md-12">
                         <input class="button" type="submit" name="open" id="open" value="Start Staking" @@click.prevent="submit">
-                        <span class="rental-free-days" v-if="days >= @WaxRentalsWeb.Config.Constants.Calculations.DaysDoubleThreshold">+{{ days }} days free!</span>
+                        <span class="rental-free-days" v-if="days >= @Model.Constants.Rentals.DaysDoubleThreshold">+{{ days }} days free!</span>
                       </fieldset>
                     </form>
                   </div> <!-- /.row -->
@@ -137,15 +136,15 @@
                 <div class="toggle-content text-center">
                   <h3>Sell WAX</h3>
                   <p>
-                    <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">
+                    <span v-if="state.limits?.waxMaximumBuy >= state.limits?.waxMinimumBuy">
                       <img src="/qr/wax" width="150" height="150" />
-                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@Model.Constants.Accounts.WaxPrimaryAccount</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@Model.Constants.Accounts.WaxPrimaryAccount"></i> and <strong>include your BAN address as the memo</strong>.
+                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.limits?.waxMinimumBuy }}</strong> and <strong>{{ state.limits?.waxMaximumBuy }}</strong> WAX to <strong>@Model.Constants.Accounts.WaxPrimaryAccount</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@Model.Constants.Accounts.WaxPrimaryAccount"></i> and <strong>include your BAN address as the memo</strong>.
                     </span>
-                    <span v-else-if="state.waxBuyPriceInBanano == 0"><strong>The site is still loading; please keep this page open.</strong></span>
+                    <span v-else-if="state.costs?.waxBuyPriceInBanano == 0"><strong>The site is still loading; please keep this page open.</strong></span>
                     <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
-                    <br><br>WAX price: <strong>${{ state.waxPrice }}</strong> | BAN price: <strong>${{ state.bananoPrice }}</strong>
-                    <br>Currently paying <strong>{{ state.waxBuyPriceInBanano }} BAN</strong> per WAX
-                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@Model.Constants.Accounts.BananoSweepAddress"></i>
+                    <br><br>WAX price: <strong>${{ state.wax?.price }}</strong> | BAN price: <strong>${{ state.banano?.price }}</strong>
+                    <br>Currently paying <strong>{{ state.costs?.waxBuyPriceInBanano }} BAN</strong> per WAX
+                    <br>Balance: <strong>{{ state.banano?.balance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@Model.Constants.Accounts.BananoSweepAddress"></i>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -423,16 +422,16 @@
                     <tbody>
                       <tr v-for="rental in insights.latestRentals">
                         <td class="text-center">
-                          {{ rental.cpu + rental.net }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
+                          {{ rental.target.cpu + rental.target.net }} WAX
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxStake" v-if="rental.transactions.waxStake"></i>
                         </td>
                         <td class="text-center">
-                          {{ days(rental.days) }}
+                          {{ days(rental.target.days) }}
                         </td>
                         <td class="text-center">
                           <span v-if="rental.banano">
-                            {{ rental.banano }} BAN
-                            <i class="fa fa-external-link banano-address-link" :data-address="rental.bananoAddress"></i>
+                            {{ rental.payment.amount }} BAN
+                            <i class="fa fa-external-link banano-address-link" :data-address="rental.payment.address"></i>
                           </span>
                           <span v-else>
                             FREE
@@ -485,18 +484,18 @@
                     <tbody>
                       <tr v-for="package in insights.latestWelcomePackages">
                         <td class="text-center">
-                          {{ package.banano }} BAN
+                          {{ package.payment.amount }} BAN
                           <i class="fa fa-external-link banano-address-link" :data-address="package.bananoAddress"></i>
                         </td>
                         <td class="text-center">
-                          {{ package.wax }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.fundTransaction" v-if="package.fundTransaction"></i>
+                          {{ package.target.amount }} WAX
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.transactions.waxTransfer" v-if="package.transactions.waxTransfer"></i>
                         </td>
                         <td class="text-center">
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.nftTransaction" v-if="package.nftTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.transactions.nftTransfer" v-if="package.transactions.nftTransfer"></i>
                         </td>
                         <td class="text-center">
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.stakeTransaction" v-if="package.stakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.transactions.rentalStake" v-if="package.transactions.rentalStake"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -518,7 +517,7 @@
                       <img :src="'/qr/banano/welcome/' + package.address.full" width="150" height="150" />
                       <br>Tap to open Kalium
                     </a>
-                    <br><br>Send <strong>exactly {{ state.bananoWelcomePackagePrice }} BAN</strong> to
+                    <br><br>Send <strong>exactly {{ state.costs?.welcomePackagePriceInBanano }} BAN</strong> to
                     <br><span class="banano-address"><span class="address-highlight">{{ package.address.start }}</span>{{ package.address.mid }}<span class="address-highlight">{{ package.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="package.address.full"></i>.
                     <br><br>Account: {{ package.account }} | Memo: {{ package.memo }}
                     <br><br>After you've sent payment, go check out your shiny new <a rel="nofollow" href="https://wallet.wax.io/dashboard" target="_blank"><strong>WAX Cloud Wallet</strong></a>!
@@ -531,23 +530,23 @@
                   <h3>New Wallet</h3>
                   <p>
                     Open a new <a rel="nofollow" href="https://all-access.wax.io/" target="_blank"><strong>WAX Cloud Wallet</strong></a>.
-                    <br>We will send <strong>5 WAX to newuser.wax</strong> for you.
-                    <br>We will also send you a <strong>starter NFT</strong>, and we will provide a <strong>free @Wax.NewUser.FreeCpu CPU / @Wax.NewUser.FreeNet NET rental</strong> to get you started.*
+                    <br>We will send <strong>@Model.Constants.WelcomePackages.WaxSend WAX to @Model.Constants.WelcomePackages.WaxReceivingAccount</strong> for you.
+                    <br>We will also send you a <strong>starter NFT</strong>, and we will provide a <strong>free @Model.Constants.WelcomePackages.FreeRentalCpu CPU / @Model.Constants.WelcomePackages.FreeRentalNet NET rental</strong> to get you started.*
                     <br><br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
-                    <br><br>Welcome package price: <strong><span v-if="state.bananoWelcomePackagePrice > 0">{{ state.bananoWelcomePackagePrice }}</span> BAN</strong>
-                    <br>NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@Model.Constants.Accounts.WaxPrimaryAccount#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackageRentalsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i></span><span v-else><strong>Delayed</strong></span>
+                    <br><br>Welcome package price: <strong><span v-if="state.costs?.welcomePackagePriceInBanano > 0">{{ state.costs?.welcomePackagePriceInBanano }}</span> BAN</strong>
+                    <br>NFT: <span v-if="state.welcomePackages?.freeNftAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@Model.Constants.Accounts.WaxPrimaryAccount#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackages?.freeRentalAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.wax?.workingAccount"></i></span><span v-else><strong>Delayed</strong></span>
                     <br><br><small>* NFT and rental will arrive as long as supplies are available.  If you don't receive your NFT or rental right away, you will receive them once supplies replenish.</small>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
 
               <div class="col-md-12" v-if="!package">
-                <div class="contact-form" v-if="state.welcomePackagesAvailable">
+                <div class="contact-form" v-if="state.welcomePackages?.waxAvailable">
                   <div class="row">
                     <form id="open-welcome-package" action="@Model.Endpoints.CreateWelcomePackage" method="post">
 
                       <fieldset class="col-md-3">
-                        <input type="text" name="memo" id="memo" minlength="1" maxlength="30" pattern="@Wax.NewUser.MemoRegex" placeholder="Memo" required>
+                        <input type="text" name="memo" id="memo" minlength="1" maxlength="30" pattern="@Model.Constants.WelcomePackages.WaxMemoRegex" placeholder="Memo" required>
                       </fieldset>
 
                       <fieldset class="col-md-12" v-if="loading">

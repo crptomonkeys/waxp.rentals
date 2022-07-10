@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using WaxRentals.Api.Entities.App;
 using WaxRentals.Service.Shared.Connectors;
-using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Extensions;
+using WaxRentalsWeb.Net;
 
 namespace WaxRentalsWeb.Monitoring
 {
@@ -14,12 +15,12 @@ namespace WaxRentalsWeb.Monitoring
         private readonly ReaderWriterLockSlim _rwls = new();
         public AppState Value { get { return _rwls.SafeRead(() => _state); } }
 
-        public IAppService Service { get; }
+        public ApiProxy Proxy { get; }
 
-        public AppStateMonitor(TimeSpan interval, ITrackService log, IAppService service)
+        public AppStateMonitor(TimeSpan interval, ITrackService log, ApiProxy proxy)
             : base(interval, log)
         {
-            Service = service;
+            Proxy = proxy;
         }
 
         protected async override Task<bool> Tick()
@@ -28,7 +29,7 @@ namespace WaxRentalsWeb.Monitoring
 
             try
             {
-                var result = await Service.State();
+                var result = await Proxy.Get<AppState>(Proxy.Endpoints.AppState);
                 if (result.Success)
                 {
                     var state = result.Value;
@@ -52,28 +53,28 @@ namespace WaxRentalsWeb.Monitoring
         private static bool Differ(AppState left, AppState right)
         {
             var comparison = StringComparison.OrdinalIgnoreCase;
-            return left.BananoBalance != right.BananoBalance                                   ||
-                   left.BananoPrice != right.BananoPrice                                       ||
+            return left.Banano.Balance                      != right.Banano.Balance                      ||
+                   left.Banano.Price                        != right.Banano.Price                        ||
                                                                                                
-                   left.WaxBalanceAvailableToday != right.WaxBalanceAvailableToday             ||
-                   left.WaxBalanceAvailableTomorrow != right.WaxBalanceAvailableTomorrow       ||
-                   left.WaxPrice != right.WaxPrice                                             ||
-                   left.WaxStaked != right.WaxStaked                                           ||
-                   !string.Equals(left.WaxWorkingAccount, right.WaxWorkingAccount, comparison) || 
+                   left.Wax.AvailableToday                  != right.Wax.AvailableToday                  ||
+                   left.Wax.AdditionalAvailableTomorrow     != right.Wax.AdditionalAvailableTomorrow     ||
+                   left.Wax.Price                           != right.Wax.Price                           ||
+                   left.Wax.Staked                          != right.Wax.Staked                          ||
+    !string.Equals(left.Wax.WorkingAccount,                    right.Wax.WorkingAccount    , comparison) || 
                    
-                   left.WaxRentPriceInBanano != right.WaxRentPriceInBanano                     ||
-                   left.WaxBuyPriceInBanano != right.WaxBuyPriceInBanano                       ||
-                   left.BananoWelcomePackagePrice != right.BananoWelcomePackagePrice           ||
+                   left.Costs.WaxRentPriceInBanano          != right.Costs.WaxRentPriceInBanano          ||
+                   left.Costs.WaxBuyPriceInBanano           != right.Costs.WaxBuyPriceInBanano           ||
+                   left.Costs.WelcomePackagePriceInBanano   != right.Costs.WelcomePackagePriceInBanano   ||
                    
-                   left.BananoMinimumCredit != right.BananoMinimumCredit                       ||
-                   left.WaxMinimumRent != right.WaxMinimumRent                                 ||
-                   left.WaxMaximumRent != right.WaxMaximumRent                                 ||
-                   left.WaxMinimumBuy != right.WaxMinimumBuy                                   ||
-                   left.WaxMaximumBuy != right.WaxMaximumBuy                                   ||
+                   left.Limits.BananoMinimumCredit          != right.Limits.BananoMinimumCredit          ||
+                   left.Limits.WaxMinimumRent               != right.Limits.WaxMinimumRent               ||
+                   left.Limits.WaxMaximumRent               != right.Limits.WaxMaximumRent               ||
+                   left.Limits.WaxMinimumBuy                != right.Limits.WaxMinimumBuy                ||
+                   left.Limits.WaxMaximumBuy                != right.Limits.WaxMaximumBuy                ||
                    
-                   left.WelcomePackagesAvailable != right.WelcomePackagesAvailable             ||
-                   left.WelcomePackageRentalsAvailable != right.WelcomePackageRentalsAvailable ||
-                   left.WelcomePackageNftsAvailable != right.WelcomePackageNftsAvailable;
+                   left.WelcomePackages.WaxAvailable        != right.WelcomePackages.WaxAvailable        ||
+                   left.WelcomePackages.FreeRentalAvailable != right.WelcomePackages.FreeRentalAvailable ||
+                   left.WelcomePackages.FreeNftAvailable    != right.WelcomePackages.FreeNftAvailable;
         }
 
         #endregion

@@ -8,7 +8,6 @@ namespace WaxRentals.Service.Config
         public static class Calculations
         {
             public const decimal BananoPerWaxPerDay = 1;
-            public const int DaysDoubleThreshold = 15;
         }
 
         public static class Http

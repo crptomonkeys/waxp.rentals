@@ -5,7 +5,7 @@ using WaxRentals.Service.Caching;
 using WaxRentals.Service.Config;
 using WaxRentals.Service.Shared.Entities;
 using WaxRentals.Service.Shared.Entities.Input;
-using static WaxRentals.Service.Config.Constants;
+using static WaxRentals.Service.Shared.Config.Constants;
 using Status = WaxRentals.Data.Entities.Status;
 
 namespace WaxRentals.Service.Controllers
@@ -113,7 +113,7 @@ namespace WaxRentals.Service.Controllers
 
         private int RentalDays(int days)
         {
-            return (days >= Calculations.DaysDoubleThreshold) ? (days * 2) : days;
+            return (days >= Rentals.DaysDoubleThreshold) ? (days * 2) : days;
         }
 
         #endregion

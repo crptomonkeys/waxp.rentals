@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentals.Api.Entities.App;
 using WaxRentalsWeb.Config;
-using WaxRentalsWeb.Data.Models;
+using WaxRentalsWeb.Models;
 using WaxRentalsWeb.Net;
 
 namespace WaxRentalsWeb.Pages
