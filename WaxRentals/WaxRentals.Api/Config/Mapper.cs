@@ -34,28 +34,29 @@ namespace WaxRentals.Api.Config
         {
             if (constants != null)
             {
-                var result = new Entities.App.AppConstants();
-                result.Accounts = new Entities.App.AppAccounts
+                return new Entities.App.AppConstants
                 {
-                    BananoSweepAddress  = constants.BananoSweepAddress,
-                    WaxPrimaryAccount   = constants.WaxPrimaryAccount,
-                    WaxTransactAccounts = constants.WaxTransactAccounts
+                    Accounts = new Entities.App.AppAccounts
+                    {
+                        BananoSweepAddress  = constants.BananoSweepAddress,
+                        WaxPrimaryAccount   = constants.WaxPrimaryAccount,
+                        WaxTransactAccounts = constants.WaxTransactAccounts
+                    },
+                    Validations = new Entities.App.Validations
+                    {
+                        BananoAddressRegex = ServiceConstants.Banano.Protocol.AddressRegex,
+                        WaxAccountRegex    = ServiceConstants.Wax.Protocol.AccountRegex
+                    },
+                    WelcomePackages = new Entities.App.NewAccountPackageInfo
+                    {
+                        WaxReceivingAccount = ServiceConstants.Wax.NewUser.Account,
+                        WaxSend             = ServiceConstants.Wax.NewUser.OpenWax,
+                        WaxMemoRegex        = ServiceConstants.Wax.NewUser.MemoRegex,
+                        FreeRentalCpu       = ServiceConstants.Wax.NewUser.FreeCpu,
+                        FreeRentalNet       = ServiceConstants.Wax.NewUser.FreeNet,
+                        FreeRentalDays      = ServiceConstants.Wax.NewUser.FreeRentalDays
+                    }
                 };
-                result.Validations = new Entities.App.Validations
-                {
-                    BananoAddressRegex = ServiceConstants.Banano.Protocol.AddressRegex,
-                    WaxAccountRegex    = ServiceConstants.Wax.Protocol.AccountRegex
-                };
-                result.WelcomePackages = new Entities.App.NewAccountPackageInfo
-                {
-                    WaxReceivingAccount = ServiceConstants.Wax.NewUser.Account,
-                    WaxSend             = ServiceConstants.Wax.NewUser.OpenWax,
-                    WaxMemoRegex        = ServiceConstants.Wax.NewUser.MemoRegex,
-                    FreeRentalCpu       = ServiceConstants.Wax.NewUser.FreeCpu,
-                    FreeRentalNet       = ServiceConstants.Wax.NewUser.FreeNet,
-                    FreeRentalDays      = ServiceConstants.Wax.NewUser.FreeRentalDays
-                };
-                return result;
             }
             return null;
         }
@@ -66,9 +67,9 @@ namespace WaxRentals.Api.Config
             {
                 return new Entities.App.AppInsights
                 {
-                    MonthlyStats = insights.MonthlyStats?.Select(Map),
-                    LatestRentals = insights.LatestRentals?.Select(Map),
-                    LatestPurchases = insights.LatestPurchases?.Select(Map),
+                    MonthlyStats          = insights.MonthlyStats?.Select(Map),
+                    LatestRentals         = insights.LatestRentals?.Select(Map),
+                    LatestPurchases       = insights.LatestPurchases?.Select(Map),
                     LatestWelcomePackages = insights.LatestWelcomePackages?.Select(Map)
                 };
             }
@@ -79,9 +80,42 @@ namespace WaxRentals.Api.Config
         {
             if (state != null)
             {
-                var result = new Entities.App.AppState();
-
-                return result;
+                return new Entities.App.AppState
+                {
+                    Banano = new Entities.App.BananoStateInfo
+                    {
+                        Balance = state.BananoBalance,
+                        Price   = state.BananoPrice
+                    },
+                    Wax = new Entities.App.WaxStateInfo
+                    {
+                        Price                       = state.WaxPrice,
+                        Staked                      = state.WaxStaked,
+                        WorkingAccount              = state.WaxWorkingAccount,
+                        AvailableToday              = state.WaxBalanceAvailableToday,
+                        AdditionalAvailableTomorrow = state.WaxBalanceAvailableTomorrow
+                    },
+                    Costs = new Entities.App.CostsInfo
+                    {
+                        WaxRentPriceInBanano        = state.WaxRentPriceInBanano,
+                        WaxBuyPriceInBanano         = state.WaxBuyPriceInBanano,
+                        WelcomePackagePriceInBanano = state.BananoWelcomePackagePrice
+                    },
+                    Limits = new Entities.App.LimitsInfo
+                    {
+                        BananoMinimumCredit = state.BananoMinimumCredit,
+                        WaxMinimumRent      = state.WaxMinimumRent,
+                        WaxMaximumRent      = state.WaxMaximumRent,
+                        WaxMinimumBuy       = state.WaxMinimumBuy,
+                        WaxMaximumBuy       = state.WaxMaximumBuy
+                    },
+                    WelcomePackages = new Entities.App.WelcomePackagesInfo
+                    {
+                        WaxAvailable        = state.WelcomePackagesAvailable,
+                        FreeRentalAvailable = state.WelcomePackageRentalsAvailable,
+                        FreeNftAvailable    = state.WelcomePackageNftsAvailable
+                    }
+                };
             }
             return null;
         }
@@ -122,19 +156,22 @@ namespace WaxRentals.Api.Config
         {
             if (rental != null)
             {
-                var result = new Entities.Rentals.RentalInfo();
-                result.Payment = new Entities.BananoPaymentInfo
+                var result = new Entities.Rentals.RentalInfo
                 {
-                    Address = rental.BananoAddress,
-                    Amount  = rental.Banano,
-                    AppLink = rental.BananoPaymentLink
-                };
-                result.Target = new Entities.Rentals.WaxTargetInfo
-                {
-                    Account = rental.WaxAccount,
-                    Cpu     = rental.Cpu,
-                    Net     = rental.Net,
-                    Days    = rental.Days
+                    Payment = new Entities.BananoPaymentInfo
+                    {
+                        Address = rental.BananoAddress,
+                        Amount  = rental.Banano,
+                        AppLink = rental.BananoPaymentLink
+                    },
+                    Target = new Entities.Rentals.WaxTargetInfo
+                    {
+                        Account = rental.WaxAccount,
+                        Cpu     = rental.Cpu,
+                        Net     = rental.Net,
+                        Days    = rental.Days
+                    },
+                    Status = Map(rental.Status)
                 };
                 if (rental.Paid.HasValue)
                 {
@@ -144,12 +181,14 @@ namespace WaxRentals.Api.Config
                         Expires = rental.Expires.Value
                     };
                 }
-                result.Transactions = new Entities.Rentals.TransactionsInfo
+                if (rental.StakeTransaction != null || rental.UnstakeTransaction != null)
                 {
-                    WaxStake = rental.StakeTransaction,
-                    WaxUnstake = rental.UnstakeTransaction
-                };
-                result.Status = Map(rental.Status);
+                    result.Transactions = new Entities.Rentals.TransactionsInfo
+                    {
+                        WaxStake   = rental.StakeTransaction,
+                        WaxUnstake = rental.UnstakeTransaction
+                    };
+                }
                 return result;
             }
             return null;
@@ -159,26 +198,31 @@ namespace WaxRentals.Api.Config
         {
             if (package != null)
             {
-                var result = new Entities.WelcomePackages.WelcomePackageInfo();
-                result.Payment = new Entities.BananoPaymentInfo
+                var result = new Entities.WelcomePackages.WelcomePackageInfo
                 {
-                    Address = package.BananoAddress,
-                    Amount  = package.Banano,
-                    AppLink = package.BananoPaymentLink
+                    Payment = new Entities.BananoPaymentInfo
+                    {
+                        Address = package.BananoAddress,
+                        Amount  = package.Banano,
+                        AppLink = package.BananoPaymentLink
+                    },
+                    Target = new Entities.WelcomePackages.WaxTargetInfo
+                    {
+                        Account = package.WaxAccount,
+                        Amount  = package.Wax,
+                        Memo    = package.Memo
+                    },
+                    Status = Map(package.Status)
                 };
-                result.Target = new Entities.WelcomePackages.WaxTargetInfo
+                if (package.FundTransaction != null || package.NftTransaction != null || package.StakeTransaction != null)
                 {
-                    Account = package.WaxAccount,
-                    Amount  = package.Wax,
-                    Memo    = package.Memo
-                };
-                result.Transactions = new Entities.WelcomePackages.TransactionsInfo
-                {
-                    WaxTransfer = package.FundTransaction,
-                    NftTransfer = package.NftTransaction,
-                    RentalStake = package.StakeTransaction
-                };
-                result.Status = Map(package.Status);
+                    result.Transactions = new Entities.WelcomePackages.TransactionsInfo
+                    {
+                        WaxTransfer = package.FundTransaction,
+                        NftTransfer = package.NftTransaction,
+                        RentalStake = package.StakeTransaction
+                    };
+                }
                 return result;
             }
             return null;

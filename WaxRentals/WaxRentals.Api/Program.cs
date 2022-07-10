@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using WaxRentals.Api.Config;
+using WaxRentals.Service.Shared.Config;
 
 #nullable disable
 
@@ -7,7 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddCors(options =>
-                             options.AddDefaultPolicy(policy => policy.WithOrigins("*"))
+                             options.AddDefaultPolicy(policy => policy.AllowAnyOrigin()
+                                                                      .AllowAnyHeader()
+                                                                      .WithMethods("get", "post"))
                         );
 builder.Services.AddControllers()
                 .AddJsonOptions(options =>
@@ -23,6 +26,9 @@ builder.Services.ConfigureSwaggerGen(options =>
 {
     options.CustomSchemaIds(type => SwaggerSchemaIds.Generate(type));
 });
+
+Dependencies.AddDependencies(builder.Services, (string)Environment.GetEnvironmentVariables()["SERVICE"]);
+builder.Services.AddSingleton<Mapper>();
 
 var app = builder.Build();
 

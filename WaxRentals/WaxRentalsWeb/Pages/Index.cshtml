@@ -2,11 +2,6 @@
 @model IndexModel
 @using static WaxRentals.Service.Shared.Config.Constants
 
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
-@{
-  var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
-}
-
 <!DOCTYPE html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]><html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -107,7 +102,7 @@
               <div class="col-md-12">
                 <div class="contact-form" v-if="state.waxMaximumRent >= state.waxMinimumRent">
                   <div class="row">
-                    <form id="open-rental" action="/" method="post">
+                    <form id="open-rental" action="@Model.Endpoints.CreateRental" method="post">
                       <fieldset class="col-md-3">
                         <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@Wax.Protocol.AccountRegex" placeholder="WAX Account" required>
                       </fieldset>
@@ -144,13 +139,13 @@
                   <p>
                     <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">
                       <img src="/qr/wax" width="150" height="150" />
-                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@Model.Constants.WaxPrimaryAccount</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@Model.Constants.WaxPrimaryAccount"></i> and <strong>include your BAN address as the memo</strong>.
+                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@Model.Constants.Accounts.WaxPrimaryAccount</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@Model.Constants.Accounts.WaxPrimaryAccount"></i> and <strong>include your BAN address as the memo</strong>.
                     </span>
                     <span v-else-if="state.waxBuyPriceInBanano == 0"><strong>The site is still loading; please keep this page open.</strong></span>
                     <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
                     <br><br>WAX price: <strong>${{ state.waxPrice }}</strong> | BAN price: <strong>${{ state.bananoPrice }}</strong>
                     <br>Currently paying <strong>{{ state.waxBuyPriceInBanano }} BAN</strong> per WAX
-                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@Model.Constants.BananoSweepAddress"></i>
+                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@Model.Constants.Accounts.BananoSweepAddress"></i>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -222,13 +217,13 @@
                     <img class="text-center" src="/images/progress.gif" />
                   </p>
                   <p v-else>
-                    <a :href="detail.link">
-                      <img :src="'/qr/banano/rental/' + detail.address.full" width="150" height="150" />
+                    <a :href="detail.payment.appLink">
+                      <img :src="'/qr/banano/rental/' + detail.payment.address.full" width="150" height="150" />
                       <br>Tap to open Kalium
                     </a>
-                    <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
-                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.address.full"></i>.
-                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} day<span v-if="detail.days > 1">s</span>
+                    <br><br>Send <strong>exactly {{ detail.payment.amount }} BAN</strong> to
+                    <br><span class="banano-address"><span class="address-highlight">{{ detail.payment.address.start }}</span>{{ detail.payment.address.mid }}<span class="address-highlight">{{ detail.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.payment.address.full"></i>.
+                    <br><br>CPU: {{ detail.target.cpu }} | NET: {{ detail.target.net }} | Duration: {{ detail.target.days }} day<span v-if="detail.target.days > 1">s</span>
                   </p>
                 </div>
               </div>
@@ -252,21 +247,21 @@
                     <tbody>
                       <tr v-for="rental in pending">
                         <td class="text-center align-middle">
-                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.payment.address)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
                           <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
-                        <td class="text-center align-middle">{{ rental.waxAccount }}</td>
-                        <td class="text-center align-middle mobile-hide">{{ rental.cpu }} WAX</td>
-                        <td class="text-center align-middle mobile-hide">{{ rental.net }} WAX</td>
-                        <td class="text-center align-middle mobile-show">{{ rental.cpu }} CPU<br />{{ rental.net }} NET</td>
-                        <td class="text-center align-middle">{{ days(rental.days) }}</td>
-                        <td class="text-center align-middle">{{ rental.banano }} BAN</td>
+                        <td class="text-center align-middle">{{ rental.target.account }}</td>
+                        <td class="text-center align-middle mobile-hide">{{ rental.target.cpu }} WAX</td>
+                        <td class="text-center align-middle mobile-hide">{{ rental.target.net }} WAX</td>
+                        <td class="text-center align-middle mobile-show">{{ rental.target.cpu }} CPU<br />{{ rental.target.net }} NET</td>
+                        <td class="text-center align-middle">{{ days(rental.target.days) }}</td>
+                        <td class="text-center align-middle">{{ rental.payment.amount }} BAN</td>
                         <td class="text-center align-middle">
-                          <a :href="'/direct/ba/' + rental.bananoAddress" class="detail-link" @@click.prevent="fetchRentalDetails(rental.bananoAddress)">
+                          <a :href="'/direct/ba/' + rental.payment.address" class="detail-link" @@click.prevent="fetchRentalDetails(rental.payment.address)">
                             <i class="fa fa-search-plus" alt="View"></i>
                           </a>
                         </td>
@@ -283,13 +278,13 @@
                     <img class="text-center" src="/images/progress.gif" />
                   </p>
                   <p v-else>
-                    <a :href="detail.link">
-                      <img :src="'/qr/banano/rental/' + detail.address.full" width="150" height="150" />
+                    <a :href="detail.payment.appLink">
+                      <img :src="'/qr/banano/rental/' + detail.payment.address.full" width="150" height="150" />
                       <br>Tap to open Kalium
                     </a>
-                    <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
-                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.address.full"></i>.
-                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} day<span v-if="detail.days > 1">s</span>
+                    <br><br>Send <strong>exactly {{ detail.payment.amount }} BAN</strong> to
+                    <br><span class="banano-address"><span class="address-highlight">{{ detail.payment.address.start }}</span>{{ detail.payment.address.mid }}<span class="address-highlight">{{ detail.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.payment.address.full"></i>.
+                    <br><br>CPU: {{ detail.target.cpu }} | NET: {{ detail.target.net }} | Duration: {{ detail.target.days }} day<span v-if="detail.target.days > 1">s</span>
                   </p>
                 </div>
               </div>
@@ -313,19 +308,19 @@
                     <tbody>
                       <tr v-for="rental in active">
                         <td class="text-center align-middle">
-                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.payment.address)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
                           <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
-                        <td class="text-center align-middle">{{ rental.waxAccount }}</td>
-                        <td class="text-center align-middle">{{ rental.cpu }} WAX</td>
-                        <td class="text-center align-middle">{{ rental.net }} WAX</td>
-                        <td class="text-center align-middle">{{ localize(rental.expires) }}</td>
+                        <td class="text-center align-middle">{{ rental.target.account }}</td>
+                        <td class="text-center align-middle">{{ rental.target.cpu }} WAX</td>
+                        <td class="text-center align-middle">{{ rental.target.net }} WAX</td>
+                        <td class="text-center align-middle">{{ localize(rental.dates.expires) }}</td>
                         <td class="text-center align-middle">
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxStake" v-if="rental.transactions.waxStake"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -349,22 +344,22 @@
                     <tbody>
                       <tr v-for="rental in expired">
                         <td class="text-center align-middle">
-                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.payment.address)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
                           <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
-                        <td class="text-center align-middle">{{ rental.waxAccount }}</td>
-                        <td class="text-center align-middle">{{ rental.cpu + rental.net }} WAX</td>
+                        <td class="text-center align-middle">{{ rental.target.address }}</td>
+                        <td class="text-center align-middle">{{ rental.target.cpu + rental.target.net }} WAX</td>
                         <td class="text-center align-middle">
-                          {{ localize(rental.paid) }}
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction" v-if="rental.stakeTransaction"></i>
+                          {{ localize(rental.dates.paid) }}
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxStake" v-if="rental.transactions.waxStake"></i>
                         </td>
                         <td class="text-center align-middle">
-                          {{ localize(rental.expires) }}
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.unstakeTransaction" v-if="rental.unstakeTransaction"></i>
+                          {{ localize(rental.dates.expires) }}
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxUnstake" v-if="rental.transactions.waxUnstake"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -540,7 +535,7 @@
                     <br>We will also send you a <strong>starter NFT</strong>, and we will provide a <strong>free @Wax.NewUser.FreeCpu CPU / @Wax.NewUser.FreeNet NET rental</strong> to get you started.*
                     <br><br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
                     <br><br>Welcome package price: <strong><span v-if="state.bananoWelcomePackagePrice > 0">{{ state.bananoWelcomePackagePrice }}</span> BAN</strong>
-                    <br>NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@Model.Constants.WaxPrimaryAccount#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackageRentalsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i></span><span v-else><strong>Delayed</strong></span>
+                    <br>NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@Model.Constants.Accounts.WaxPrimaryAccount#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackageRentalsAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.waxAccountToday"></i></span><span v-else><strong>Delayed</strong></span>
                     <br><br><small>* NFT and rental will arrive as long as supplies are available.  If you don't receive your NFT or rental right away, you will receive them once supplies replenish.</small>
                   </p>
                 </div>
@@ -549,7 +544,7 @@
               <div class="col-md-12" v-if="!package">
                 <div class="contact-form" v-if="state.welcomePackagesAvailable">
                   <div class="row">
-                    <form id="open-welcome-package" action="/api/WelcomePackage" method="post">
+                    <form id="open-welcome-package" action="@Model.Endpoints.CreateWelcomePackage" method="post">
 
                       <fieldset class="col-md-3">
                         <input type="text" name="memo" id="memo" minlength="1" maxlength="30" pattern="@Wax.NewUser.MemoRegex" placeholder="Memo" required>
@@ -661,10 +656,10 @@
               data[1].value = data[1].value || 0;
               data[2].value = data[2].value || 0;
 
-              axios.post(form.action, $.param(data), { headers: { 'RequestVerificationToken': '@token' } })
+              axios.post(form.action, format.json(data))
                 .then(response => {
                   if (response.data.success) {
-                    const address = response.data.address;
+                    const address = response.data.value.payment.address;
                     storage.add(address);
                     $(form).trigger('reset');
                     load.details(address);
@@ -702,38 +697,41 @@
             return this.display ?? this.rentals;
           },
           pending: function () {
-            return (this.current.New ?? []).concat(this.current.Pending ?? []);
+            return (this.current.filter(r => r.status === 'New')).concat(this.current.filter(r => r.status === 'Pending'));
           },
           active: function () {
-            return this.current.Processed ?? [];
+            return this.current.filter(r => r.status === 'Processed');
           },
           expired: function () {
-            return this.current.Closed ?? [];
+            return this.current.filter(r => r.status === 'Closed');
           }
         },
         methods: {
           fetchRentals: function (addresses, save) {
-            axios.post('/api/myrentals', addresses, { headers: { 'RequestVerificationToken': '@token' } })
+            axios.post('@Model.Endpoints.RentalsByBananoAddresses', addresses)
               .then(response => {
                 if (save) {
-                  this.rentals = response.data;
+                  this.rentals = response.data.value;
                 } else {
-                  this.display = response.data;
+                  this.display = response.data.value;
                 }
               });
           },
           fetchWaxRentals: function (account) {
-            axios.get('/api/myrentals/' + account)
-              .then(response => this.display = response.data);
+            axios.get('@Model.Endpoints.RentalsByWaxAccount/' + account)
+              .then(response => this.display = response.data.value);
           },
           fetchRentalDetails: function (address) {
             this.detail = { loading: true };
-            axios.get('/api/rentaldetails/' + address)
+            axios.get('@Model.Endpoints.RentalByBananoAddress/' + address)
               .then(response => {
-                this.detail = response.data;
-                if (!response.data) {
-                  // Refresh, since we're obviously out of sync.
-                  this.fetchRentals(storage.addresses(), true);
+                const result = response.data;
+                if (result.success) {
+                  this.detail = format.withAddress(result.value);
+                  if (!result.value) {
+                    // Refresh, since we're obviously out of sync.
+                    this.fetchRentals(storage.addresses(), true);
+                  }
                 }
               });
           },
@@ -744,14 +742,14 @@
             return storage.addresses().includes(address);
           },
           remove: function (rental) {
-            storage.remove(rental.bananoAddress);
-            var arr = this.rentals[rental.status];
+            storage.remove(rental.payment.address);
+            var arr = this.rentals;
             arr.splice(arr.indexOf(rental), 1);
             this.$forceUpdate();
           },
           add: function (rental) {
-            storage.add(rental.bananoAddress);
-            this.rentals[rental.status].push(rental);
+            storage.add(rental.payment.address);
+            this.rentals.push(rental);
             this.$forceUpdate();
           },
           localize: function (datetime) {
@@ -799,11 +797,11 @@
               const data = $(form).serializeArray();
 
               this.loading = true;
-              axios.post(form.action, $.param(data), { headers: { 'RequestVerificationToken': '@token' } })
+              axios.post(form.action, format.json(data))
                 .then(response => {
                   this.loading = false;
                   if (response.data.success) {
-                    this.package = response.data.detail;
+                    this.package = format.withAddress(response.data.detail);
                     $(form).trigger('reset');
                   } else {
                     $('#error-alert-text').text(response.data.error);

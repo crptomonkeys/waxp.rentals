@@ -163,3 +163,16 @@ const load = {
   }
 
 };
+
+// ================
+//    CLASSES
+// ================
+
+class BananoAddress {
+  constructor(address) {
+    this.full = address;
+    this.start = address.substring(0, 11);
+    this.mid = address.substring(11,58);
+    this.end = address.substring(58);
+  }
+}

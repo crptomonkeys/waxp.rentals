@@ -39,11 +39,9 @@ namespace WaxRentals.Service.Controllers
                 new AppState
                 {
                     BananoPrice                    = Price(prices.Banano),
-                    BananoAddress                  = Banano.Address,
                     BananoBalance                  = Balance(Cache.BananoInfo.GetBalance()),
                                                    
                     WaxPrice                       = Price(prices.Wax),
-                    WaxAccount                     = WaxAccounts.Primary.Account,
                     WaxStaked                      = Balance(waxInfo.Staked),
                     WaxWorkingAccount              = waxInfo.Account,
                     WaxBalanceAvailableToday       = Balance(waxInfo.Available),

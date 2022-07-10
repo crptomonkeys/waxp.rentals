@@ -25,14 +25,17 @@ namespace WaxRentals.Api.Controllers
         public async Task<JsonResult> Create([FromBody] NewRental rental)
         {
             var result = await Rentals.Create(Mapper.Map(rental));
-            return result.Success
-                ? await ByBananoAddress(result.Value.Address)
-                : Fail<RentalInfo>(result.Error);
+            if (result.Success)
+            {
+                await Track.Notify($"Starting rental process for {rental.Account}.");
+                return await ByBananoAddress(result.Value.Address);
+            }
+            return Fail<RentalInfo>(result.Error);
         }
 
-        [HttpGet("v1/ByWaxAccount")]
+        [HttpGet("v1/ByWaxAccount/{account}")]
         [ProducesResponseType(typeof(Result<IEnumerable<RentalInfo>>), (int)HttpStatusCode.OK)]
-        public async Task<JsonResult> ByWaxAccount([FromBody] string account)
+        public async Task<JsonResult> ByWaxAccount(string account)
         {
             var result = await Rentals.ByWaxAccount(account);
             return result.Success
@@ -40,9 +43,9 @@ namespace WaxRentals.Api.Controllers
                 : Fail<IEnumerable<RentalInfo>>(result.Error);
         }
 
-        [HttpGet("v1/ByBananoAddress")]
+        [HttpGet("v1/ByBananoAddress/{address}")]
         [ProducesResponseType(typeof(Result<RentalInfo>), (int)HttpStatusCode.OK)]
-        public async Task<JsonResult> ByBananoAddress([FromBody] string address)
+        public async Task<JsonResult> ByBananoAddress(string address)
         {
             var result = await Rentals.ByBananoAddress(address);
             return result.Success

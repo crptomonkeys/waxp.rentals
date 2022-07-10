@@ -16,6 +16,7 @@
 
         public static class EnvironmentVariables
         {
+            public const string Api = "API";
             public const string Service = "SERVICE";
         }
 

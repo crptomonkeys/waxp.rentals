@@ -25,14 +25,17 @@ namespace WaxRentals.Api.Controllers
         public async Task<JsonResult> Create([FromBody] string memo)
         {
             var result = await Packages.Create(memo);
-            return result.Success
-                ? await ByBananoAddress(result.Value.Address)
-                : Fail<WelcomePackageInfo>(result.Error);
+            if (result.Success)
+            {
+                await Track.Notify($"Starting welcome package process for {memo}.");
+                return await ByBananoAddress(result.Value.Address);
+            }
+            return Fail<WelcomePackageInfo>(result.Error);
         }
 
-        [HttpGet("v1/ByBananoAddress")]
+        [HttpGet("v1/ByBananoAddress/{address}")]
         [ProducesResponseType(typeof(Result<WelcomePackageInfo>), (int)HttpStatusCode.OK)]
-        public async Task<JsonResult> ByBananoAddress([FromBody] string address)
+        public async Task<JsonResult> ByBananoAddress(string address)
         {
             var result = await Packages.ByBananoAddress(address);
             return result.Success

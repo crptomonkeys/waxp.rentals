@@ -52,11 +52,9 @@ namespace WaxRentalsWeb.Monitoring
         private static bool Differ(AppState left, AppState right)
         {
             var comparison = StringComparison.OrdinalIgnoreCase;
-            return !string.Equals(left.BananoAddress, right.BananoAddress, comparison)         ||
-                   left.BananoBalance != right.BananoBalance                                   ||
+            return left.BananoBalance != right.BananoBalance                                   ||
                    left.BananoPrice != right.BananoPrice                                       ||
                                                                                                
-                   !string.Equals(left.WaxAccount, right.WaxAccount, comparison)               ||
                    left.WaxBalanceAvailableToday != right.WaxBalanceAvailableToday             ||
                    left.WaxBalanceAvailableTomorrow != right.WaxBalanceAvailableTomorrow       ||
                    left.WaxPrice != right.WaxPrice                                             ||
