@@ -3,7 +3,6 @@
 - publish api
 
 - publish db+updateStake, web/service/processors
-  - can api and web containers be duplicated now?
 - README
 - merge to MAIN
 

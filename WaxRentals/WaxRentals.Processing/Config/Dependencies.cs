@@ -15,8 +15,6 @@ namespace WaxRentals.Processing.Config
 
             services.AddSingleton<PurchaseProcessor>();
 
-            //services.AddSingleton<WorkProcessor>();
-
             services.AddSingleton<DayChangeProcessor>();
 
             services.AddSingleton<TrackBananoProcessor>();
@@ -27,6 +25,8 @@ namespace WaxRentals.Processing.Config
             services.AddSingleton<WelcomePackageNftProcessor>();
             services.AddSingleton<WelcomePackageRentalProcessor>();
             services.AddSingleton<WelcomePackageSweepProcessor>();
+
+            services.AddSingleton<ClearOlderLogsProcessor>();
         }
 
     }
