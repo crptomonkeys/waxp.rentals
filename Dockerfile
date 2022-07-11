@@ -48,4 +48,4 @@ ENTRYPOINT [ "dotnet" ]
 
 #ENV ASPNETCORE_URLS=http://+:2022
 #ENV SERVICE=http://service:2022
-#CMD [ "WaxRentals.Service.dll" ]
+#CMD [ "WaxRentals.Api.dll" ]
