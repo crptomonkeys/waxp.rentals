@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using WaxRentals.Api.Config;
+using WaxRentals.Api.Middleware;
 using WaxRentals.Service.Shared.Config;
 
 #nullable disable
@@ -43,6 +44,8 @@ app.UseSwaggerUI(options =>
 app.UseCors();
 
 app.UseAuthorization();
+
+app.UseMessageLogging();
 
 app.MapControllers();
 
