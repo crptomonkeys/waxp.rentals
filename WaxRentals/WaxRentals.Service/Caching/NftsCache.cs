@@ -30,10 +30,13 @@ namespace WaxRentals.Service.Caching
         {
             try
             {
-                var json = JObject.Parse(new QuickTimeoutWebClient().DownloadString(string.Format(Locations.Assets, Wax.Primary.Account), QuickTimeout));
+                var random = new Random();
+                var data = await new QuickTimeoutWebClient().DownloadStringTaskAsync(string.Format(Locations.Assets, Wax.Primary.Account), QuickTimeout);
+                var json = JObject.Parse(data);
                 Rwls.SafeWrite(() =>
                     Nfts = json.SelectTokens(Protocol.Assets)
                                .Select(token => token.ToObject<Nft>())
+                               .OrderBy(nft => random.Next()) // Randomize for better distribution distribution.
                 );
             }
             catch (Exception ex)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
+using WaxRentals.Service.Caching;
 using WaxRentals.Service.Shared.Entities.Input;
 using static WaxRentals.Service.Shared.Config.Constants;
 
@@ -11,15 +12,18 @@ namespace WaxRentals.Service.Controllers
 
         private IBananoAccountFactory Banano { get; }
         private IBananoAccount Storage { get; }
+        private BananoInfoCache BananoInfo { get; }
 
         public BananoController(
             ILog log,
             IBananoAccountFactory banano,
-            IBananoAccount storage)
+            IBananoAccount storage,
+            BananoInfoCache bananoInfo)
             : base(log)
         {
             Banano = banano;
             Storage = storage;
+            BananoInfo = bananoInfo;
         }
 
         [HttpGet("RentalAccountBalance/{id}")]
@@ -63,7 +67,9 @@ namespace WaxRentals.Service.Controllers
         [HttpPost("CompleteSweeps")]
         public async Task<JsonResult> CompleteSweeps()
         {
-            return Succeed(await Storage.Receive());
+            var received = await Storage.Receive();
+            await BananoInfo.Invalidate();
+            return Succeed(received);
         }
 
         [HttpPost("Send")]
@@ -72,7 +78,9 @@ namespace WaxRentals.Service.Controllers
             var available = await Storage.GetBalance();
             if (available >= input.Amount)
             {
-                return Succeed(await Storage.Send(input.Recipient, input.Amount));
+                var hash = await Storage.Send(input.Recipient, input.Amount);
+                await BananoInfo.Invalidate();
+                return Succeed(hash);
             }
             return Fail($"Requested {input.Amount} {Coins.Banano} but only have {available} {Coins.Banano} available.");
         }

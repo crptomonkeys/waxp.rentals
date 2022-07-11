@@ -17,9 +17,7 @@ namespace WaxRentals.Service.Controllers
         private IProcess Process { get; }
         private IExplore Explore { get; }
 
-        private CostsCache Costs { get; }
-        private LimitsCache Limits { get; }
-        private WaxInfoCache WaxInfo { get; }
+        private Cache Cache { get; }
 
         private IBananoAccountFactory Banano { get; }
         private Mapper Mapper { get; }
@@ -30,9 +28,7 @@ namespace WaxRentals.Service.Controllers
             IProcess process,
             IExplore explore,
             
-            CostsCache costs,
-            LimitsCache limits,
-            WaxInfoCache waxInfo,
+            Cache cache,
             
             IBananoAccountFactory banano,
             Mapper mapper)
@@ -42,9 +38,7 @@ namespace WaxRentals.Service.Controllers
             Process = process;
             Explore = explore;
 
-            Costs = costs;
-            Limits = limits;
-            WaxInfo = waxInfo;
+            Cache = cache;
 
             Banano = banano;
             Mapper = mapper;
@@ -59,8 +53,8 @@ namespace WaxRentals.Service.Controllers
             {
                 // Validate.
 
-                var limits = Limits.GetLimits();
-                var waxBalances = WaxInfo.GetBalances();
+                var limits = Cache.Limits.GetLimits();
+                var waxBalances = Cache.WaxInfo.GetBalances();
 
                 if (input.Days < 1)
                 {
@@ -68,15 +62,15 @@ namespace WaxRentals.Service.Controllers
                 }
                 if (input.Cpu + input.Net < limits.WaxMinimumRent)
                 {
-                    return Fail($"Must rent at least {limits.WaxMinimumRent} WAX.");
+                    return Fail($"Must rent at least {limits.WaxMinimumRent:#,##0.#} WAX.");
                 }
                 if (input.Free && (input.Cpu + input.Net) > waxBalances.Available)
                 {
-                    return Fail($"Cannot provide a free rental of more than {waxBalances.Available} WAX right now.");
+                    return Fail($"Cannot provide a free rental of more than {waxBalances.Available:#,##0.#} WAX right now.");
                 }
                 if (!input.Free && (input.Cpu + input.Net > limits.WaxMaximumRent))
                 {
-                    return Fail($"Cannot rent more than {limits.WaxMaximumRent} WAX in one transaction right now.");
+                    return Fail($"Cannot rent more than {limits.WaxMaximumRent:#,##0.#} WAX in one transaction right now.");
                 }
 
                 // Open.
@@ -88,7 +82,7 @@ namespace WaxRentals.Service.Controllers
                 }
                 else
                 {
-                    var cost = (input.Cpu + input.Net) * input.Days * Costs.GetCosts().WaxRentPriceInBanano;
+                    var cost = (input.Cpu + input.Net) * input.Days * Cache.Costs.GetCosts().WaxRentPriceInBanano;
                     cost = decimal.Round(cost, 4);
 
                     id = await Insert.OpenRental(input.Account, RentalDays(input.Days), input.Cpu, input.Net, cost);

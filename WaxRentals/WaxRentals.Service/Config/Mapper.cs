@@ -30,6 +30,18 @@ namespace WaxRentals.Service.Config
             return null;
         }
 
+        public Nft? Map(Waxp.Transact.Nft nft)
+        {
+            if (nft != null)
+            {
+                return new Nft
+                {
+                    AssetId = nft.AssetId
+                };
+            }
+            return null;
+        }
+
         public RentalInfo? Map(Data.Entities.Rental rental)
         {
             if (rental != null)

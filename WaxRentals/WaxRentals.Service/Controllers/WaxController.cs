@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
 using WaxRentals.Service.Config;
-using WaxRentals.Waxp;
 using WaxRentals.Waxp.History;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
@@ -19,20 +17,20 @@ namespace WaxRentals.Service.Controllers
 
         private IWaxAccounts Wax { get; }
         private IWaxHistoryChecker History { get; }
-        private WaxInfoCache WaxInfo { get; }
+        private Cache Cache { get; }
         private Mapper Mapper { get; }
 
         public WaxController(
             ILog log,
             IWaxAccounts wax,
             IWaxHistoryChecker history,
-            WaxInfoCache waxInfo,
+            Cache cache,
             Mapper mapper)
             : base(log)
         {
             Wax = wax;
             History = history;
-            WaxInfo = waxInfo;
+            Cache = cache;
             Mapper = mapper;
         }
 
@@ -41,14 +39,8 @@ namespace WaxRentals.Service.Controllers
         {
             try
             {
-                var random = new Random();
-                var data = await new QuickTimeoutWebClient().DownloadStringTaskAsync(string.Format(Locations.Assets, Wax.Primary.Account), QuickTimeout);
-                var json = JObject.Parse(data);
-                return Succeed(json.SelectTokens(Protocol.Assets)
-                                   .Select(token => token.ToObject<Nft>())
-                                   .Select(nft => new Entities.Nft { AssetId = nft.AssetId })
-                                   .OrderBy(nft => random.Next()) // Randomize for better distribution distribution.
-                                   .ToList());
+                var nfts = Cache.Nfts.GetNfts();
+                return Succeed(nfts.Select(Mapper.Map));
             }
             catch (Exception ex)
             {
@@ -67,9 +59,9 @@ namespace WaxRentals.Service.Controllers
         [HttpPost("Sweep")]
         public async Task<JsonResult> Sweep()
         {
-            var primary = WaxInfo.GetBalances(Wax.Primary.Account);
-            var yesterday = WaxInfo.GetBalances(Wax.Yesterday.Account);
-            var today = WaxInfo.GetBalances(Wax.Today.Account);
+            var primary = Cache.WaxInfo.GetBalances(Wax.Primary.Account);
+            var yesterday = Cache.WaxInfo.GetBalances(Wax.Yesterday.Account);
+            var today = Cache.WaxInfo.GetBalances(Wax.Today.Account);
 
             var tasks = new List<Task>();
             if (primary?.Available > 0)
@@ -88,7 +80,7 @@ namespace WaxRentals.Service.Controllers
             if (tasks.Any())
             {
                 await Task.WhenAll(tasks);
-                await WaxInfo.Invalidate();
+                await Cache.WaxInfo.Invalidate();
             }
             return Succeed();
         }
@@ -112,6 +104,7 @@ namespace WaxRentals.Service.Controllers
             var (stakeSuccess, hash) = await source.Stake(input.Target, input.Cpu, input.Net);
             if (stakeSuccess)
             {
+                await Cache.WaxInfo.Invalidate();
                 return Succeed(new Entities.NewStakeInfo { SourceAccount = source.Account, Transaction = hash });
             }
             return Fail($"Failed to stake {input.Cpu + input.Net} {Coins.Wax} from {source.Account} to {input.Target}.");
@@ -137,7 +130,15 @@ namespace WaxRentals.Service.Controllers
                 if (balances.Available >= input.Amount)
                 {
                     var (success, hash) = await account.Send(input.Recipient, input.Amount, input.Memo);
-                    return success ? Succeed(hash) : Fail($"Failed to send {Coins.Wax} from {input.Source} to {input.Recipient}.");
+                    if (success)
+                    {
+                        await Cache.WaxInfo.Invalidate();
+                        return Succeed(hash);
+                    }
+                    else
+                    {
+                        return Fail($"Failed to send {Coins.Wax} from {input.Source} to {input.Recipient}.");
+                    }
                 }
                 else
                 {
@@ -153,7 +154,15 @@ namespace WaxRentals.Service.Controllers
             try
             {
                 var (success, transaction) = await Wax.Primary.SendAsset(input.Recipient, input.AssetId, input.Memo);
-                return success ? Succeed(transaction) : Fail($"Failed to send NFT to {input.Recipient}.");
+                if (success)
+                {
+                    await Cache.Nfts.Invalidate();
+                    return Succeed(transaction);
+                }
+                else
+                {
+                    return Fail($"Failed to send NFT to {input.Recipient}.");
+                }
             }
             catch (Exception ex)
             {
