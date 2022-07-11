@@ -40,6 +40,13 @@ namespace WaxRentals.Service.Controllers
             return Succeed();
         }
 
+        [HttpPost("ClearOlderRecords")]
+        public async Task<JsonResult> ClearOlderRecords()
+        {
+            await Log.ClearOlderRecords();
+            return Succeed();
+        }
+
         [HttpPost("Transaction")]
         public JsonResult Transaction([FromBody] TransactionLog log)
         {

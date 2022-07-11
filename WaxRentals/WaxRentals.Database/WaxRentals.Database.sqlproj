@@ -73,6 +73,7 @@
     <Folder Include="reporting\Stored Procedures" />
     <Folder Include="dbo\Views" />
     <Folder Include="welcome\Views" />
+    <Folder Include="logs\Stored Procedures" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\Status.sql" />
@@ -92,6 +93,7 @@
     <Build Include="reporting\Stored Procedures\MonthlyStats.sql" />
     <Build Include="dbo\Views\Rentals.sql" />
     <Build Include="welcome\Views\Packages.sql" />
+    <Build Include="logs\Stored Procedures\ClearOlderRecords.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\PostDeploy.sql" />
