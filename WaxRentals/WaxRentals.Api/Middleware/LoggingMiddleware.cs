@@ -18,7 +18,7 @@ namespace WaxRentals.Api.Middleware
             Next = next;
             Track = track;
         }
-        // NOT LOGGING BODIES!  wtf
+        
         public async Task Invoke(HttpContext context)
         {
             var request = context.Request;
@@ -80,7 +80,7 @@ namespace WaxRentals.Api.Middleware
         private static string GetFullMessage(string body, string lead, IHeaderDictionary headers)
         {
             // For some reason, we need to force the Content-Length header for it to be included.
-            headers.OfType<HttpContentHeaders>().Select(header => header.ContentLength).ToList();
+            headers.OfType<HttpContentHeaders>().Select(header => header.ContentLength);
 
             var combined = string.Join(
                 Environment.NewLine,

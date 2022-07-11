@@ -56,7 +56,7 @@ namespace WaxRentalsWeb.Monitoring
             GC.SuppressFinalize(this);
         }
 
-        protected virtual async Task Elapsed()
+        protected async virtual Task Elapsed()
         {
             try
             {
@@ -72,59 +72,6 @@ namespace WaxRentalsWeb.Monitoring
         }
 
         protected abstract Task<bool> Tick();
-
-        #endregion
-
-    }
-
-    public abstract class Monitor<T> : Monitor
-    {
-
-        #region " Event "
-
-        protected Monitor(TimeSpan interval, ITrackService log) : base(interval, log) { }
-
-        public new event EventHandler<T> Updated;
-
-        protected async Task RaiseEvent(T result)
-        {
-            try
-            {
-                Updated?.Invoke(this, result);
-                await RaiseEvent();
-            }
-            catch (Exception ex)
-            {
-                await Log.Error(ex);
-            }
-        }
-
-        #endregion
-
-        #region " Timer "
-
-        protected async override Task Elapsed()
-        {
-            try
-            {
-                if (await Tick(out T args))
-                {
-                    await RaiseEvent(args);
-                }
-            }
-            catch (Exception ex)
-            {
-                await Log.Error(ex);
-            }
-        }
-
-        protected abstract Task<bool> Tick(out T result);
-
-        protected override Task<bool> Tick()
-        {
-            // This should never be called.
-            return Task.FromResult(false);
-        }
 
         #endregion
 

@@ -65,7 +65,7 @@ namespace WaxRentalsWeb.Notifications
             await Notify(client, "AlertChanged", () => SiteMessage.Contents);
         }
 
-        private async Task Notify<T>(IClientProxy client, string method, Func<T> getData)
+        private static async Task Notify<T>(IClientProxy client, string method, Func<T> getData)
         {
             try
             {

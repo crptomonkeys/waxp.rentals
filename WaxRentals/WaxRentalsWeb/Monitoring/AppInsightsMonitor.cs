@@ -53,7 +53,7 @@ namespace WaxRentalsWeb.Monitoring
 
         #region " Differ "
 
-        private bool Differ(AppInsights left, AppInsights right)
+        private static bool Differ(AppInsights left, AppInsights right)
         {
             return Differ(left.MonthlyStats         , right.MonthlyStats                                                 ) ||
                    Differ(left.LatestRentals        , right.LatestRentals        , rental => rental.Payment.Address      ) ||
@@ -61,7 +61,7 @@ namespace WaxRentalsWeb.Monitoring
                    Differ(left.LatestWelcomePackages, right.LatestWelcomePackages                                        );
         }
 
-        private bool Differ<T>(IEnumerable<T> left, IEnumerable<T> right, Func<T, string> get)
+        private static bool Differ<T>(IEnumerable<T> left, IEnumerable<T> right, Func<T, string> get)
         {
             if (left == null || right == null)
             {
@@ -73,7 +73,7 @@ namespace WaxRentalsWeb.Monitoring
             return !Enumerable.SequenceEqual(leftIds, rightIds, StringComparer.OrdinalIgnoreCase);
         }
 
-        private bool Differ(IEnumerable<WelcomePackageInfo> left, IEnumerable<WelcomePackageInfo> right)
+        private static bool Differ(IEnumerable<WelcomePackageInfo> left, IEnumerable<WelcomePackageInfo> right)
         {
             var differ = Differ(left, right, package => package.Payment.Address);
             if (!differ)
@@ -87,7 +87,7 @@ namespace WaxRentalsWeb.Monitoring
             return differ;
         }
 
-        private bool Differ(IEnumerable<MonthlyStats> left, IEnumerable<MonthlyStats> right)
+        private static bool Differ(IEnumerable<MonthlyStats> left, IEnumerable<MonthlyStats> right)
         {
             var firstLeft = left?.FirstOrDefault();
             var firstRight = right?.FirstOrDefault();

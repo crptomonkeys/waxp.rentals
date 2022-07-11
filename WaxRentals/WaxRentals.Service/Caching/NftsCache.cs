@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Manager;
 using WaxRentals.Monitoring.Extensions;
-using WaxRentals.Waxp;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
@@ -17,6 +16,7 @@ namespace WaxRentals.Service.Caching
 
 
         private IWaxAccounts Wax { get; }
+        private HttpClient Client { get; }
         private ReaderWriterLockSlim Rwls { get; } = new();
         private IEnumerable<Nft> Nfts { get; set; } = Enumerable.Empty<Nft>();
 
@@ -24,6 +24,7 @@ namespace WaxRentals.Service.Caching
             : base(log, interval)
         {
             Wax = wax;
+            Client = new HttpClient { Timeout = QuickTimeout };
         }
 
         protected async override Task Tick()
@@ -31,7 +32,7 @@ namespace WaxRentals.Service.Caching
             try
             {
                 var random = new Random();
-                var data = await new QuickTimeoutWebClient().DownloadStringTaskAsync(string.Format(Locations.Assets, Wax.Primary.Account), QuickTimeout);
+                var data = await Client.GetStringAsync(string.Format(Locations.Assets, Wax.Primary.Account));
                 var json = JObject.Parse(data);
                 Rwls.SafeWrite(() =>
                     Nfts = json.SelectTokens(Protocol.Assets)
