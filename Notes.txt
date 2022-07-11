@@ -1,7 +1,6 @@
 
-- bugs: rentals not sorting by expires, expired rentals not showing account
 - README
-- merge to MAIN
+- push, merge to MAIN
 
 - admin site
 - README

@@ -317,7 +317,7 @@
                         <td class="text-center align-middle">{{ rental.target.account }}</td>
                         <td class="text-center align-middle">{{ rental.target.cpu }} WAX</td>
                         <td class="text-center align-middle">{{ rental.target.net }} WAX</td>
-                        <td class="text-center align-middle">{{ localize(rental.dates.expires) }}</td>
+                        <td class="text-center align-middle">{{ localize(rental.dates?.expires) }}</td>
                         <td class="text-center align-middle">
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxStake" v-if="rental.transactions.waxStake"></i>
                         </td>

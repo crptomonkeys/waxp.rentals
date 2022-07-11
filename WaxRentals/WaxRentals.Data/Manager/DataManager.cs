@@ -528,8 +528,7 @@ namespace WaxRentals.Data.Manager
         {
             return await ProcessWithFactory(async context =>
             {
-                // Can't seem to execute a stored procedure without
-                // having a set on the context, so just go direct.
+                // Can't seem to execute a stored procedure without having a DbSet on the context, so just go direct.
                 using var connection = context.Database.GetDbConnection();
                 await connection.OpenAsync();
                 using var command = connection.CreateCommand();
@@ -561,6 +560,7 @@ namespace WaxRentals.Data.Manager
             {
                 return await (from rental in context.Rentals
                               where addresses.Contains(rental.BananoAddress) && (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned)
+                              orderby rental.PaidThrough, rental.Paid, rental.RentalId
                               select rental).ToArrayAsync();
             });
         }
@@ -572,6 +572,9 @@ namespace WaxRentals.Data.Manager
                 return await context.Rentals
                                     .Where(rental => rental.TargetWaxAccount == account &&
                                                      (rental.StatusId != (int)Status.New || rental.Inserted > Abandoned))
+                                    .OrderBy(rental => rental.PaidThrough)
+                                    .ThenBy(rental => rental.Paid)
+                                    .ThenBy(rental => rental.RentalId)
                                     .ToArrayAsync();
             });
         }
@@ -582,6 +585,7 @@ namespace WaxRentals.Data.Manager
             {
                 return await (from package in context.WelcomePackages
                               where addresses.Contains(package.BananoAddress) && (package.StatusId != (int)Status.New || package.Inserted > Abandoned)
+                              orderby package.PackageId
                               select package).ToArrayAsync();
             });
         }
