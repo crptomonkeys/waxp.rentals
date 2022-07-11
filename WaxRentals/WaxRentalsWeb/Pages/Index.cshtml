@@ -222,7 +222,7 @@
                     </a>
                     <br><br>Send <strong>exactly {{ detail.payment.amount }} BAN</strong> to
                     <br><span class="banano-address"><span class="address-highlight">{{ detail.payment.address.start }}</span>{{ detail.payment.address.mid }}<span class="address-highlight">{{ detail.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.payment.address.full"></i>.
-                    <br><br>{{ detail.target.account }} | {{ detail.target.cpu }} CPU | {{ detail.target.net }} NET | {{ detail.target.days }} day<span v-if="detail.target.days > 1">s</span>
+                    <br><br>{{ detail.target.account }} | {{ detail.target.cpu }} CPU | {{ detail.target.net }} NET | {{ days(detail.target.days) }}
                   </p>
                 </div>
               </div>
@@ -283,7 +283,7 @@
                     </a>
                     <br><br>Send <strong>exactly {{ detail.payment.amount }} BAN</strong> to
                     <br><span class="banano-address"><span class="address-highlight">{{ detail.payment.address.start }}</span>{{ detail.payment.address.mid }}<span class="address-highlight">{{ detail.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.payment.address.full"></i>.
-                    <br><br>{{ detail.target.account }} | {{ detail.target.cpu }} CPU | {{ detail.target.net }} NET | {{ detail.target.days }} day<span v-if="detail.target.days > 1">s</span>
+                    <br><br>{{ detail.target.account }} | {{ detail.target.cpu }} CPU | {{ detail.target.net }} NET | {{ days(detail.target.days) }}
                   </p>
                 </div>
               </div>
@@ -385,7 +385,7 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="stats in insights.monthlyStats">
+                      <tr v-for="stats in monthlyStatsView">
                         <td class="text-center align-middle">
                           {{ stats.year }}
                         </td>
@@ -401,6 +401,11 @@
                         </td>
                         <td class="text-center align-middle">
                           {{ stats.welcomePackagesOpened }}
+                        </td>
+                      </tr>
+                      <tr v-if="showMoreStatsLink">
+                        <td class="text-center align-middle" colspan="5">
+                          <a href="/direct/insights" @@click.prevent="hideOverflowStats = false"><strong>Show All</strong></a>
                         </td>
                       </tr>
                     </tbody>
@@ -770,7 +775,17 @@
               latestPurchases: [],
               latestWelcomePackages: [],
               monthlyStats: []
-            }
+            },
+            hideOverflowStats: true,
+            minStatsToShow: 3
+          }
+        },
+        computed: {
+          showMoreStatsLink: function() {
+            return this.hideOverflowStats && this.insights.monthlyStats.length > this.minStatsToShow;
+          },
+          monthlyStatsView: function () {
+            return this.showMoreStatsLink ? this.insights.monthlyStats.slice(0, this.minStatsToShow) : this.insights.monthlyStats;
           }
         },
         methods: {
