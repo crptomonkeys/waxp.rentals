@@ -1,10 +1,14 @@
 
-- Add Staked and base Expires off that
-- switch to api
+- finish API
 - publish api
-- publish web
+
+- publish db+updateStake, web/service/processors
+- README
+- merge to MAIN
+
 - admin site
 - README
+- merge to MAIN
 
 - announce live
   - best things about CM/banano

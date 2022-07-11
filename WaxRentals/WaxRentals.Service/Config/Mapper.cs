@@ -59,6 +59,7 @@ namespace WaxRentals.Service.Config
                     BananoAddress      = account.Address,
                     BananoPaymentLink  = account.BuildLink(rental.Banano),
                     Paid               = rental.Paid,
+                    Staked             = rental.Staked,
                     Expires            = rental.PaidThrough,
                     StakeTransaction   = rental.StakeWaxTransaction,
                     UnstakeTransaction = rental.UnstakeWaxTransaction,

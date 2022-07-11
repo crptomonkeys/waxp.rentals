@@ -353,7 +353,7 @@
                         <td class="text-center align-middle">{{ rental.target.address }}</td>
                         <td class="text-center align-middle">{{ rental.target.cpu + rental.target.net }} WAX</td>
                         <td class="text-center align-middle">
-                          {{ localize(rental.dates.paid) }}
+                          {{ localize(rental.dates.staked) }}
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxStake" v-if="rental.transactions.waxStake"></i>
                         </td>
                         <td class="text-center align-middle">
@@ -696,10 +696,10 @@
             return this.display ?? this.rentals;
           },
           pending: function () {
-            return (this.current.filter(r => r.status === 'New')).concat(this.current.filter(r => r.status === 'Pending'));
+            return this.current.filter(r => r.status === 'New');
           },
           active: function () {
-            return this.current.filter(r => r.status === 'Processed');
+            return this.current.filter(r => r.status === 'Pending').concat(this.current.filter(r => r.status === 'Processed'));
           },
           expired: function () {
             return this.current.filter(r => r.status === 'Closed');
@@ -752,7 +752,7 @@
             this.$forceUpdate();
           },
           localize: function (datetime) {
-            return new Date(datetime + 'z').toLocaleString();
+            return datetime ? new Date(datetime + 'z').toLocaleString() : 'PENDING';
           }
         },
         mounted() {

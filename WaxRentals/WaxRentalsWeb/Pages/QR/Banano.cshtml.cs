@@ -19,26 +19,19 @@ namespace WaxRentalsWeb.Pages
 
         public async Task<IActionResult> OnGetRental(string address)
         {
-            if (!string.IsNullOrWhiteSpace(address))
-            {
-                var result = await Proxy.Get<RentalInfo>(Proxy.Endpoints.RentalByBananoAddress, address);
-                if (result.Success && result.Value != null)
-                {
-                    var rental = result.Value;
-                    if (rental.Status == Status.New || rental.Status == Status.Pending)
-                    {
-                        return GenerateQRCode(rental.Payment.AppLink);
-                    }
-                }
-            }
-            return null;
+            return await Process(Proxy.Endpoints.RentalByBananoAddress, address);
         }
 
         public async Task<IActionResult> OnGetWelcome(string address)
         {
+            return await Process(Proxy.Endpoints.WelcomePackageByBananoAddress, address);
+        }
+
+        private async Task<IActionResult> Process(string endpoint, string address)
+        {
             if (!string.IsNullOrWhiteSpace(address))
             {
-                var result = await Proxy.Get<RentalInfo>(Proxy.Endpoints.WelcomePackageByBananoAddress, address);
+                var result = await Proxy.Get<RentalInfo>(endpoint, address);
                 if (result.Success && result.Value != null)
                 {
                     var package = result.Value;

@@ -6,7 +6,8 @@ namespace WaxRentals.Api.Entities.Rentals
     {
 
         public DateTime Paid { get; set; }
-        public DateTime Expires { get; set; }
+        public DateTime? Staked { get; set; }
+        public DateTime? Expires { get; set; }
 
     }
 }

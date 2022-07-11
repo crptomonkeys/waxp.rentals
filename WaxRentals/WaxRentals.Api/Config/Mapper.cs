@@ -182,7 +182,8 @@ namespace WaxRentals.Api.Config
                     result.Dates = new Entities.Rentals.DatesInfo
                     {
                         Paid    = rental.Paid.Value,
-                        Expires = rental.Expires.Value
+                        Staked  = rental.Staked,
+                        Expires = rental.Expires
                     };
                 }
                 if (rental.StakeTransaction != null || rental.UnstakeTransaction != null)
