@@ -434,7 +434,7 @@
                           {{ days(rental.target.days) }}
                         </td>
                         <td class="text-center">
-                          <span v-if="rental.banano">
+                          <span v-if="rental.payment.amount">
                             {{ rental.payment.amount }} BAN
                             <i class="fa fa-external-link banano-address-link" :data-address="rental.payment.address"></i>
                           </span>
