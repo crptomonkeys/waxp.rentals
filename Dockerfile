@@ -7,16 +7,16 @@ WORKDIR /app/WaxRentals
 RUN dotnet restore
 
 WORKDIR /app/WaxRentals/WaxRentalsWeb
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Web -o out
 
 WORKDIR /app/WaxRentals/WaxRentals.Processing
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Processors -o out
 
 WORKDIR /app/WaxRentals/WaxRentals.Service
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Service -o out
 
 WORKDIR /app/WaxRentals/WaxRentals.Api
-RUN dotnet publish -c Release -o out
+RUN dotnet publish -c API -o out
 
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
