@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\WaxRentals.Api.Shared\WaxRentals.Api.Shared.csproj" />
     <ProjectReference Include="..\WaxRentals.Service.Shared\WaxRentals.Service.Shared.csproj" />
   </ItemGroup>
 
