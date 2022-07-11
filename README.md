@@ -12,7 +12,7 @@ To stand up your own version of this site, you'll need a few things:
 
 # Docker-Compose File
 
-There are three containers involved in https://waxp.rentals: the website (web), the event processors (processors), and the database (data).  
+There are five containers involved in https://waxp.rentals: the public api (api), the web front end (web), the event processors (processors), the central service (service), and the database (data).  
 The web and processors containers are based on the same image but with different CMDs.  
 Some lines may differ slightly, but this is the basic concept:
 
@@ -21,27 +21,50 @@ version: '3.8'
 
 services:
 
-  web:
+  api:
     build: 'https://github.com/cinderblockgames/waxp.rentals.git#main'
-    image: 'your-private-registry/wax-rentals/web:#.#.#'
-    command: [ "/app/web/WaxRentalsWeb.dll" ]
-    secrets:
-      - banano.seed
-      - welcome.banano.seed
-      - wax.key
-      - wax.db
-      - telegram.waxp.rentals
+    image: 'your-private-registry/wax-rentals:#.#.#'
+    command: [ "/app/api/WaxRentals.Api.dll" ]
+    healthcheck:
+      test: curl --fail http://localhost:2022/index.html || exit 1
+      interval: 60s
+      timeout: 5s
+      retries: 2
+      start_period: 5s
     environment:
       - ASPNETCORE_URLS=http://+:2022
-    volumes:
-      - '/run/rentwax/files:/run/files'
+      - SERVICE=http://service:2022
     networks:
       - traefik
-      - banano
+      - wax-rentals-internal
+    deploy:
+      mode: replicated
+      replicas: 2
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.docker.network=traefik'
+        - 'traefik.http.routers.wax-rentals-api.rule=Host(`api.waxp.rentals`)'
+        - 'traefik.http.routers.wax-rentals-api.entrypoints=web-secure'
+        - 'traefik.http.routers.wax-rentals-api.tls'
+        - 'traefik.http.services.wax-rentals-api.loadbalancer.server.port=2022'
+
+  web:
+    image: 'your-private-registry/wax-rentals:#.#.#'
+    command: [ "/app/web/WaxRentalsWeb.dll" ]
+    environment:
+      - ASPNETCORE_URLS=http://+:2022
+      - SERVICE=http://service:2022
+      - API=https://api.waxp.rentals
+    volumes:
+      - '/run/rentwax/files:/run/files'
+      - '/run/rentwax/DataProtection-Keys:/root/.aspnet/DataProtection-Keys'
+    networks:
+      - traefik
       - wax-rentals
       - wax-rentals-internal
     deploy:
       mode: replicated
+      # do not increase past 1
       replicas: 1
       labels:
         - 'traefik.enable=true'
@@ -52,14 +75,34 @@ services:
         - 'traefik.http.services.wax-rentals.loadbalancer.server.port=2022'
 
   processors:
-    image: 'your-private-registry/wax-rentals/web:#.#.#'
+    image: 'your-private-registry/wax-rentals:#.#.#'
     command: [ "/app/processors/WaxRentals.Processing.dll" ]
+    environment:
+      - SERVICE=http://service:2022
+    networks:
+      - wax-rentals-internal
+    deploy:
+      mode: replicated
+      # do not increase past 1
+      replicas: 1
+
+  service:
+    image: 'your-private-registry/wax-rentals:#.#.#'
+    command: [ "/app/service/WaxRentals.Service.dll" ]
     secrets:
       - banano.seed
       - welcome.banano.seed
       - wax.key
       - wax.db
       - telegram.waxp.rentals
+    environment:
+      - ASPNETCORE_URLS=http://+:2022
+      - DB_FILE=/run/secrets/wax.db
+      - WAX_PRIMARY=rentwaxp4ban
+      - WAX_TRANSACT=rentwax4ban1+rentwax4ban2+rentwax4ban3+rentwax4ban4
+      - WAX_KEY_FILE=/run/secrets/wax.key
+      - BANANO_SEED_FILE=/run/secrets/banano.seed
+      - BANANO_SEED_FILE_WELCOME=/run/secrets/welcome.banano.seed
     volumes:
       - '/run/rentwax/output:/run/output'
     networks:
@@ -68,6 +111,7 @@ services:
       - wax-rentals-internal
     deploy:
       mode: replicated
+      # do not increase past 1
       replicas: 1
 
   data:
@@ -79,6 +123,7 @@ services:
     networks: [wax-rentals-internal]
     deploy:
       mode: replicated
+      # do not increase past 1
       replicas: 1
       placement:
         constraints: [node.platform.arch == x86_64]
@@ -166,7 +211,7 @@ There are four docker networks in use, all overlay networks:
 
 ## traefik
 
-This is the ingress network for traefik to reverse proxy the site.
+This is the ingress network for traefik to reverse proxy the api and web front end.
 
 ## banano
 
@@ -178,7 +223,7 @@ This allows access outside the docker network.
 
 ## wax-rentals-internal
 
-This allows access for communications within the project -- specifically, connections to the database.
+This allows access for communications within the project -- specifically, connections to the service and to the database.
 
 # tracking.csv (optional)
 
@@ -190,7 +235,7 @@ Date,Event,Coins,Earned,Spent
 
 # site-message
 
-This file lives in `/run/files` and provides the ability to set a site message to be displayed at the top of the site for announcements.
+This file lives in `/run/files` in the web front end container and provides the ability to set a site message to be displayed at the top of the site for announcements.
 
 # Constants files
 

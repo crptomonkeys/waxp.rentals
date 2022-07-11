@@ -1,7 +1,4 @@
 
-- README
-- push, merge to MAIN
-
 - admin site
 - README
 - merge to MAIN
