@@ -1,8 +1,5 @@
 
-- https://github.com/cinderblockgames/waxp.rentals/issues/48 add healthchecks
-- publish api
-
-- publish db+updateStake, web/service/processors
+- bugs: rentals not sorting by expires, expired rentals not showing account
 - README
 - merge to MAIN
 
