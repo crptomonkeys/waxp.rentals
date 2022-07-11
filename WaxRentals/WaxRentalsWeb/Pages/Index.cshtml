@@ -222,7 +222,7 @@
                     </a>
                     <br><br>Send <strong>exactly {{ detail.payment.amount }} BAN</strong> to
                     <br><span class="banano-address"><span class="address-highlight">{{ detail.payment.address.start }}</span>{{ detail.payment.address.mid }}<span class="address-highlight">{{ detail.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.payment.address.full"></i>.
-                    <br><br>CPU: {{ detail.target.cpu }} | NET: {{ detail.target.net }} | Duration: {{ detail.target.days }} day<span v-if="detail.target.days > 1">s</span>
+                    <br><br>{{ detail.target.account }} | {{ detail.target.cpu }} CPU | {{ detail.target.net }} NET | {{ detail.target.days }} day<span v-if="detail.target.days > 1">s</span>
                   </p>
                 </div>
               </div>
@@ -283,7 +283,7 @@
                     </a>
                     <br><br>Send <strong>exactly {{ detail.payment.amount }} BAN</strong> to
                     <br><span class="banano-address"><span class="address-highlight">{{ detail.payment.address.start }}</span>{{ detail.payment.address.mid }}<span class="address-highlight">{{ detail.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.payment.address.full"></i>.
-                    <br><br>CPU: {{ detail.target.cpu }} | NET: {{ detail.target.net }} | Duration: {{ detail.target.days }} day<span v-if="detail.target.days > 1">s</span>
+                    <br><br>{{ detail.target.account }} | {{ detail.target.cpu }} CPU | {{ detail.target.net }} NET | {{ detail.target.days }} day<span v-if="detail.target.days > 1">s</span>
                   </p>
                 </div>
               </div>
