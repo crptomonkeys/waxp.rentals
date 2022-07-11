@@ -65,14 +65,12 @@ namespace WaxRentals.Waxp.Transact
         {
             Log = log;
 
-            monitor.Updated += Monitor_Updated;
+            monitor.Updated += (_, _) =>
+            {
+                Update(_api, monitor.Value.Api);
+                Update(_history, monitor.Value.History);
+            };
             monitor.Initialize();
-        }
-
-        private void Monitor_Updated(object sender, EndpointMonitor.Endpoints e)
-        {
-            Update(_api, e.Api);
-            Update(_history, e.History);
         }
 
         private void Update(IDictionary<string, Status> endpoints, IEnumerable<string> found)

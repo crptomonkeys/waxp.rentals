@@ -185,7 +185,7 @@ namespace WaxRentals.Data.Manager
                     rental.RentalId == rentalId && rental.StatusId == (int)Status.Pending);
                 if (rental != null)
                 {
-                    rental.Paid = DateTime.UtcNow; // Start time from stake to cover any delay (and to support free rentals).
+                    rental.Staked = DateTime.UtcNow;
                     rental.SourceWaxAccount = source;
                     rental.StakeWaxTransaction = transaction;
                     rental.Status = Status.Processed;
@@ -474,6 +474,13 @@ namespace WaxRentals.Data.Manager
                     Console.WriteLine(ex);
                 }
             });
+        }
+
+        public async Task ClearOlderRecords()
+        {
+            await ProcessWithFactory(async context =>
+                await context.Database.ExecuteSqlRawAsync("[dbo].[PullNextPurchase]")
+            );
         }
 
         #endregion

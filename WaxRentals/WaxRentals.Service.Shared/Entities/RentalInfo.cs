@@ -17,6 +17,7 @@ namespace WaxRentals.Service.Shared.Entities
         public string BananoAddress { get; set; }
         public string BananoPaymentLink { get; set; }
         public DateTime? Paid { get; set; }
+        public DateTime? Staked { get; set; }
         public DateTime? Expires { get; set; }
         public string StakeTransaction { get; set; }
         public string UnstakeTransaction { get; set; }

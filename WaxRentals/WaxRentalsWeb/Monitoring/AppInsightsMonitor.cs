@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using WaxRentals.Api.Entities.App;
+using WaxRentals.Api.Entities.WelcomePackages;
 using WaxRentals.Service.Shared.Connectors;
-using WaxRentals.Service.Shared.Entities;
 using WaxRentalsWeb.Extensions;
+using WaxRentalsWeb.Net;
 
 namespace WaxRentalsWeb.Monitoring
 {
@@ -16,12 +18,12 @@ namespace WaxRentalsWeb.Monitoring
         private readonly ReaderWriterLockSlim _rwls = new();
         public AppInsights Value { get { return _rwls.SafeRead(() => _insights); } }
 
-        public IAppService Service { get; }
+        public ApiProxy Proxy { get; }
 
-        public AppInsightsMonitor(TimeSpan interval, ITrackService log, IAppService service)
+        public AppInsightsMonitor(TimeSpan interval, ITrackService log, ApiProxy proxy)
             : base(interval, log)
         {
-            Service = service;
+            Proxy = proxy;
         }
 
         protected async override Task<bool> Tick()
@@ -30,7 +32,7 @@ namespace WaxRentalsWeb.Monitoring
 
             try
             {
-                var result = await Service.Insights();
+                var result = await Proxy.Get<AppInsights>(Proxy.Endpoints.AppInsights);
                 if (result.Success)
                 {
                     var insights = result.Value;
@@ -51,15 +53,15 @@ namespace WaxRentalsWeb.Monitoring
 
         #region " Differ "
 
-        private bool Differ(AppInsights left, AppInsights right)
+        private static bool Differ(AppInsights left, AppInsights right)
         {
             return Differ(left.MonthlyStats         , right.MonthlyStats                                                 ) ||
-                   Differ(left.LatestRentals        , right.LatestRentals        , rental => rental.BananoAddress        ) ||
+                   Differ(left.LatestRentals        , right.LatestRentals        , rental => rental.Payment.Address      ) ||
                    Differ(left.LatestPurchases      , right.LatestPurchases      , purchase => purchase.BananoTransaction) ||
                    Differ(left.LatestWelcomePackages, right.LatestWelcomePackages                                        );
         }
 
-        private bool Differ<T>(IEnumerable<T> left, IEnumerable<T> right, Func<T, string> get)
+        private static bool Differ<T>(IEnumerable<T> left, IEnumerable<T> right, Func<T, string> get)
         {
             if (left == null || right == null)
             {
@@ -71,21 +73,21 @@ namespace WaxRentalsWeb.Monitoring
             return !Enumerable.SequenceEqual(leftIds, rightIds, StringComparer.OrdinalIgnoreCase);
         }
 
-        private bool Differ(IEnumerable<WelcomePackageInfo> left, IEnumerable<WelcomePackageInfo> right)
+        private static bool Differ(IEnumerable<WelcomePackageInfo> left, IEnumerable<WelcomePackageInfo> right)
         {
-            var differ = Differ(left, right, package => package.BananoAddress);
+            var differ = Differ(left, right, package => package.Payment.Address);
             if (!differ)
             {
                 differ = (from p1 in left
                           join p2 in right
-                          on p1.BananoAddress equals p2.BananoAddress
-                          where p1.NftTransaction != p2.NftTransaction || p1.StakeTransaction != p2.StakeTransaction
+                          on p1.Payment.Address equals p2.Payment.Address
+                          where p1.Transactions.NftTransfer != p2.Transactions.NftTransfer || p1.Transactions.RentalStake != p2.Transactions.RentalStake
                           select 1).Any();
             }
             return differ;
         }
 
-        private bool Differ(IEnumerable<MonthlyStats> left, IEnumerable<MonthlyStats> right)
+        private static bool Differ(IEnumerable<MonthlyStats> left, IEnumerable<MonthlyStats> right)
         {
             var firstLeft = left?.FirstOrDefault();
             var firstRight = right?.FirstOrDefault();

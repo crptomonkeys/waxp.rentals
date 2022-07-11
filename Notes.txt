@@ -1,10 +1,14 @@
 
-- test processors
-- publish processors
-- api
-- switch to api
-- publish web
+- https://github.com/cinderblockgames/waxp.rentals/issues/48 add healthchecks
+- publish api
+
+- publish db+updateStake, web/service/processors
+- README
+- merge to MAIN
+
 - admin site
+- README
+- merge to MAIN
 
 - announce live
   - best things about CM/banano

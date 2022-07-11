@@ -8,13 +8,11 @@ namespace WaxRentals.Service.Shared.Entities
         // Banano
 
         public decimal BananoPrice { get; set; }
-        public string BananoAddress { get; set; }
         public decimal BananoBalance { get; set; }
         
         // Wax
 
         public decimal WaxPrice { get; set; }
-        public string WaxAccount { get; set; }
         public decimal WaxStaked { get; set; }
         public string WaxWorkingAccount { get; set; }
         public decimal WaxBalanceAvailableToday { get; set; }

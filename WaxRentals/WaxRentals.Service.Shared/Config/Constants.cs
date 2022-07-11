@@ -8,6 +8,11 @@
             public const string Wax = "wax";
         }
 
+        public static class Rentals
+        {
+            public const int DaysDoubleThreshold = 15;
+        }
+
         public static class Banano
         {
             public static class Protocol

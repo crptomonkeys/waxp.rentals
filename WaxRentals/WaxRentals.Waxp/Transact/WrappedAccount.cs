@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Eos.Cryptography;
 using Eos.Models;
@@ -21,6 +22,7 @@ namespace WaxRentals.Waxp.Transact
         private readonly IClientFactory _client;
         private readonly ILog _log;
         private readonly List<Authorization> _authorization;
+        private readonly HttpClient _http;
 
         public WrappedAccount(string account, PrivateKey active, IClientFactory client, ILog log)
         {
@@ -28,6 +30,7 @@ namespace WaxRentals.Waxp.Transact
             _active = active;
             _client = client;
             _log = log;
+            _http = new HttpClient { Timeout = QuickTimeout };
 
             _authorization = new List<Authorization>
             {
@@ -74,7 +77,7 @@ namespace WaxRentals.Waxp.Transact
         {
             try
             {
-                var json = JObject.Parse(await new QuickTimeoutWebClient().DownloadStringTaskAsync(url, QuickTimeout));
+                var json = JObject.Parse(await _http.GetStringAsync(url));
                 double result = 0;
                 foreach (var selector in selectors)
                 {

@@ -18,7 +18,7 @@ namespace WaxRentals.Processing.Processors
     {
         private readonly ManualResetEventSlim _complete = new();
 
-        private ITrackService Track { get; }
+        protected ITrackService Track { get; }
         
         protected Processor(ITrackService track)
         {

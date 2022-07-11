@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Api.Entities.App;
+using WaxRentalsWeb.Net;
 using WaxRentalsWeb.Pages.QR;
 
 namespace WaxRentalsWeb.Pages
@@ -8,17 +9,17 @@ namespace WaxRentalsWeb.Pages
     public class WaxModel : QRPageModel
     {
 
-        private IAppService Service { get; }
+        private ApiProxy Proxy { get; }
 
-        public WaxModel(IAppService service)
+        public WaxModel(ApiProxy proxy)
         {
-            Service = service;
+            Proxy = proxy;
         }
 
         public async Task<IActionResult> OnGet()
         {
-            var state = await Service.State();
-            return state.Success ? GenerateQRCode(state.Value.WaxAccount) : null;
+            var constants = await Proxy.Get<AppConstants>(Proxy.Endpoints.AppConstants);
+            return constants.Success ? GenerateQRCode(constants.Value.Accounts.WaxPrimaryAccount) : null;
         }
 
     }

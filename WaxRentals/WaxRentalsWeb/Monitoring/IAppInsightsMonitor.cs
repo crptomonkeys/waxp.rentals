@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WaxRentals.Service.Shared.Entities;
+using WaxRentals.Api.Entities.App;
 
 namespace WaxRentalsWeb.Monitoring
 {

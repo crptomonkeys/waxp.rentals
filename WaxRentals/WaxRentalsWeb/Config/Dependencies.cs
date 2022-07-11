@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WaxRentals.Service.Shared.Connectors;
 using WaxRentalsWeb.Files;
 using WaxRentalsWeb.Monitoring;
+using WaxRentalsWeb.Net;
 using static WaxRentalsWeb.Config.Constants;
 using ServiceDependencies = WaxRentals.Service.Shared.Config.Dependencies;
 
@@ -16,7 +17,10 @@ namespace WaxRentalsWeb.Config
         {
             var env = GetEnvironmentVariables();
 
-            ServiceDependencies.AddDependencies(services, env[EnvironmentVariables.Service]);
+            ServiceDependencies.AddLogDependencies(services, env[EnvironmentVariables.Service]);
+
+            services.AddSingleton(provider => new ApiContext(env[EnvironmentVariables.Api]));
+            services.AddSingleton<ApiProxy>();
 
             services.AddSingleton<SiteMessageMonitor>();
 
@@ -24,7 +28,7 @@ namespace WaxRentalsWeb.Config
                 new AppStateMonitor(
                     TimeSpan.FromSeconds(5),
                     provider.GetRequiredService<ITrackService>(),
-                    provider.GetRequiredService<IAppService>()
+                    provider.GetRequiredService<ApiProxy>()
                 )
             );
 
@@ -32,7 +36,7 @@ namespace WaxRentalsWeb.Config
                 new AppInsightsMonitor(
                     TimeSpan.FromSeconds(5),
                     provider.GetRequiredService<ITrackService>(),
-                    provider.GetRequiredService<IAppService>()
+                    provider.GetRequiredService<ApiProxy>()
                 )
             );
         }

@@ -8,7 +8,21 @@ const formats = {
 const format = {
   currency: value => value < 10 ? formats.currencySmall.format(value) : formats.currency.format(value),
   percent: value => formats.percent.format(value / 100),
-  units: value => formats.units.format(value)
+  units: value => formats.units.format(value),
+
+  json: data => data.reduce( function(result, { name, value }) { result[name] = value; return result; }, {} ),
+  withAddress: value => {
+    const keys = Object.keys(value);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      if (key === 'address') {
+        value.address = new BananoAddress(value.address);
+      } else if (typeof value[key] === 'object') {
+        value[key] = format.withAddress(value[key]);
+      }
+    }
+    return value;
+  }
 }
 
 const settings = {

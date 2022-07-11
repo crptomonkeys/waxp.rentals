@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentalsWeb.Config;
-using WaxRentalsWeb.Data.Models;
+using WaxRentalsWeb.Models;
 
 namespace WaxRentalsWeb.Pages
 {

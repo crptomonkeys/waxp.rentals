@@ -9,6 +9,7 @@ namespace WaxRentals.Service.Shared.Connectors
     {
         Task<Result> Error(Exception exception);
         Task<Result> Error(ErrorLog log);
+        Task<Result> ClearOlderRecords();
         Task<Result> Message(MessageLog log);
         Task<Result> Transaction(TransactionLog log);
         Task<Result> Notify(string message);
@@ -32,6 +33,11 @@ namespace WaxRentals.Service.Shared.Connectors
         public async Task<Result> Message(MessageLog log)
         {
             return await Post("Message", log);
+        }
+
+        public async Task<Result> ClearOlderRecords()
+        {
+            return await Post("ClearOlderRecords");
         }
 
         public async Task<Result> Transaction(TransactionLog log)

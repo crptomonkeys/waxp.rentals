@@ -1,6 +1,5 @@
 ﻿using WaxRentals.Banano.Transact;
 using WaxRentals.Service.Shared.Entities;
-using static WaxRentals.Service.Shared.Config.Constants.Wax;
 
 namespace WaxRentals.Service.Config
 {
@@ -31,6 +30,18 @@ namespace WaxRentals.Service.Config
             return null;
         }
 
+        public Nft? Map(Waxp.Transact.Nft nft)
+        {
+            if (nft != null)
+            {
+                return new Nft
+                {
+                    AssetId = nft.AssetId
+                };
+            }
+            return null;
+        }
+
         public RentalInfo? Map(Data.Entities.Rental rental)
         {
             if (rental != null)
@@ -48,6 +59,7 @@ namespace WaxRentals.Service.Config
                     BananoAddress      = account.Address,
                     BananoPaymentLink  = account.BuildLink(rental.Banano),
                     Paid               = rental.Paid,
+                    Staked             = rental.Staked,
                     Expires            = rental.PaidThrough,
                     StakeTransaction   = rental.StakeWaxTransaction,
                     UnstakeTransaction = rental.UnstakeWaxTransaction,

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using WaxRentals.Service.Shared.Connectors;
 
@@ -9,11 +10,7 @@ namespace WaxRentals.Service.Shared.Config
 
         public static void AddDependencies(this IServiceCollection services, string baseUrl)
         {
-            services.AddSingleton<ITrackService>(provider =>
-                new TrackService(
-                    BuildUrl(baseUrl, "Track")
-                )
-            );
+            AddLogDependencies(services, baseUrl);
 
             services.AddSingleton<IAppService>(provider =>
                 new AppService(
@@ -56,6 +53,19 @@ namespace WaxRentals.Service.Shared.Config
                     provider.GetRequiredService<ITrackService>()
                 )
             );
+        }
+
+        public static void AddLogDependencies(this IServiceCollection services, string baseUrl)
+        {
+            // Don't double up if both methods are called.
+            if (!services.Any(service => service.ServiceType == typeof(ITrackService)))
+            {
+                services.AddSingleton<ITrackService>(provider =>
+                    new TrackService(
+                        BuildUrl(baseUrl, "Track")
+                    )
+                );
+            }
         }
 
         private static Uri BuildUrl(string baseUrl, string name)

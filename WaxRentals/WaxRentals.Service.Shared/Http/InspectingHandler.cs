@@ -45,7 +45,7 @@ namespace WaxRentals.Service.Shared.Http
         private static async Task<string> GetFullMessage(Task<string> body, string lead, params HttpHeaders[] headers)
         {
             // For some reason, we need to force the Content-Length header for it to be included.
-            headers.OfType<HttpContentHeaders>().Select(header => header.ContentLength).ToList();
+            headers.OfType<HttpContentHeaders>().Select(header => header.ContentLength);
 
             var flat = headers.Where(h => h != null).SelectMany(header => header);
             var combined = string.Join(

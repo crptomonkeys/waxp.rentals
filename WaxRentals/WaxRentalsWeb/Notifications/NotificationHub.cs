@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using WaxRentalsWeb.Data.Models;
 using WaxRentalsWeb.Files;
 using WaxRentalsWeb.Monitoring;
 
@@ -49,7 +48,7 @@ namespace WaxRentalsWeb.Notifications
             {
                 return;
             }
-            await Notify(client, "StateChanged", () => new AppStateModel(AppState.Value));
+            await Notify(client, "StateChanged", () => AppState.Value);
         }
 
         private async Task NotifyInsights(IClientProxy client)
@@ -58,7 +57,7 @@ namespace WaxRentalsWeb.Notifications
             {
                 return;
             }
-            await Notify(client, "InsightsChanged", () => new AppInsightsModel(AppInsights.Value));
+            await Notify(client, "InsightsChanged", () => AppInsights.Value);
         }
 
         private async Task NotifyAlert(IClientProxy client)
@@ -66,7 +65,7 @@ namespace WaxRentalsWeb.Notifications
             await Notify(client, "AlertChanged", () => SiteMessage.Contents);
         }
 
-        private async Task Notify<T>(IClientProxy client, string method, Func<T> getData)
+        private static async Task Notify<T>(IClientProxy client, string method, Func<T> getData)
         {
             try
             {

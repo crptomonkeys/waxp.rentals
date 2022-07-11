@@ -39,11 +39,9 @@ namespace WaxRentals.Service.Controllers
                 new AppState
                 {
                     BananoPrice                    = Price(prices.Banano),
-                    BananoAddress                  = Banano.Address,
                     BananoBalance                  = Balance(Cache.BananoInfo.GetBalance()),
                                                    
                     WaxPrice                       = Price(prices.Wax),
-                    WaxAccount                     = WaxAccounts.Primary.Account,
                     WaxStaked                      = Balance(waxInfo.Staked),
                     WaxWorkingAccount              = waxInfo.Account,
                     WaxBalanceAvailableToday       = Balance(waxInfo.Available),
@@ -51,7 +49,7 @@ namespace WaxRentals.Service.Controllers
                                                    
                     WaxRentPriceInBanano           = Price(costs.WaxRentPriceInBanano),
                     WaxBuyPriceInBanano            = Price(costs.WaxBuyPriceInBanano),
-                    BananoWelcomePackagePrice      = Price(costs.BananoWelcomePackagePrice),
+                    BananoWelcomePackagePrice      = Price(costs.BananoWelcomePackagePrice, 0),
                                                    
                     BananoMinimumCredit            = Balance(limits.BananoMinimumCredit),
                     WaxMinimumRent                 = Balance(limits.WaxMinimumRent),
@@ -72,9 +70,16 @@ namespace WaxRentals.Service.Controllers
         [HttpGet("Insights")]
         public JsonResult Insights()
         {
-            return Succeed(
-                Cache.Insights.GetInsights()
-            );
+            var insights = Cache.Insights.GetInsights();
+            if (insights.LatestPurchases?.Any() == true)
+            {
+                insights.LatestPurchases = insights.LatestPurchases.ToArray();
+                foreach (var purchase in insights.LatestPurchases)
+                {
+                    purchase.Banano = Balance(purchase.Banano, 4);
+                }
+            }
+            return Succeed(insights);
         }
 
         [HttpGet("Constants")]
@@ -92,14 +97,14 @@ namespace WaxRentals.Service.Controllers
 
         #region " Rounding "
 
-        private decimal Price(decimal value)
+        private static decimal Price(decimal value, int decimals = 4)
         {
-            return Math.Round(value, 6);
+            return Math.Round(value, decimals);
         }
 
-        private decimal Balance(decimal value)
+        private static decimal Balance(decimal value, int decimals = 0)
         {
-            return Math.Round(value, 4);
+            return Math.Round(value, decimals);
         }
 
         #endregion

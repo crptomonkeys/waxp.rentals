@@ -63,6 +63,9 @@ namespace WaxRentals.Processing
                 
                 // This is just for tracking purposes; don't have to check that often.
                 provider.BuildProcessor<TrackBananoProcessor>(TimeSpan.FromMinutes(1)),
+
+                // Keeping the database clean to stay within SQL Server Express size limitations.
+                provider.BuildProcessor<ClearOlderLogsProcessor>(TimeSpan.FromHours(1)),
             };
         }
 
