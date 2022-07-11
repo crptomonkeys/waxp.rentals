@@ -1,11 +1,4 @@
 
-- https://github.com/cinderblockgames/waxp.rentals/issues/48 add healthchecks
-- publish api
-
-- publish db+updateStake, web/service/processors
-- README
-- merge to MAIN
-
 - admin site
 - README
 - merge to MAIN

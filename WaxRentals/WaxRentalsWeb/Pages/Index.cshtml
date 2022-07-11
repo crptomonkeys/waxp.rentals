@@ -317,7 +317,7 @@
                         <td class="text-center align-middle">{{ rental.target.account }}</td>
                         <td class="text-center align-middle">{{ rental.target.cpu }} WAX</td>
                         <td class="text-center align-middle">{{ rental.target.net }} WAX</td>
-                        <td class="text-center align-middle">{{ localize(rental.dates.expires) }}</td>
+                        <td class="text-center align-middle">{{ localize(rental.dates?.expires) }}</td>
                         <td class="text-center align-middle">
                           <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxStake" v-if="rental.transactions.waxStake"></i>
                         </td>
@@ -350,7 +350,7 @@
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
-                        <td class="text-center align-middle">{{ rental.target.address }}</td>
+                        <td class="text-center align-middle">{{ rental.target.account }}</td>
                         <td class="text-center align-middle">{{ rental.target.cpu + rental.target.net }} WAX</td>
                         <td class="text-center align-middle">
                           {{ localize(rental.dates.staked) }}
@@ -434,7 +434,7 @@
                           {{ days(rental.target.days) }}
                         </td>
                         <td class="text-center">
-                          <span v-if="rental.banano">
+                          <span v-if="rental.payment.amount">
                             {{ rental.payment.amount }} BAN
                             <i class="fa fa-external-link banano-address-link" :data-address="rental.payment.address"></i>
                           </span>
