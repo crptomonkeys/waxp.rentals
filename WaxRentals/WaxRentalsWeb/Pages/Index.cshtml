@@ -390,7 +390,7 @@
                           {{ stats.year }}
                         </td>
                         <td class="text-center align-middle">
-                          {{ stats.month }}
+                          {{ month(stats.month) }}
                         </td>
                         <td class="text-center align-middle">
                           {{ stats.waxDaysRented + stats.waxDaysFree }}
@@ -791,6 +791,11 @@
         methods: {
           days: function (days) {
             return days + (days === 1 ? ' day' : ' days');
+          },
+          month: function (month) {
+            const tester = new Date();
+            tester.setMonth(month - 1);
+            return tester.toLocaleString(undefined, { month: "short" });
           }
         }
       });
