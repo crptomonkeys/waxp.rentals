@@ -26,6 +26,7 @@ namespace WaxRentals.Banano.Config
             var env = GetEnvironmentVariables();
             var seed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE"])).ToObject<BananoSeed>();
             var welcomeSeed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE_WELCOME"])).ToObject<BananoSeed>();
+            var adsSeed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE_ADS"])).ToObject<BananoSeed>();
 
             services.AddSingleton(provider =>
                 new StorageAccount(
@@ -35,8 +36,24 @@ namespace WaxRentals.Banano.Config
                 )
             );
 
+            services.AddSingleton(provider =>
+                new AdsAccount(
+                    adsSeed,
+                    provider.GetRequiredService<RpcClients>(),
+                    provider.GetRequiredService<ILog>()
+                )
+            );
+
             services.AddSingleton<IBananoAccount, StorageAccount>(provider =>
                 provider.GetRequiredService<StorageAccount>()
+            );
+
+            services.AddSingleton<IStorageAccount, StorageAccount>(provider =>
+                provider.GetRequiredService<StorageAccount>()
+            );
+
+            services.AddSingleton<IAdsAccount, AdsAccount>(provider =>
+                provider.GetRequiredService<AdsAccount>()
             );
 
             services.AddSingleton<IBananoAccountFactory>(provider =>

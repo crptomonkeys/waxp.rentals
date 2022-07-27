@@ -90,6 +90,7 @@ services:
     image: 'your-private-registry/wax-rentals:#.#.#'
     command: [ "/app/service/WaxRentals.Service.dll" ]
     secrets:
+      - ads.banano.seed
       - banano.seed
       - welcome.banano.seed
       - wax.key
@@ -103,6 +104,7 @@ services:
       - WAX_KEY_FILE=/run/secrets/wax.key
       - BANANO_SEED_FILE=/run/secrets/banano.seed
       - BANANO_SEED_FILE_WELCOME=/run/secrets/welcome.banano.seed
+      - BANANO_SEED_FILE_ADS=/run/secrets/ads.banano.seed
     volumes:
       - '/run/rentwax/output:/run/output'
     networks:
@@ -139,6 +141,8 @@ networks:
     external: true
 
 secrets:
+  ads.banano.seed:
+    external: true
   banano.seed:
     external: true
   welcome.banano.seed:
