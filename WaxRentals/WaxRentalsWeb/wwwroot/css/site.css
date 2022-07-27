@@ -128,4 +128,5 @@ div.bottom-ad {
 
   div.bottom-ad > div[data-banad-notice-for] {
     border-bottom: 0px !important;
+    bottom: -1.5em !important;
   }
