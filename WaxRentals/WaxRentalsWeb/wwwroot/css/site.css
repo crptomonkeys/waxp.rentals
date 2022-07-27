@@ -110,3 +110,22 @@ span.address-highlight {
   }
 }
 
+/* Ads */
+#bottom-ad-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+div.bottom-ad {
+  box-sizing: content-box;
+  width: 320px;
+  height: 100px;
+  border: 1px solid black;
+  display: block !important;
+  font-weight: bold;
+}
+
+  div.bottom-ad > div[data-banad-notice-for] {
+    border-bottom: 0px !important;
+  }
