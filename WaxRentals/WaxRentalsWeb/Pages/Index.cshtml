@@ -34,7 +34,7 @@
   <script src="js/vendor/modernizr-2.6.2.min.js"></script>
   <!-- templatemo 410 circle -->
 </head>
-<body>
+<body data-banad-url="/ads">
   <!--[if lt IE 7]>
   <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
   <![endif]-->
@@ -127,6 +127,10 @@
                 </div>
               </div> <!-- /.col-md-12 -->
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content-->
 
           <div id="menu-1" class="content">
@@ -150,6 +154,10 @@
               </div> <!-- /.col-md-12 -->
 
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content -->
 
           <div id="menu-2" class="content">
@@ -181,14 +189,6 @@
               </div> <!-- /.col-md-4 -->
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
-                  <img src="images/links/ban-app.png" alt="ban.app">
-                  <a rel="nofollow" class="overlay" href="https://ban.app/" target="_blank">
-                    <span>ban.app</span>
-                  </a>
-                </div> <!-- /.g-item -->
-              </div> <!-- /.col-md-4 -->
-              <div class="col-md-4 col-xs-6">
-                <div class="g-item">
                   <img src="images/links/bonobo.png" alt="bonobo">
                   <a rel="nofollow" class="overlay" href="https://bonobo.cc/" target="_blank">
                     <span>bonobo</span>
@@ -205,6 +205,10 @@
               </div> <!-- /.col-md-4 -->
 
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content -->
 
           <div id="menu-3" class="content">
@@ -366,6 +370,10 @@
                 </div>
               </div>
             </div>
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content -->
 
           <div id="menu-4" class="content">
@@ -390,7 +398,7 @@
                           {{ stats.year }}
                         </td>
                         <td class="text-center align-middle">
-                          {{ stats.month }}
+                          {{ month(stats.month) }}
                         </td>
                         <td class="text-center align-middle">
                           {{ stats.waxDaysRented + stats.waxDaysFree }}
@@ -509,6 +517,10 @@
               </div> <!-- /.col-md-6 -->
 
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content -->
 
           <div id="menu-5" class="content">
@@ -571,10 +583,13 @@
               </div> <!-- /.col-md-12 -->
 
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content -->
 
         </div> <!-- /#menu-container -->
-
       </div> <!-- /.col-md-8 -->
 
     </div> <!-- /.row -->
@@ -605,6 +620,7 @@
   <script src="js/main.js"></script>
   <script src="js/site.js"></script>
   <script src="js/formatting.js"></script>
+  <script src="https://preview.waxp.rentals/ads/js/banad.js"></script>
   <script type="text/javascript">
     jQuery(function ($) {
 
@@ -791,6 +807,11 @@
         methods: {
           days: function (days) {
             return days + (days === 1 ? ' day' : ' days');
+          },
+          month: function (month) {
+            const tester = new Date();
+            tester.setMonth(month - 1);
+            return tester.toLocaleString(undefined, { month: "short" });
           }
         }
       });

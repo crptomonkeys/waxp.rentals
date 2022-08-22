@@ -12,17 +12,20 @@ namespace WaxRentals.Service.Controllers
 
         private IBananoAccountFactory Banano { get; }
         private IBananoAccount Storage { get; }
+        private IBananoAccount Ads { get; }
         private BananoInfoCache BananoInfo { get; }
 
         public BananoController(
             ILog log,
             IBananoAccountFactory banano,
-            IBananoAccount storage,
+            IStorageAccount storage,
+            IAdsAccount ads,
             BananoInfoCache bananoInfo)
             : base(log)
         {
             Banano = banano;
             Storage = storage;
+            Ads = ads;
             BananoInfo = bananoInfo;
         }
 
@@ -67,6 +70,14 @@ namespace WaxRentals.Service.Controllers
         [HttpPost("CompleteSweeps")]
         public async Task<JsonResult> CompleteSweeps()
         {
+            // Sweep ad revenue.
+            var amount = await Ads.GetBalance();
+            if (amount > 0)
+            {
+                await Ads.Send(Storage.Address, amount);
+            }
+
+            // Complete sweeps.
             var received = await Storage.Receive();
             await BananoInfo.Invalidate();
             return Succeed(received);
