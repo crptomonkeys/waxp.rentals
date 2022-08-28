@@ -830,8 +830,11 @@
             const form = document.getElementById('open-welcome-package');
             if (form.reportValidity()) {
               this.loading = true;
-              axios.post(form.action, $('#memo').val())
-                .then(response => {
+              axios.post({
+                url: form.action,
+                headers: { 'content-type': 'text/plain' },
+                data: $('#memo').val()
+              }).then(response => {
                   this.loading = false;
                   if (response.data.success) {
                     this.package = format.withAddress(response.data.detail);
