@@ -530,13 +530,13 @@
                 <div class="toggle-content text-center">
                   <h3>New Wallet <a class="pull-right" href="/direct/open" @@click.prevent="package = null"><i class="fa fa-times"></i></a></h3>
                   <p>
-                    <a :href="package.link">
-                      <img :src="'/qr/banano/welcome/' + package.address.full" width="150" height="150" />
+                    <a :href="package.payment.appLink">
+                      <img :src="'/qr/banano/welcome/' + package.payment.address.full" width="150" height="150" />
                       <br>Tap to open Kalium
                     </a>
                     <br><br>Send <strong>exactly {{ state.costs?.welcomePackagePriceInBanano }} BAN</strong> to
-                    <br><span class="banano-address"><span class="address-highlight">{{ package.address.start }}</span>{{ package.address.mid }}<span class="address-highlight">{{ package.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="package.address.full"></i>.
-                    <br><br>Account: {{ package.account }} | Memo: {{ package.memo }}
+                    <br><span class="banano-address"><span class="address-highlight">{{ package.payment.address.start }}</span>{{ package.payment.address.mid }}<span class="address-highlight">{{ package.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="package.payment.address.full"></i>.
+                    <br><br>Account: {{ package.target.account }} | Memo: {{ package.target.memo }}
                     <br><br>After you've sent payment, go check out your shiny new <a rel="nofollow" href="https://wallet.wax.io/dashboard" target="_blank"><strong>WAX Cloud Wallet</strong></a>!
                   </p>
                 </div>
@@ -829,14 +829,12 @@
           submit: function () {
             const form = document.getElementById('open-welcome-package');
             if (form.reportValidity()) {
-              const data = $(form).serializeArray();
-
               this.loading = true;
-              axios.post(form.action, format.json(data))
-                .then(response => {
+              axios.post(form.action, $('#memo').val(), { headers: { 'content-type': 'application/json' } })
+              .then(response => {
                   this.loading = false;
                   if (response.data.success) {
-                    this.package = format.withAddress(response.data.detail);
+                    this.package = format.withAddress(response.data.value);
                     $(form).trigger('reset');
                   } else {
                     $('#error-alert-text').text(response.data.error);
