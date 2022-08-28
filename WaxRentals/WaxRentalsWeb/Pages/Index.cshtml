@@ -829,10 +829,8 @@
           submit: function () {
             const form = document.getElementById('open-welcome-package');
             if (form.reportValidity()) {
-              const data = $(form).serializeArray();
-
               this.loading = true;
-              axios.post(form.action, format.json(data))
+              axios.post(form.action, $('#memo').val())
                 .then(response => {
                   this.loading = false;
                   if (response.data.success) {
