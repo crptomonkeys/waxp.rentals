@@ -498,7 +498,7 @@
                       <tr v-for="package in insights.latestWelcomePackages">
                         <td class="text-center">
                           {{ package.payment.amount }} BAN
-                          <i class="fa fa-external-link banano-address-link" :data-address="package.bananoAddress"></i>
+                          <i class="fa fa-external-link banano-address-link" :data-address="package.payment.address"></i>
                         </td>
                         <td class="text-center">
                           {{ package.target.amount }} WAX
