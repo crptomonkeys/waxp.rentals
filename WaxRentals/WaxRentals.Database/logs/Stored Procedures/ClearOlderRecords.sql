@@ -2,9 +2,7 @@
 AS
 BEGIN
 
-    DECLARE @ClearDate DATETIME = DATEADD(day, -1, GETUTCDATE());
-
-    DELETE FROM logs.Error WHERE Inserted < @ClearDate;
-    DELETE FROM logs.Message WHERE Inserted < @ClearDate;
+    DELETE FROM logs.Error WHERE Inserted < DATEADD(day, -1, GETUTCDATE());
+    DELETE FROM logs.Message WHERE Inserted < DATEADD(hour, -12, GETUTCDATE());
 
 END
