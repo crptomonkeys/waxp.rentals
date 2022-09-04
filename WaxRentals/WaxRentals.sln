@@ -46,7 +46,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Service.Shared",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Api", "WaxRentals.Api\WaxRentals.Api.csproj", "{92A870EA-9C19-4ABC-B97D-CEA89DDBC6EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaxRentals.Api.Shared", "WaxRentals.Api.Shared\WaxRentals.Api.Shared.csproj", "{3802CE63-E2E5-43FA-932B-A073E8326CDE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WaxRentals.Api.Shared", "WaxRentals.Api.Shared\WaxRentals.Api.Shared.csproj", "{3802CE63-E2E5-43FA-932B-A073E8326CDE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaxRentals.Manage", "WaxRentals.Manage\WaxRentals.Manage.csproj", "{EB740FC1-E39B-4908-9986-8DC0849E4010}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -179,6 +181,18 @@ Global
 		{3802CE63-E2E5-43FA-932B-A073E8326CDE}.Service|Any CPU.ActiveCfg = Release|Any CPU
 		{3802CE63-E2E5-43FA-932B-A073E8326CDE}.Web|Any CPU.ActiveCfg = Release|Any CPU
 		{3802CE63-E2E5-43FA-932B-A073E8326CDE}.Web|Any CPU.Build.0 = Release|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.API|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.API|Any CPU.Build.0 = Debug|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Processors|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Processors|Any CPU.Build.0 = Debug|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Service|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Service|Any CPU.Build.0 = Debug|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Web|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB740FC1-E39B-4908-9986-8DC0849E4010}.Web|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -197,6 +211,7 @@ Global
 		{248EC80E-DE22-4750-9FA3-2FE2D5BE1E7B} = {12E99994-E4B6-441E-9E43-D38835E6F977}
 		{92A870EA-9C19-4ABC-B97D-CEA89DDBC6EA} = {9A71D8E9-28F8-48FE-A7FD-64E05B59FF7D}
 		{3802CE63-E2E5-43FA-932B-A073E8326CDE} = {9A71D8E9-28F8-48FE-A7FD-64E05B59FF7D}
+		{EB740FC1-E39B-4908-9986-8DC0849E4010} = {9A71D8E9-28F8-48FE-A7FD-64E05B59FF7D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {67FEF539-CB46-41B5-89E4-7399F417FC18}

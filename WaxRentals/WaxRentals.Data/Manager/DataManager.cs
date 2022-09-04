@@ -10,7 +10,7 @@ using static WaxRentals.Data.Config.Constants;
 
 namespace WaxRentals.Data.Manager
 {
-    internal class DataManager : IInsert, IProcess, ITrackWax, ILog, IExplore
+    internal class DataManager : IInsert, IProcess, ITrackWax, ILog, IExplore, IManage
     {
 
         private IDbContextFactory<WaxRentalsContext> Factory { get; }
@@ -587,6 +587,56 @@ namespace WaxRentals.Data.Manager
                               where addresses.Contains(package.BananoAddress) && (package.StatusId != (int)Status.New || package.Inserted > Abandoned)
                               orderby package.PackageId
                               select package).ToArrayAsync();
+            });
+        }
+
+        #endregion
+
+        #region " IManage "
+
+        public async Task<Rental> ExtendRental(string address, int days)
+        {
+            return await ProcessWithFactory(async context =>
+            {
+                if (days % 4 == 0)
+                {
+                    var rental = context.Rentals.SingleOrDefault(rental => rental.BananoAddress == address && rental.PaidThrough > DateTime.UtcNow);
+                    if (rental != null)
+                    {
+                        var through = rental.PaidThrough.Value.AddDays(days);
+                        if (through < DateTime.UtcNow.AddDays(4))
+                        {
+                            return await ExpireRental(address);
+                        }
+                        else
+                        {
+                            rental.RentalDays += days;
+                            await context.SaveChangesAsync();
+                            return rental;
+                        }
+                    }
+                }
+                return null;
+            });
+        }
+
+        public async Task<Rental> ExpireRental(string address)
+        {
+            return await ProcessWithFactory(async context =>
+            {
+                var rental = context.Rentals.SingleOrDefault(rental => rental.BananoAddress == address && rental.PaidThrough > DateTime.UtcNow);
+                if (rental != null)
+                {
+                    var daysAway = (int)(rental.PaidThrough.Value - DateTime.UtcNow).TotalDays;
+                    if (daysAway >= 4)
+                    {
+                        var subtract = daysAway - (daysAway % 4);
+                        rental.RentalDays -= subtract;
+                        await context.SaveChangesAsync();
+                        return rental;
+                    }
+                }
+                return null;
             });
         }
 

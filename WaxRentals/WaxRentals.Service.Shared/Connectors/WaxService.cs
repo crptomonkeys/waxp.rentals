@@ -16,7 +16,8 @@ namespace WaxRentals.Service.Shared.Connectors
         Task<Result<NewStakeInfo>> Stake(int cpu, int net, string target, string source = null, int? days = null);
         Task<Result<string>> Unstake(int cpu, int net, string target, string source);
         Task<Result<string>> Send(string recipient, decimal amount, string memo = null, string source = null);
-        Task<Result<string>> SendAsset(string recipient, string assetId, string memo = null);
+        Task<Result<string>> SendAsset(string recipient, string assetId, string memo = null, string source = null);
+        Task<Result<string>> ClaimRefund(string account);
     }
 
     internal class WaxService : Connector, IWaxService
@@ -57,10 +58,16 @@ namespace WaxRentals.Service.Shared.Connectors
             return await Post<string>("Send", input);
         }
 
-        public async Task<Result<string>> SendAsset(string recipient, string assetId, string memo = null)
+        public async Task<Result<string>> SendAsset(string recipient, string assetId, string memo = null, string source = null)
         {
-            var input = new SendNftInput { Recipient = recipient, AssetId = assetId, Memo = memo };
+            var input = new SendNftInput { Recipient = recipient, AssetId = assetId, Memo = memo, Source = source };
             return await Post<string>("SendAsset", input);
+        }
+
+        public async Task<Result<string>> ClaimRefund(string account)
+        {
+            var input = new ClaimRefundInput { Account = account };
+            return await Post<string>("ClaimRefund", input);
         }
 
     }

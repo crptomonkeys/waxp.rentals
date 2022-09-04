@@ -153,7 +153,8 @@ namespace WaxRentals.Service.Controllers
         {
             try
             {
-                var (success, transaction) = await Wax.Primary.SendAsset(input.Recipient, input.AssetId, input.Memo);
+                var account = input.Source == null ? Wax.Primary : Wax.GetAccount(input.Source);
+                var (success, transaction) = await account.SendAsset(input.Recipient, input.AssetId, input.Memo);
                 if (success)
                 {
                     await Cache.Nfts.Invalidate();
@@ -170,6 +171,32 @@ namespace WaxRentals.Service.Controllers
                 return Fail($"Failed to send NFT to {input.Recipient}.");
             }
         }
+
+        [HttpPost("ClaimRefund")]
+        public async Task<JsonResult> ClaimRefund([FromBody] Entities.Input.ClaimRefundInput input)
+        {
+            try
+            {
+                var account = Wax.GetAccount(input.Account);
+                var (success, transaction) = await account.ClaimRefund();
+                if (success)
+                {
+                    await Cache.WaxInfo.Invalidate();
+                    return Succeed(transaction);
+                }
+                else
+                {
+                    return Fail($"Failed to claim refund for {input.Account}.");
+                }
+            }
+            catch (Exception ex)
+            {
+                await Log.Error(ex, context: input.Account);
+                return Fail($"Failed to claim refund for {input.Account}.");
+            }
+        }
+
+
 
     }
 }
