@@ -12,8 +12,8 @@ To stand up your own version of this site, you'll need a few things:
 
 # Docker-Compose File
 
-There are five containers involved in https://waxp.rentals: the public api (api), the web front end (web), the event processors (processors), the central service (service), and the database (data).  
-The web and processors containers are based on the same image but with different CMDs.  
+There are seven containers involved in https://waxp.rentals: the public api (api), the web front end (web), the event processors (processors), the central service (service), the private management api (manage), the database (data), and the ad system (banad).  
+The api, web, processors, service, and manage containers are based on the same image but with different CMDs.  
 Some lines may differ slightly, but this is the basic concept:
 
 ```
@@ -116,6 +116,32 @@ services:
       # do not increase past 1
       replicas: 1
 
+  manage:
+    image: 'your-private-registry/wax-rentals:#.#.#'
+    command: [ "/app/manage/WaxRentals.Manage.dll" ]
+    healthcheck:
+      test: curl --fail http://localhost:2022/index.html || exit 1
+      interval: 60s
+      timeout: 5s
+      retries: 2
+      start_period: 5s
+    environment:
+      - ASPNETCORE_URLS=http://+:2022
+      - SERVICE=http://service:2022
+    networks:
+      - traefik
+      - wax-rentals-internal
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.docker.network=traefik'
+        - 'traefik.http.routers.wax-rentals-manage.rule=Host(`manage.waxp.rentals`)'
+        - 'traefik.http.routers.wax-rentals-manage.entrypoints=web-secure'
+        - 'traefik.http.routers.wax-rentals-manage.tls'
+        - 'traefik.http.services.wax-rentals-manage.loadbalancer.server.port=2022'
+
   data:
     image: 'cinderblockgames/dacpac-aware-mssql:1.0.0'
     env_file: .env
@@ -129,6 +155,40 @@ services:
       replicas: 1
       placement:
         constraints: [node.platform.arch == x86_64]
+
+  banad:
+    image: 'thearistotle/ban-ad:1.0.2'
+    secrets:
+      - wax-email.pwd
+    environment:
+      - SITE_ID=waxp.rentals
+      - EMAIL_ADDRESS=[redacted]
+      - EMAIL_PASSWORD_FILE=/run/secrets/wax-email.pwd
+      - EMAIL_DISPLAY_NAME=waxp.rentals
+      - BANANO_NODE=https://api.banano.kga.earth/node/proxy
+      - AD_APPROVER_EMAIL=[redacted]
+      - BANANO_PAYMENT_ADDRESS=[redacted]
+    volumes:
+      - '/run/rentwax/banad/ad-slots:/run/ad-slots'
+      - '/run/rentwax/banad/ads:/run/ads'
+      - '/run/rentwax/banad/banano-tracking:/run/banano-tracking'
+      - '/run/rentwax/banad/default.png:/run/default.png'
+    networks:
+      - traefik
+      # The ad system needs internet access for emails and payment tracking.
+      - wax-rentals
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - 'traefik.enable=true'
+        - 'traefik.docker.network=traefik'
+        - 'traefik.http.routers.wax-rentals-banad.rule=Host(`waxp.rentals`) && PathPrefix(`/ads`)'
+        - 'traefik.http.middlewares.wax-rentals-banad.stripprefix.prefixes=/ads'
+        - 'traefik.http.routers.wax-rentals-banad.middlewares=wax-rentals-banad'
+        - 'traefik.http.routers.wax-rentals-banad.entrypoints=web-secure'
+        - 'traefik.http.routers.wax-rentals-banad.tls'
+        - 'traefik.http.services.wax-rentals-banad.loadbalancer.server.port=2022'
 
 networks:
   traefik:
@@ -147,6 +207,8 @@ secrets:
     external: true
   welcome.banano.seed:
     external: true
+  wax-email.pwd:
+    external: true
   wax.key:
     external: true
   wax.db:
@@ -158,6 +220,14 @@ secrets:
 # Secrets Files
 
 You will need a handful of Docker Secrets to provide the private keys and connection strings necessary for use in the site.  These could obviously be combined, if you'd like.
+
+## ads.banano.seed
+
+```
+{
+  "seed": "your seed here"
+}
+```
 
 ## banano.seed
 
@@ -173,6 +243,12 @@ You will need a handful of Docker Secrets to provide the private keys and connec
 {
   "seed": "your seed here"
 }
+```
+
+## wax-email.pwd
+
+```
+your email password here
 ```
 
 ## wax.key
