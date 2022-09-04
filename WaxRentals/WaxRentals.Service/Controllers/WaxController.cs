@@ -137,7 +137,7 @@ namespace WaxRentals.Service.Controllers
                     }
                     else
                     {
-                        return Fail($"Failed to send {Coins.Wax} from {input.Source} to {input.Recipient}.");
+                        return Fail($"Failed to send {Coins.Wax} from {account.Account} to {input.Recipient}.");
                     }
                 }
                 else
@@ -145,7 +145,7 @@ namespace WaxRentals.Service.Controllers
                     return Fail($"Requested {input.Amount} {Coins.Wax} but only have {balances.Available} {Coins.Wax} available.");
                 }
             }
-            return Fail($"Unable to retrieve balances for {input.Source}.");
+            return Fail($"Unable to retrieve balances for {account.Account}.");
         }
 
         [HttpPost("SendAsset")]
