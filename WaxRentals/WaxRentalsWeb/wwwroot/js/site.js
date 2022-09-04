@@ -29,14 +29,14 @@
   $('body').on('click', '.banano-transaction-link', function open() {
     const hash = $(this).data('hash');
     if (hash) {
-      window.open('https://yellowspyglass.com/hash/' + hash);
+      window.open('https://creeper.banano.cc/hash/' + hash);
     }
   });
 
   $('body').on('click', '.banano-address-link', function open() {
     const address = $(this).data('address');
     if (address) {
-      window.open('https://yellowspyglass.com/account/' + address);
+      window.open('https://creeper.banano.cc/account/' + address);
     }
   });
 

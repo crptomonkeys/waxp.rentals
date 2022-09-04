@@ -16,6 +16,7 @@ namespace WaxRentals.Service.Controllers
         private IInsert Insert { get; }
         private IProcess Process { get; }
         private IExplore Explore { get; }
+        private IManage Manage { get; }
 
         private Cache Cache { get; }
 
@@ -27,6 +28,7 @@ namespace WaxRentals.Service.Controllers
             IInsert insert,
             IProcess process,
             IExplore explore,
+            IManage manage,
             
             Cache cache,
             
@@ -37,6 +39,7 @@ namespace WaxRentals.Service.Controllers
             Insert = insert;
             Process = process;
             Explore = explore;
+            Manage = manage;
 
             Cache = cache;
 
@@ -186,6 +189,20 @@ namespace WaxRentals.Service.Controllers
         {
             await Process.ProcessRentalClosing(input.Id, input.Transaction);
             return Succeed();
+        }
+
+        [HttpPost("ExtendRental")]
+        public async Task<JsonResult> ExtendRental([FromBody] ExtendRentalInput input)
+        {
+            var rental = await Manage.ExtendRental(input.Address, input.Days);
+            return Succeed(rental);
+        }
+
+        [HttpPost("ExpireRental")]
+        public async Task<JsonResult> ExpireRental([FromBody] ExpireRentalInput input)
+        {
+            var rental = await Manage.ExpireRental(input.Address);
+            return Succeed(rental);
         }
 
         #endregion

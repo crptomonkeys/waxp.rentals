@@ -26,6 +26,9 @@ namespace WaxRentals.Service.Shared.Connectors
         Task<Result> ProcessStake(int id, string source, string transaction);
         Task<Result> ProcessSweep(int id, string transaction);
         Task<Result> ProcessClosing(int id, string transaction);
+
+        Task<Result<RentalInfo>> Extend(string address, int days);
+        Task<Result<RentalInfo>> Expire(string address);
     }
 
     internal class RentalService : Connector, IRentalService
@@ -98,6 +101,18 @@ namespace WaxRentals.Service.Shared.Connectors
         {
             var input = new ProcessInput { Id = id, Transaction = transaction };
             return await Post("ProcessClosing", input);
+        }
+
+        public async Task<Result<RentalInfo>> Extend(string address, int days)
+        {
+            var input = new ExtendRentalInput { Address = address, Days = days };
+            return await Post<RentalInfo>("ExtendRental", input);
+        }
+
+        public async Task<Result<RentalInfo>> Expire(string address)
+        {
+            var input = new ExpireRentalInput { Address = address };
+            return await Post<RentalInfo>("ExpireRental", input);
         }
 
     }
