@@ -18,6 +18,9 @@ RUN dotnet publish -c Service -o out
 WORKDIR /app/WaxRentals/WaxRentals.Api
 RUN dotnet publish -c API -o out
 
+WORKDIR /app/WaxRentals/WaxRentals.Manage
+RUN dotnet publish -c Manage -o out
+
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
 
@@ -27,6 +30,8 @@ WORKDIR /app/service
 COPY --from=build-env /app/WaxRentals/WaxRentals.Service/out .
 WORKDIR /app/processors
 COPY --from=build-env /app/WaxRentals/WaxRentals.Processing/out .
+WORKDIR /app/manage
+COPY --from=build-env /app/WaxRentals/WaxRentals.Manage/out .
 WORKDIR /app/web
 COPY --from=build-env /app/WaxRentals/WaxRentalsWeb/out .
 
@@ -39,13 +44,18 @@ ENTRYPOINT [ "dotnet" ]
 #ENV API=https://api.waxp.rentals
 #CMD [ "WaxRentalsWeb.dll" ]
 
+#ENV ASPNETCORE_URLS=http://+:2022
 #ENV SERVICE=http://service:2022
-#CMD [ "WaxRentals.Processing.dll" ]
+#CMD [ "/app/processors/WaxRentals.Processing.dll" ]
 
 #ENV ASPNETCORE_URLS=http://+:2022
 #ENV DB_FILE=/run/secrets/wax.db
-#CMD [ "WaxRentals.Service.dll" ]
+#CMD [ "/app/service/WaxRentals.Service.dll" ]
 
 #ENV ASPNETCORE_URLS=http://+:2022
 #ENV SERVICE=http://service:2022
-#CMD [ "WaxRentals.Api.dll" ]
+#CMD [ "/app/api/WaxRentals.Api.dll" ]
+
+#ENV ASPNETCORE_URLS=http://+:2022
+#ENV SERVICE=http://service:2022
+#CMD [ "/app/manage/WaxRentals.Manage.dll" ]
