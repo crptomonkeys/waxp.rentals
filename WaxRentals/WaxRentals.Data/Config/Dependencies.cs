@@ -29,6 +29,7 @@ namespace WaxRentals.Data.Config
             services.AddSingleton<IExplore, DataManager>();
             services.AddSingleton<IInsert, DataManager>();
             services.AddSingleton<ILog, DataManager>();
+            services.AddSingleton<IManage, DataManager>();
             services.AddSingleton<IProcess, DataManager>();
             services.AddSingleton<ITrackWax, DataManager>();
         }
