@@ -57,19 +57,22 @@ namespace WaxRentals.Data.Manager
                     return existing.RentalId;
                 }
 
-                var rental = context.Rentals.Add(
-                    new Rental
-                    {
-                        TargetWaxAccount = account,
-                        RentalDays = days,
-                        CPU = cpu,
-                        NET = net,
-                        Banano = banano,
-                        Status = status
-                    }
-                );
+                var rental = new Rental
+                {
+                    TargetWaxAccount = account,
+                    RentalDays = days,
+                    CPU = cpu,
+                    NET = net,
+                    Banano = banano,
+                    Status = status
+                };
+                if (status > Status.New)
+                {
+                    rental.Paid = DateTime.UtcNow;
+                }
+
                 await context.SaveChangesAsync();
-                return rental.Entity.RentalId;
+                return rental.RentalId;
             });
         }
 
