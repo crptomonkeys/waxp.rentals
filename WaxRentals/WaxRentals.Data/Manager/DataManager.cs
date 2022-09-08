@@ -593,6 +593,19 @@ namespace WaxRentals.Data.Manager
             });
         }
 
+        public async Task<IEnumerable<WelcomePackage>> GetWelcomePackagesByWaxMemo(string memo)
+        {
+            return await ProcessWithFactory(async context =>
+            {
+                return await context.WelcomePackages
+                                    .Where(package => package.Memo == memo &&
+                                                      (package.StatusId != (int)Status.New || package.Inserted > Abandoned))
+                                    .OrderBy(package => package.Paid)
+                                    .ThenBy(package => package.PackageId)
+                                    .ToArrayAsync();
+            });
+        }
+
         #endregion
 
         #region " IManage "

@@ -15,6 +15,7 @@ namespace WaxRentals.Data.Manager
         Task<IEnumerable<Rental>> GetRentalsByBananoAddresses(IEnumerable<string> addresses);
         Task<IEnumerable<Rental>> GetRentalsByWaxAccount(string account);
         Task<IEnumerable<WelcomePackage>> GetWelcomePackagesByBananoAddresses(IEnumerable<string> addresses);
+        Task<IEnumerable<WelcomePackage>> GetWelcomePackagesByWaxMemo(string memo);
 
     }
 }

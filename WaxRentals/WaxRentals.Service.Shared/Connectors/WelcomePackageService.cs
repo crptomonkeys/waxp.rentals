@@ -15,6 +15,7 @@ namespace WaxRentals.Service.Shared.Connectors
 
         Task<Result<IEnumerable<WelcomePackageInfo>>> ByBananoAddresses(IEnumerable<string> addresses);
         Task<Result<WelcomePackageInfo>> ByBananoAddress(string address);
+        Task<Result<IEnumerable<WelcomePackageInfo>>> ByWaxMemo(string memo);
 
         Task<Result<IEnumerable<WelcomePackageInfo>>> New();
         Task<Result<IEnumerable<WelcomePackageInfo>>> Paid();
@@ -50,6 +51,11 @@ namespace WaxRentals.Service.Shared.Connectors
             return response.Success
                 ? Result<WelcomePackageInfo>.Succeed(response.Value?.SingleOrDefault())
                 : Result<WelcomePackageInfo>.Fail(response.Error);
+        }
+
+        public async Task<Result<IEnumerable<WelcomePackageInfo>>> ByWaxMemo(string memo)
+        {
+            return await Post<IEnumerable<WelcomePackageInfo>>("ByWaxMemo", memo);
         }
 
         public async Task<Result<IEnumerable<WelcomePackageInfo>>> New()
