@@ -482,7 +482,7 @@ namespace WaxRentals.Data.Manager
         public async Task ClearOlderRecords()
         {
             await ProcessWithFactory(async context =>
-                await context.Database.ExecuteSqlRawAsync("[dbo].[ClearOlderRecords]")
+                await context.Database.ExecuteSqlRawAsync("[logs].[ClearOlderRecords]")
             );
         }
 
