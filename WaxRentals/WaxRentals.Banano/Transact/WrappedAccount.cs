@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
+using N2.Pow;
 using Nano.Net;
 using Nano.Net.Extensions;
 using Nano.Net.Numbers;
@@ -19,13 +20,15 @@ namespace WaxRentals.Banano.Transact
         private readonly Account _account;
         private readonly uint _index;
         private readonly RpcClients _rpc;
+        private readonly WorkServer _workServer;
         private readonly ILog _log;
 
-        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, ILog log)
+        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, WorkServer workServer, ILog log)
         {
             _account = new Account(seed.Seed, index, Protocol.Prefix);
             _index = index;
             _rpc = rpc;
+            _workServer = workServer;
             _log = log;
         }
 
@@ -143,11 +146,11 @@ namespace WaxRentals.Banano.Transact
         public async Task<string> GenerateWork()
         {
             await _rpc.Node.UpdateAccountAsync(_account);
-            var work = await _rpc.WorkServer.WorkGenerateAsync(
-                _account.Opened ? _account.Frontier : _account.PublicKey.BytesToHex(),
-                "fffffe0000000000"
-            );
-            return work?.Work;
+            var hash = _account.Opened ? _account.Frontier : _account.PublicKey.BytesToHex();
+            //var work = await _rpc.WorkServer.WorkGenerateAsync(hash, "fffffe0000000000");
+            //return work?.Work;
+            var response = await _workServer.GenerateWork(hash);
+            return response.WorkResult?.Work;
         }
 
         #endregion

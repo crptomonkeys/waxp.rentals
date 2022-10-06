@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="N2.Pow" Version="0.1.0" />
     <PackageReference Include="Nano.Net" Version="1.6.0" />
   </ItemGroup>
 
