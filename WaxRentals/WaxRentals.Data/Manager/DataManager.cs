@@ -70,6 +70,7 @@ namespace WaxRentals.Data.Manager
                 {
                     rental.Paid = DateTime.UtcNow;
                 }
+                context.Rentals.Add(rental);
 
                 await context.SaveChangesAsync();
                 return rental.RentalId;
