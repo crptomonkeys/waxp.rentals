@@ -425,6 +425,7 @@ namespace WaxRentals.Data.Manager
 
         public async Task Error(Exception exception, string error = null, object context = null)
         {
+            return;
             await ProcessWithFactory(async ctx =>
             {
                 try
@@ -454,6 +455,7 @@ namespace WaxRentals.Data.Manager
 
         public async Task Message(Guid requestId, string url, MessageDirection direction, string message)
         {
+            return;
             await ProcessWithFactory(async context =>
             {
                 try
@@ -478,6 +480,7 @@ namespace WaxRentals.Data.Manager
 
         public async Task ClearOlderRecords()
         {
+            return;
             await ProcessWithFactory(async context =>
                 await context.Database.ExecuteSqlRawAsync("[dbo].[ClearOlderRecords]")
             );
