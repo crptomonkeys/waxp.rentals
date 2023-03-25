@@ -21,7 +21,7 @@ namespace WaxRentals.Data.Manager
 
         public async Task<DateTime?> GetLastHistoryCheck()
         {
-            DateTime? result = null;
+            DateTime? result = DateTime.Now; // Default to not re-processing everything.
             
             try
             {
@@ -34,7 +34,6 @@ namespace WaxRentals.Data.Manager
             catch (Exception ex)
             {
                 Log.Error(ex);
-                return null;
             }
 
             return result;
