@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection;
+using N2.Pow;
 using Nano.Net;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Banano.Transact;
@@ -15,6 +16,12 @@ namespace WaxRentals.Banano.Config
 
         public static void AddDependencies(this IServiceCollection services)
         {
+            var env = GetEnvironmentVariables();
+            var seed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE"])).ToObject<BananoSeed>();
+            var welcomeSeed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE_WELCOME"])).ToObject<BananoSeed>();
+            var adsSeed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE_ADS"])).ToObject<BananoSeed>();
+            var n2ApiKey = File.ReadAllText(env["N2_API_KEY"]);
+
             services.AddSingleton(provider =>
                 new RpcClients
                 {
@@ -23,15 +30,20 @@ namespace WaxRentals.Banano.Config
                 }
             );
 
-            var env = GetEnvironmentVariables();
-            var seed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE"])).ToObject<BananoSeed>();
-            var welcomeSeed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE_WELCOME"])).ToObject<BananoSeed>();
-            var adsSeed = JObject.Parse(File.ReadAllText(env["BANANO_SEED_FILE_ADS"])).ToObject<BananoSeed>();
+            services.AddSingleton(provider =>
+                new WorkServer(
+                    new WorkServerOptions
+                    {
+                        ApiKey = n2ApiKey
+                    }
+                )
+            );
 
             services.AddSingleton(provider =>
                 new StorageAccount(
                     seed,
                     provider.GetRequiredService<RpcClients>(),
+                    provider.GetRequiredService<WorkServer>(),
                     provider.GetRequiredService<ILog>()
                 )
             );
@@ -40,6 +52,7 @@ namespace WaxRentals.Banano.Config
                 new AdsAccount(
                     adsSeed,
                     provider.GetRequiredService<RpcClients>(),
+                    provider.GetRequiredService<WorkServer>(),
                     provider.GetRequiredService<ILog>()
                 )
             );
@@ -61,6 +74,7 @@ namespace WaxRentals.Banano.Config
                     seed,
                     welcomeSeed,
                     provider.GetRequiredService<RpcClients>(),
+                    provider.GetRequiredService<WorkServer>(),
                     provider.GetRequiredService<ILog>()
                 )
             );

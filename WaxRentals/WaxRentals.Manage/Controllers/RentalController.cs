@@ -15,9 +15,14 @@ namespace WaxRentals.Manage.Controllers
         }
 
         [HttpPost("MarkAsPaid")]
-        public async Task<JsonResult> MarkAsPaid([FromForm] int rentalId)
+        public async Task<JsonResult> MarkAsPaid([FromForm] string address)
         {
-            return Json(await Rentals.ProcessPayment(rentalId));
+            var rental = await Rentals.ByBananoAddress(address);
+            if (rental.Success)
+            {
+                return Json(await Rentals.ProcessPayment(rental.Value.Id));
+            }
+            return Json(rental);
         }
 
         [HttpPost("ProvideFree")]

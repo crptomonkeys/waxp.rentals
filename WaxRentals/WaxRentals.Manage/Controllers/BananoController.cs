@@ -14,9 +14,9 @@ namespace WaxRentals.Manage.Controllers
         }
 
         [HttpPost("Send")]
-        public async Task<JsonResult> Send([FromForm] string address, [FromForm] decimal amount)
+        public async Task<JsonResult> Send([FromForm] string address, [FromForm] decimal amount, [FromForm] string? reason)
         {
-            return Json(await Banano.Send(address, amount));
+            return Json(await Banano.Send(address, amount, reason));
         }
 
     }
