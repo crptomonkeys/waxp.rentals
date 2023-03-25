@@ -94,6 +94,13 @@ namespace WaxRentals.Service.Controllers
             return Succeed(packages.Select(Mapper.Map));
         }
 
+        [HttpPost("ByWaxMemo")]
+        public async Task<JsonResult> ByWaxMemo([FromBody] string memo)
+        {
+            var packages = await Explore.GetWelcomePackagesByWaxMemo(memo);
+            return Succeed(packages.Select(Mapper.Map));
+        }
+
         [HttpGet("New")]
         public async Task<JsonResult> New()
         {

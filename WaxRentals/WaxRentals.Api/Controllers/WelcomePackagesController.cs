@@ -53,5 +53,15 @@ namespace WaxRentals.Api.Controllers
                 : Fail<IEnumerable<WelcomePackageInfo>>(result.Error);
         }
 
+        [HttpGet("v1/ByWaxMemo/{memo}")]
+        [ProducesResponseType(typeof(Result<IEnumerable<WelcomePackageInfo>>), (int)HttpStatusCode.OK)]
+        public async Task<JsonResult> ByWaxMemo(string memo)
+        {
+            var result = await Packages.ByWaxMemo(memo);
+            return result.Success
+                ? Succeed(result.Value.Select(Mapper.Map))
+                : Fail<WelcomePackageInfo>(result.Error);
+        }
+
     }
 }

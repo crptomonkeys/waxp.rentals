@@ -14,7 +14,7 @@ namespace WaxRentals.Service.Shared.Connectors
         Task<Result<string>> SweepRentalAccount(int id);
         Task<Result<string>> SweepWelcomeAccount(int id);
         Task<Result<decimal>> CompleteSweeps();
-        Task<Result<string>> Send(string address, decimal amount);
+        Task<Result<string>> Send(string address, decimal amount, string reason = null);
     }
 
     internal class BananoService : Connector, IBananoService
@@ -47,9 +47,9 @@ namespace WaxRentals.Service.Shared.Connectors
             return await Post<decimal>("CompleteSweeps");
         }
 
-        public async Task<Result<string>> Send(string address, decimal amount)
+        public async Task<Result<string>> Send(string address, decimal amount, string reason = null)
         {
-            var input = new SendInput { Recipient = address, Amount = amount };
+            var input = new SendBananoInput { Recipient = address, Amount = amount, Reason = reason };
             return await Post<string>("Send", input);
         }
 

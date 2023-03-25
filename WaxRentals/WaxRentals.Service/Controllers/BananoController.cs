@@ -3,6 +3,7 @@ using WaxRentals.Banano.Transact;
 using WaxRentals.Data.Manager;
 using WaxRentals.Service.Caching;
 using WaxRentals.Service.Shared.Entities.Input;
+using WaxRentals.Service.Tracking;
 using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Service.Controllers
@@ -14,19 +15,25 @@ namespace WaxRentals.Service.Controllers
         private IBananoAccount Storage { get; }
         private IBananoAccount Ads { get; }
         private BananoInfoCache BananoInfo { get; }
+        private PricesCache Prices { get; }
+        private ITracker Tracker { get; }
 
         public BananoController(
             ILog log,
             IBananoAccountFactory banano,
             IStorageAccount storage,
             IAdsAccount ads,
-            BananoInfoCache bananoInfo)
+            BananoInfoCache bananoInfo,
+            PricesCache prices,
+            ITracker tracker)
             : base(log)
         {
             Banano = banano;
             Storage = storage;
             Ads = ads;
             BananoInfo = bananoInfo;
+            Prices = prices;
+            Tracker = tracker;
         }
 
         [HttpGet("RentalAccountBalance/{id}")]
@@ -84,12 +91,13 @@ namespace WaxRentals.Service.Controllers
         }
 
         [HttpPost("Send")]
-        public async Task<JsonResult> Send([FromBody] SendInput input)
+        public async Task<JsonResult> Send([FromBody] SendBananoInput input)
         {
             var available = await Storage.GetBalance();
             if (available >= input.Amount)
             {
                 var hash = await Storage.Send(input.Recipient, input.Amount);
+                Tracker.Track(input.Reason ?? "Sent BAN", input.Amount, Coins.Banano, spent: input.Amount * Prices.GetPrices().Banano);
                 await BananoInfo.Invalidate();
                 return Succeed(hash);
             }
