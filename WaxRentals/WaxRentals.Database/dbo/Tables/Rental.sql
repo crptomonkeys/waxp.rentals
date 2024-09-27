@@ -12,7 +12,8 @@
 	,Banano                 DECIMAL(18,8)              NOT NULL CONSTRAINT CK_Rental__Banano                 CHECK   (Banano                      >= 0 )
 	,SweepBananoTransaction CHAR(64)                       NULL CONSTRAINT CK_Rental__SweepBananoTransaction CHECK   (LEN(SweepBananoTransaction)  = 64)
 	,Paid                   DATETIME2(0)                   NULL
-	,PaidThrough                                                AS DATEADD(day, RentalDays, Paid) PERSISTED
+	,Staked                 DATETIME2(0)                   NULL
+	,PaidThrough                                                AS DATEADD(day, RentalDays, Staked) PERSISTED
 															  
 	,SourceWaxAccount       CHAR(12)                       NULL CONSTRAINT CK_Rental__SourceWaxAddress       CHECK   (LEN(SourceWaxAccount)       >  0 )
 	,StakeWaxTransaction    CHAR(64)                       NULL CONSTRAINT CK_Rental__StakeWaxTransaction    CHECK   (LEN(StakeWaxTransaction)     = 64)

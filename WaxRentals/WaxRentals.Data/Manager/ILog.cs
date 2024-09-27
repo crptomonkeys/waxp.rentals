@@ -9,6 +9,7 @@ namespace WaxRentals.Data.Manager
 
         Task Error(Exception exception, string error = null, object context = null);
         Task Message(Guid requestId, string url, MessageDirection direction, string message);
+        Task ClearOlderRecords();
 
     }
 }

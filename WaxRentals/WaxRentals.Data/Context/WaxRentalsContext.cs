@@ -1,6 +1,5 @@
-﻿using System.Data.Entity;
-using System.Data.Entity.ModelConfiguration.Conventions;
-using WaxRentals.Data.Config;
+﻿using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using WaxRentals.Data.Entities;
 
 namespace WaxRentals.Data.Context
@@ -8,30 +7,39 @@ namespace WaxRentals.Data.Context
     internal class WaxRentalsContext : DbContext
     {
 
-        public DbSet<Address> Addresses { get; set; }
+        // dbo
         public DbSet<Purchase> Purchases { get; set; }
         public DbSet<Rental> Rentals { get; set; }
 
-        public DbSet<WelcomeAddress> WelcomeAddresses { get; set; }
+        // welcome
         public DbSet<WelcomePackage> WelcomePackages { get; set; }
 
+        // tracking
         public DbSet<WaxHistory> WaxHistory { get; set; }
 
+        // logs
         public DbSet<Error> Errors { get; set; }
         public DbSet<Message> Messages { get; set; }
 
         #region " Setup "
 
-        public WaxRentalsContext(WaxDb db) : base(db.ConnectionString) { }
+        public WaxRentalsContext(DbContextOptions<WaxRentalsContext> options) : base(options) { }
 
-        static WaxRentalsContext()
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            Database.SetInitializer<WaxRentalsContext>(null);
-        }
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<MonthlyStats>()
+                        .HasKey(stats => new { stats.Year, stats.Month });
 
-        protected override void OnModelCreating(DbModelBuilder modelBuilder)
-        {
-            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+            // Set default precision on decimal properties.
+            // https://stackoverflow.com/a/60260333/128217
+            var properties = modelBuilder.Model.GetEntityTypes().SelectMany(
+                t => t.GetProperties().Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?))
+            );
+            foreach (var property in properties)
+            {
+                property.SetColumnType("decimal(18,8)");
+            }
         }
 
         #endregion

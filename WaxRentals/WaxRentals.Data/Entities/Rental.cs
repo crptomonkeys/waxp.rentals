@@ -1,8 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable disable
+
 namespace WaxRentals.Data.Entities
 {
+    [Table("Rentals")]
 	public class Rental
 	{
 
@@ -19,6 +22,7 @@ namespace WaxRentals.Data.Entities
 		public decimal Banano { get; set; }
 		public string SweepBananoTransaction { get; set; }
 		public DateTime? Paid { get; set; }
+		public DateTime? Staked { get; set; }
 
 		[DatabaseGenerated(DatabaseGeneratedOption.Computed)]
 		public DateTime? PaidThrough { get; set; }
@@ -33,6 +37,9 @@ namespace WaxRentals.Data.Entities
 			set { StatusId = (int)value; }
 		}
 		public int StatusId { get; set; }
+
+		[Column("Address"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+		public string BananoAddress { get; set; }
 
 	}
 }

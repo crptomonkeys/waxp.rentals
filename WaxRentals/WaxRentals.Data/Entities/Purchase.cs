@@ -1,8 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable disable
+
 namespace WaxRentals.Data.Entities
 {
+    [Table("Purchase")]
     public class Purchase
     {
 

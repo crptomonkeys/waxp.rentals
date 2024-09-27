@@ -1,5 +1,7 @@
 (function ($) {
 
+  new ClipboardJS('.clipboard');
+
   $('.buy-wax').on('click', () => {
     $('.menu .show-1').click();
     return false;
@@ -7,7 +9,6 @@
 
   $('body').on('click', '.clipboard', function copy() {
     $(this).toggleClass('fa-copy fa-check clipboard');
-    navigator.clipboard.writeText($(this).data('copy'));
     setTimeout(() => $(this).toggleClass('fa-copy fa-check clipboard'), 500);
   });
 
@@ -18,17 +19,24 @@
     }
   });
 
+  $('body').on('click', '.wax-account-link', function open() {
+    const account = $(this).data('account');
+    if (account) {
+      window.open('https://wax.bloks.io/account/' + account);
+    }
+  });
+
   $('body').on('click', '.banano-transaction-link', function open() {
     const hash = $(this).data('hash');
     if (hash) {
-      window.open('https://yellowspyglass.com/hash/' + hash);
+      window.open('https://creeper.banano.cc/hash/' + hash);
     }
   });
 
   $('body').on('click', '.banano-address-link', function open() {
     const address = $(this).data('address');
     if (address) {
-      window.open('https://yellowspyglass.com/account/' + address);
+      window.open('https://creeper.banano.cc/account/' + address);
     }
   });
 
@@ -123,6 +131,18 @@ const load = {
     this._load('.menu .show-1');
   },
 
+  get: function () {
+    this._load('.menu .show-2');
+  },
+
+  my: function () {
+    this._load('.menu .show-3');
+  },
+
+  insights: function () {
+    this._load('.menu .show-4');
+  },
+
   open: function () {
     this._load('.menu .show-5');
   },
@@ -143,3 +163,16 @@ const load = {
   }
 
 };
+
+// ================
+//    CLASSES
+// ================
+
+class BananoAddress {
+  constructor(address) {
+    this.full = address;
+    this.start = address.substring(0, 11);
+    this.mid = address.substring(11,58);
+    this.end = address.substring(58);
+  }
+}

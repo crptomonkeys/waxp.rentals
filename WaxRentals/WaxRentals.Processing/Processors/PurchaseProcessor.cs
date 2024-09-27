@@ -1,38 +1,53 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring.Logging;
-using WaxRentals.Monitoring.Prices;
-using WaxRentals.Waxp.Transact;
-using static WaxRentals.Monitoring.Config.Constants;
-using BananoAccount = WaxRentals.Banano.Transact.IBananoAccount;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
+using static WaxRentals.Service.Shared.Config.Constants;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class PurchaseProcessor : Processor<Purchase>
+    internal class PurchaseProcessor : Processor<Result<PurchaseInfo>>
     {
 
-        private BananoAccount Banano { get; }
-        private IWaxAccounts Wax { get; }
-        private IPriceMonitor Prices { get; }
+        private IPurchaseService Purchases { get; }
+        private IBananoService Banano { get; }
+        private IAppService App { get; }
 
-        public PurchaseProcessor(IDataFactory factory, BananoAccount banano, IWaxAccounts wax, IPriceMonitor prices)
-            : base(factory)
+        public PurchaseProcessor(ITrackService track, IPurchaseService purchases, IBananoService banano, IAppService app)
+            : base(track)
         {
+            Purchases = purchases;
             Banano = banano;
-            Wax = wax;
-            Prices = prices;
+            App = app;
         }
 
-        protected override Func<Task<Purchase>> Get => Factory.Process.PullNextPurchase;
-        protected async override Task Process(Purchase purchase)
+        protected override Func<Task<Result<PurchaseInfo>>> Get => Purchases.Next;
+
+        protected async override Task<bool> Process(Result<PurchaseInfo> result)
         {
-            var hash = await Banano.Send(purchase.PaymentBananoAddress, purchase.Banano);
-            var dataTask = Factory.Process.ProcessPurchase(purchase.PurchaseId, hash);
-            var waxTask = Wax.Primary.Send(Wax.Today.Account, purchase.Wax);
-            Tracker.Track("Sent BAN", purchase.Banano, Coins.Banano, spent: purchase.Banano * Prices.Banano);
-            await Task.WhenAll(dataTask, waxTask);
+            if (result.Success && result.Value != null)
+            {
+                await Process(result.Value);
+                return true; // Check for another.
+            }
+            return false;
+        }
+
+        private async Task Process(PurchaseInfo purchase)
+        {
+            var result = await Banano.Send(purchase.BananoAddress, purchase.Banano);
+            if (result.Success)
+            {
+                var dataTask = Purchases.Process(purchase.Id, result.Value);
+                LogTransaction("Sent BAN", purchase.Banano, Coins.Banano, spent: await ToUsd(purchase.Banano));
+                await dataTask;
+            }
+        }
+
+        private async Task<decimal> ToUsd(decimal banano)
+        {
+            var result = await App.State();
+            return banano * (result.Value?.BananoPrice ?? 0);
         }
 
     }

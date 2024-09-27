@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WaxRentals.Data\WaxRentals.Data.csproj" />
     <ProjectReference Include="..\WaxRentals.Monitoring\WaxRentals.Monitoring.csproj" />
+    <ProjectReference Include="..\WaxRentals.Service.Shared\WaxRentals.Service.Shared.csproj" />
   </ItemGroup>
 
 </Project>

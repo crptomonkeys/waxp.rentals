@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using Nano.Net;
 
@@ -7,9 +6,9 @@ namespace VanityAddressGenerator
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            var vanity = "open";
+            var vanity = "ads";
             var filename = $"{vanity}.seed.txt";
 
             var sw = new Stopwatch();

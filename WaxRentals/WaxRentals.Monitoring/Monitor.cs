@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Timers;
 using WaxRentals.Data.Manager;
 
@@ -10,9 +11,9 @@ namespace WaxRentals.Monitoring
         #region " Event "
 
         public event EventHandler Updated;
-        protected IDataFactory Factory { get; }
+        protected ILog Log { get; }
 
-        protected void RaiseEvent()
+        protected async Task RaiseEvent()
         {
             try
             {
@@ -20,14 +21,14 @@ namespace WaxRentals.Monitoring
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                await Log.Error(ex);
             }
         }
 
-        public void Initialize()
+        public async Task Initialize()
         {
-            Elapsed();
-            RaiseEvent();
+            await Elapsed();
+            await RaiseEvent();
         }
 
         #endregion
@@ -36,92 +37,41 @@ namespace WaxRentals.Monitoring
 
         private readonly Timer _timer;
 
-        protected Monitor(TimeSpan interval, IDataFactory factory)
+        protected Monitor(TimeSpan interval, ILog log)
         {
-            Factory = factory;
+            Log = log;
 
             _timer = new Timer(interval.TotalMilliseconds);
-            _timer.Elapsed += (_, _) => Elapsed();
+            _timer.Elapsed += async (_, _) => await Elapsed();
             _timer.Start();
         }
 
         public void Dispose()
         {
+            _timer.Elapsed -= async (_, _) => await Elapsed();
             using (_timer)
             {
                 _timer.Stop();
             }
+            GC.SuppressFinalize(this);
         }
 
-        protected virtual void Elapsed()
+        protected async virtual Task Elapsed()
         {
             try
             {
-                if (Tick())
+                if (await Tick())
                 {
-                    RaiseEvent();
+                    await RaiseEvent();
                 }
             }
             catch (Exception ex)
             {
-                Factory.Log.Error(ex);
+                await Log.Error(ex);
             }
         }
 
-        protected abstract bool Tick();
-
-        #endregion
-
-    }
-
-    public abstract class Monitor<T> : Monitor
-    {
-
-        #region " Event "
-
-        protected Monitor(TimeSpan interval, IDataFactory factory) : base(interval, factory) { }
-
-        public new event EventHandler<T> Updated;
-
-        protected void RaiseEvent(T result)
-        {
-            try
-            {
-                Updated?.Invoke(this, result);
-                RaiseEvent();
-            }
-            catch (Exception ex)
-            {
-                Factory.Log.Error(ex);
-            }
-        }
-
-        #endregion
-
-        #region " Timer "
-
-        protected override void Elapsed()
-        {
-            try
-            {
-                if (Tick(out T args))
-                {
-                    RaiseEvent(args);
-                }
-            }
-            catch (Exception ex)
-            {
-                Factory.Log.Error(ex);
-            }
-        }
-
-        protected abstract bool Tick(out T result);
-
-        protected override bool Tick()
-        {
-            // This should never be called.
-            return false;
-        }
+        protected abstract Task<bool> Tick();
 
         #endregion
 

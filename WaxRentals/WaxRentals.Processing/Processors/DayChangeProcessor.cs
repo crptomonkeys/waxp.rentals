@@ -1,40 +1,26 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WaxRentals.Data.Manager;
-using WaxRentals.Waxp.Transact;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class DayChangeProcessor : Processor<IWaxAccount>
+    internal class DayChangeProcessor : Processor<Result>
     {
 
-        private IWaxAccounts Wax { get; }
-        private IWaxAccount Today { get; set; }
+        private IWaxService Wax { get; }
 
-        public DayChangeProcessor(IDataFactory factory, IWaxAccounts wax)
-            : base(factory)
+        public DayChangeProcessor(ITrackService track, IWaxService wax)
+            : base(track)
         {
             Wax = wax;
         }
 
-        protected override Func<Task<IWaxAccount>> Get => () => Task.FromResult(Wax.Today);
-        protected async override Task Process(IWaxAccount today)
+        protected override Func<Task<Result>> Get => Wax.Sweep;
+        protected override Task<bool> Process(Result result)
         {
-            if (Today != today)
-            {
-                Today = today;
-
-                if ((await today.GetBalances()).Unstaking > 0)
-                {
-                    await today.ClaimRefund();
-                }
-                
-                var available = (await Wax.Yesterday.GetBalances()).Available;
-                if (available > 0)
-                {
-                    await Wax.Yesterday.Send(today.Account, available);
-                }
-            }
+            // no-op
+            return Task.FromResult(false);
         }
 
     }

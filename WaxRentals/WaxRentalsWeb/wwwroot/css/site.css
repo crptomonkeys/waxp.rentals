@@ -3,6 +3,20 @@ body {
   overflow-y: scroll;
 }
 
+.message {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  padding: 10px;
+  height: 40px;
+  background: #d8aa46;
+  text-align: center;
+  font-weight: bold;
+  color: #000;
+  z-index: 999;
+}
+
 #error-alert {
   position: fixed;
   bottom: 0px;
@@ -17,6 +31,13 @@ body {
 .clipboard,
 .fa-external-link {
   cursor: pointer;
+}
+
+span.rental-free-days {
+  font-weight: bold;
+  color: #d8aa46;
+  margin-left: 5px;
+  font-size: 1.1em;
 }
 
 #menu-3 div.toggle-content {
@@ -69,6 +90,12 @@ span.address-highlight {
     display: none !important;
   }
 
+  .message {
+    display: inline-grid;
+    align-items: center;
+    height: 50px;
+  }
+
   .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td
   {
     padding: 8px 4px;
@@ -77,5 +104,29 @@ span.address-highlight {
   .toggle-content {
     padding: 30px 20px;
   }
+
+  .g-item span {
+    font-size: 32px;
+  }
 }
 
+/* Ads */
+#bottom-ad-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+div.bottom-ad {
+  box-sizing: content-box;
+  width: 320px;
+  height: 100px;
+  border: 1px solid #d8aa46;
+  display: block !important;
+  font-weight: bold;
+}
+
+  div.bottom-ad > div[data-banad-notice-for] {
+    border-bottom: 0px !important;
+    bottom: -1.5em !important;
+  }

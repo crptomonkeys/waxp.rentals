@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Timers;
-using WaxRentals.Data.Manager;
+using Microsoft.Extensions.DependencyInjection;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities.Input;
 using ManualResetEventSlim = System.Threading.ManualResetEventSlim;
 
 namespace WaxRentals.Processing.Processors
@@ -12,16 +14,15 @@ namespace WaxRentals.Processing.Processors
         ManualResetEventSlim Stop();
     }
 
-    internal abstract class Processor<T> : IProcessor
+    internal abstract class Processor<T> : IProcessor, IDisposable
     {
         private readonly ManualResetEventSlim _complete = new();
 
-        protected IDataFactory Factory { get; }
-        protected virtual bool ProcessMultiplePerTick { get; } = true;
-
-        protected Processor(IDataFactory factory)
+        protected ITrackService Track { get; }
+        
+        protected Processor(ITrackService track)
         {
-            Factory = factory;
+            Track = track;
         }
         
         #region " Processing "
@@ -36,6 +37,16 @@ namespace WaxRentals.Processing.Processors
                 _timer.Elapsed += async (_, _) => await Tick();
                 _timer.Start();
             }
+        }
+
+        public void Dispose()
+        {
+            _timer.Elapsed -= async (_, _) => await Tick();
+            using (_timer)
+            {
+                _timer.Stop();
+            }
+            GC.SuppressFinalize(this);
         }
 
         public ManualResetEventSlim Stop()
@@ -93,30 +104,54 @@ namespace WaxRentals.Processing.Processors
                 // Process one at a time.
                 // Revisit if this ends up being too slow.
                 target = await Get();
-                if (ProcessMultiplePerTick)
+                while (await Process(target))
                 {
-                    while (target != null)
-                    {
-                        await Process(target);
-                        target = await Get();
-                    }
-                }
-                else if (target != null)
-                {
-                    await Process(target);
+                    target = await Get();
                 }
             }
             catch (Exception ex)
             {
-                await Factory.Log.Error(ex, context: target);
+                Log(ex, context: target);
             }
             _complete.Set();
         }
 
         protected abstract Func<Task<T>> Get { get; }
-        protected abstract Task Process(T target);
+        protected abstract Task<bool> Process(T target);
 
         #endregion
 
+        #region " Tracking "
+
+        protected async void Log(Exception ex, string error = null, object context = null)
+        {
+            var log = new ErrorLog { Exception = ex, Error = error, Context = context };
+            await Track.Error(log);
+        }
+
+        protected async void LogTransaction(string description, decimal quantity, string coin, decimal? earned = null, decimal? spent = null)
+        {
+            var log = new TransactionLog { Description = description, Quantity = quantity, Coin = coin, Earned = earned, Spent = spent };
+            await Track.Transaction(log);
+        }
+
+        protected async void Notify(string message)
+        {
+            await Track.Notify(message);
+        }
+
+        #endregion
+
+    }
+
+    internal static class IServiceProviderExtensions
+    {
+        public static T BuildProcessor<T>(this IServiceProvider @this, TimeSpan interval)
+            where T : IProcessor
+        {
+            var processor = @this.GetRequiredService<T>();
+            processor.Start(interval);
+            return processor;
+        }
     }
 }

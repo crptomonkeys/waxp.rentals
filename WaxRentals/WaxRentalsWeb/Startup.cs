@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using WaxRentalsWeb.Config;
-using WaxRentalsWeb.Data;
 using WaxRentalsWeb.Notifications;
 
 namespace WaxRentalsWeb
@@ -55,8 +54,6 @@ namespace WaxRentalsWeb
                 endpoints.MapRazorPages();
                 endpoints.MapHub<NotificationHub>("/notifications");
             });
-
-            app.ApplicationServices.UseDataCache();
         }
     }
 }

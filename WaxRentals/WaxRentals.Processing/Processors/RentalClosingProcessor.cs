@@ -1,33 +1,47 @@
 ﻿using System;
 using System.Threading.Tasks;
-using WaxRentals.Banano.Transact;
-using WaxRentals.Data.Entities;
-using WaxRentals.Data.Manager;
-using WaxRentals.Waxp.Transact;
+using WaxRentals.Service.Shared.Connectors;
+using WaxRentals.Service.Shared.Entities;
 
 namespace WaxRentals.Processing.Processors
 {
-    internal class RentalClosingProcessor : Processor<Rental>
+    internal class RentalClosingProcessor : Processor<Result<RentalInfo>>
     {
 
-        private IWaxAccounts Wax { get; }
-        private IBananoAccountFactory Banano { get; set; }
+        private IRentalService Rentals { get; }
+        private IWaxService Wax { get; }
 
-        public RentalClosingProcessor(IDataFactory factory, IWaxAccounts wax, IBananoAccountFactory banano)
-            : base(factory)
+        public RentalClosingProcessor(ITrackService track, IRentalService rentals, IWaxService wax)
+            : base(track)
         {
+            Rentals = rentals;
             Wax = wax;
-            Banano = banano;
         }
 
-        protected override Func<Task<Rental>> Get => Factory.Process.PullNextClosingRental;
-        protected async override Task Process(Rental rental)
+        protected override Func<Task<Result<RentalInfo>>> Get => Rentals.NextClosing;
+        protected async override Task<bool> Process(Result<RentalInfo> result)
         {
-            var wax = Wax.GetAccount(rental.SourceWaxAccount);
-            var (success, hash) = await wax.Unstake(rental.TargetWaxAccount, rental.CPU, rental.NET);
-            if (success)
+            if (result.Success && result.Value != null)
             {
-                await Factory.Process.ProcessRentalClosing(rental.RentalId, hash);
+                await Process(result.Value);
+                return true; // Check for another.
+            }
+            return false;
+        }
+
+        private async Task Process(RentalInfo rental)
+        {
+            try
+            {
+                var result = await Wax.Unstake(rental.Cpu, rental.Net, rental.WaxAccount, rental.SourceAccount);
+                if (result.Success)
+                {
+                    await Rentals.ProcessClosing(rental.Id, result.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(ex, context: rental);
             }
         }
 

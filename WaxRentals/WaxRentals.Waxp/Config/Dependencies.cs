@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Eos.Cryptography;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Manager;
-using WaxRentals.Monitoring;
+using WaxRentals.Waxp.History;
 using WaxRentals.Waxp.Monitoring;
 using WaxRentals.Waxp.Transact;
 using static WaxRentals.Waxp.Config.Constants;
@@ -16,9 +17,20 @@ namespace WaxRentals.Waxp.Config
 
         public static void AddDependencies(this IServiceCollection services)
         {
+            var env = GetEnvironmentVariables();
+
+            services.AddSingleton(provider =>
+            {
+                return new AccountNames
+                {
+                    Primary = env["WAX_PRIMARY"],
+                    Transact = env["WAX_TRANSACT"].Split('+')
+                };
+            });
+
             services.AddSingleton(provider =>
                 JObject.Parse(
-                    File.ReadAllText(Locations.Key)
+                    File.ReadAllText(env["WAX_KEY_FILE"])
                 ).ToObject<WaxKey>()
             );
 
@@ -29,27 +41,24 @@ namespace WaxRentals.Waxp.Config
             services.AddSingleton(provider =>
                 new EndpointMonitor(
                     TimeSpan.FromHours(1),
-                    provider.GetRequiredService<IDataFactory>()
+                    provider.GetRequiredService<ILog>()
                 )
             );
 
             services.AddSingleton<IClientFactory, ClientFactory>();
             services.AddSingleton<IWaxAccounts, WaxAccounts>();
+            services.AddSingleton<IWaxHistoryChecker, WaxHistoryChecker>();
+        }
 
-            services.AddSingleton(provider =>
-                new BalancesMonitor(
-                    TimeSpan.FromMinutes(2),
-                    provider.GetRequiredService<IDataFactory>(),
-                    provider.GetRequiredService<IWaxAccounts>()
-                )
-            );
-
-            services.AddSingleton(provider =>
-                new NftsMonitor(
-                    TimeSpan.FromMinutes(1),
-                    provider.GetRequiredService<IDataFactory>()
-                )
-            );
+        private static IDictionary<string, string> GetEnvironmentVariables()
+        {
+            var env = Environment.GetEnvironmentVariables();
+            var dic = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string key in env.Keys)
+            {
+                dic.Add(key, (string)env[key]);
+            }
+            return dic;
         }
 
     }

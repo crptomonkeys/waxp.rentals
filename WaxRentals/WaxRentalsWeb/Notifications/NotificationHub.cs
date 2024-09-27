@@ -1,54 +1,71 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using WaxRentals.Banano.Transact;
-using WaxRentalsWeb.Data;
-using WaxRentalsWeb.Data.Models;
+using WaxRentalsWeb.Files;
+using WaxRentalsWeb.Monitoring;
 
 namespace WaxRentalsWeb.Notifications
 {
     public class NotificationHub : Hub
     {
 
-        private readonly IDataCache _data;
-        private readonly IHubContext<NotificationHub> _context;
-        private readonly IBananoAccountFactory _banano;
-
+        private IAppStateMonitor AppState { get; }
+        private IAppInsightsMonitor AppInsights { get; }
+        private SiteMessageMonitor SiteMessage { get; }
+        
         // This must be public to work.
         public NotificationHub(
-            IDataCache data,
-            IHubContext<NotificationHub> context,
-            IBananoAccountFactory banano)
+            IAppStateMonitor appState,
+            IAppInsightsMonitor appInsights,
+            SiteMessageMonitor siteMessage,
+            IHubContext<NotificationHub> hub)
         {
-            _data = data;
-            _context = context;
-            _banano = banano;
+            AppState = appState;
+            AppState.Updated += async (_, _) => await NotifyState(hub.Clients.All);
+            
+            AppInsights = appInsights;
+            AppInsights.Updated += async (_, _) => await NotifyInsights(hub.Clients.All);
 
-            _data.AppStateChanged += async (_, _) => await NotifyAppState(_context.Clients.All);
-            _data.RecentsChanged += async (_, _) => await NotifyRecents(_context.Clients.All);
+            SiteMessage = siteMessage;
+            SiteMessage.Updated += async (_, _) => await NotifyAlert(hub.Clients.All);
+            SiteMessage.Initialize();
         }
 
         public async override Task OnConnectedAsync()
         {
-            var appState = NotifyAppState(Clients.Caller);
-            var recents = NotifyRecents(Clients.Caller);
-            await Task.WhenAll(appState, recents);
+            var appState = NotifyState(Clients.Caller);
+            var recents = NotifyInsights(Clients.Caller);
+            var alert = NotifyAlert(Clients.Caller);
+            await Task.WhenAll(appState, recents, alert);
             await base.OnConnectedAsync();
         }
 
         #region " Notifications "
 
-        private async Task NotifyAppState(IClientProxy client)
+        private async Task NotifyState(IClientProxy client)
         {
-            await Notify(client, "AppStateChanged", () => new AppStateModel(_data.AppState));
+            if (AppState.Value == null)
+            {
+                return;
+            }
+            await Notify(client, "StateChanged", () => AppState.Value);
         }
 
-        private async Task NotifyRecents(IClientProxy client)
+        private async Task NotifyInsights(IClientProxy client)
         {
-            await Notify(client, "RecentsChanged", () => new RecentsModel(_data.Recents, _banano));
+            if (AppInsights.Value == null)
+            {
+                return;
+            }
+            await Notify(client, "InsightsChanged", () => AppInsights.Value);
         }
 
-        private async Task Notify<T>(IClientProxy client, string method, Func<T> getData)
+        private async Task NotifyAlert(IClientProxy client)
+        {
+            await Notify(client, "AlertChanged", () => SiteMessage.Contents);
+        }
+
+        private static async Task Notify<T>(IClientProxy client, string method, Func<T> getData)
         {
             try
             {

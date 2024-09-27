@@ -2,18 +2,17 @@
 using System.Linq;
 using Eos.Cryptography;
 using WaxRentals.Data.Manager;
-using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Waxp.Transact
 {
     internal class WaxAccounts : IWaxAccounts
     {
 
-        public WaxAccounts(PrivateKey active, IClientFactory client, IDataFactory factory)
+        public WaxAccounts(AccountNames names, PrivateKey active, IClientFactory client, ILog log)
         {
-            Primary = new WrappedAccount(Protocol.Account, active, client, factory);
-            Transact = Protocol.TransactAccounts.Select(
-                account => new WrappedAccount(account, active, client, factory)
+            Primary = new WrappedAccount(names.Primary, active, client, log);
+            Transact = names.Transact.Select(
+                account => new WrappedAccount(account, active, client, log)
             ).ToArray();
         }
 

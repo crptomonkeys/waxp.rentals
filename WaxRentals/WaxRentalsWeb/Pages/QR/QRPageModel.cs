@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using QRCoder;
+using SkiaSharp;
+using SkiaSharp.QrCode;
+using SkiaSharp.QrCode.Models;
 using static WaxRentalsWeb.Config.Constants;
 
 namespace WaxRentalsWeb.Pages.QR
@@ -14,23 +14,25 @@ namespace WaxRentalsWeb.Pages.QR
 
         protected FileContentResult GenerateQRCode(string value)
         {
-            var data = QRCodeGenerator.GenerateQrCode(value, QRCodeGenerator.ECCLevel.Q);
-            var code = new QRCode(data);
-            var qr = code.GetGraphic(
-                (int)Math.Ceiling((decimal)Images.Size / (decimal)data.ModuleMatrix.Count) + 1,
-                Color.Black,
-                Color.White,
-                icon: new Bitmap(Images.Logo),
-                iconSizePercent: 30,
-                drawQuietZones: false);
-
-            byte[] image;
-            using (var stream = new MemoryStream())
-            {
-                qr.Save(stream, ImageFormat.Png);
-                image = stream.ToArray();
-            }
+            var image = Generate(value);
+            GC.Collect(); // This can't be the right way to do this, but it keeps the memory from ballooning wildly.
             return File(image, "image/png");
+        }
+
+        private byte[] Generate(string value)
+        {
+            var code = new QRCodeGenerator().CreateQrCode(value, ECCLevel.Q, quietZoneSize: 0);
+            var icon = new IconData { Icon = SKBitmap.Decode(Images.Logo), IconSizePercent = 30 };
+
+            using var surface = SKSurface.Create(new SKImageInfo(Images.Size, Images.Size));
+            var canvas = surface.Canvas;
+            canvas.Render(code, Images.Size, Images.Size, SKColor.Parse("FFFFFF"), SKColor.Parse("000000"), icon);
+
+            using var snapshot = surface.Snapshot();
+            using var data = snapshot.Encode(SKEncodedImageFormat.Png, 100);
+            using var stream = new MemoryStream();
+            data.SaveTo(stream);
+            return stream.ToArray();
         }
 
     }

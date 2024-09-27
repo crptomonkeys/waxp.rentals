@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using WaxRentalsWeb.Config;
-using WaxRentalsWeb.Data.Models;
+using WaxRentalsWeb.Models;
 
 namespace WaxRentalsWeb.Pages
 {
@@ -26,6 +26,27 @@ namespace WaxRentalsWeb.Pages
         {
             return Process(
                 new PageLoadModel { Name = "sell" }
+            );
+        }
+
+        public IActionResult OnGetGet()
+        {
+            return Process(
+                new PageLoadModel { Name = "get" }
+            );
+        }
+
+        public IActionResult OnGetMy()
+        {
+            return Process(
+                new PageLoadModel { Name = "my" }
+            );
+        }
+
+        public IActionResult OnGetInsights()
+        {
+            return Process(
+                new PageLoadModel { Name = "insights" }
             );
         }
 

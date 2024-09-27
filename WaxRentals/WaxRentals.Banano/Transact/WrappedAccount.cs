@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Numerics;
 using System.Threading.Tasks;
+using N2.Pow;
 using Nano.Net;
 using Nano.Net.Extensions;
 using Nano.Net.Numbers;
@@ -19,14 +20,16 @@ namespace WaxRentals.Banano.Transact
         private readonly Account _account;
         private readonly uint _index;
         private readonly RpcClients _rpc;
-        private readonly IDataFactory _factory;
+        private readonly WorkServer _workServer;
+        private readonly ILog _log;
 
-        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, IDataFactory factory)
+        public WrappedAccount(BananoSeed seed, uint index, RpcClients rpc, WorkServer workServer, ILog log)
         {
             _account = new Account(seed.Seed, index, Protocol.Prefix);
             _index = index;
             _rpc = rpc;
-            _factory = factory;
+            _workServer = workServer;
+            _log = log;
         }
 
         public string BuildLink(decimal amount)
@@ -76,7 +79,7 @@ namespace WaxRentals.Banano.Transact
                 }
                 catch (Exception ex)
                 {
-                    await _factory.Log.Error(ex, context: block);
+                    await _log.Error(ex, context: block);
                 }
             }
             return Scale(result);
@@ -101,7 +104,7 @@ namespace WaxRentals.Banano.Transact
                     }
                     catch (Exception ex)
                     {
-                        await _factory.Log.Error(ex, context: block);
+                        await _log.Error(ex, context: block);
                     }
                 }
             }
@@ -143,18 +146,18 @@ namespace WaxRentals.Banano.Transact
         public async Task<string> GenerateWork()
         {
             await _rpc.Node.UpdateAccountAsync(_account);
-            var work = await _rpc.WorkServer.WorkGenerateAsync(
-                _account.Opened ? _account.Frontier : _account.PublicKey.BytesToHex(),
-                "fffffe0000000000"
-            );
-            return work?.Work;
+            var hash = _account.Opened ? _account.Frontier : _account.PublicKey.BytesToHex();
+            //var work = await _rpc.WorkServer.WorkGenerateAsync(hash, "fffffe0000000000");
+            //return work?.Work;
+            var response = await _workServer.GenerateWork(hash);
+            return response.WorkResult?.Work;
         }
 
         #endregion
 
         #region " Scale "
 
-        private decimal Scale(BigDecimal value)
+        private static decimal Scale(BigDecimal value)
         {
             // Converting implicitly to decimal uses the full Mantissa rather
             // than the scaled value, so have to use string in between.

@@ -2,9 +2,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable disable
+
 namespace WaxRentals.Data.Entities
 {
-	[Table("Package", Schema = "welcome")]
+	[Table("Packages", Schema = "welcome")]
     public class WelcomePackage
     {
 
@@ -25,6 +27,9 @@ namespace WaxRentals.Data.Entities
 		public string FundTransaction { get; set; }
 		public string NftTransaction { get; set; }
 
+		public int? RentalId { get; set; }
+		public virtual Rental Rental { get; set; }
+
 		[NotMapped]
 		public Status Status
 		{
@@ -32,6 +37,9 @@ namespace WaxRentals.Data.Entities
 			set { StatusId = (int)value; }
 		}
 		public int StatusId { get; set; }
+
+		[Column("Address"), DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+		public string BananoAddress { get; set; }
 
 	}
 }

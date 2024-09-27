@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Eos.Cryptography;
 using Eos.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using WaxRentals.Data.Manager;
+using static WaxRentals.Monitoring.Config.Constants;
 using static WaxRentals.Waxp.Config.Constants;
 
 namespace WaxRentals.Waxp.Transact
@@ -18,15 +20,17 @@ namespace WaxRentals.Waxp.Transact
 
         private readonly PrivateKey _active;
         private readonly IClientFactory _client;
-        private readonly IDataFactory _factory;
+        private readonly ILog _log;
         private readonly List<Authorization> _authorization;
+        private readonly HttpClient _http;
 
-        public WrappedAccount(string account, PrivateKey active, IClientFactory client, IDataFactory factory)
+        public WrappedAccount(string account, PrivateKey active, IClientFactory client, ILog log)
         {
             Account = account;
             _active = active;
             _client = client;
-            _factory = factory;
+            _log = log;
+            _http = new HttpClient { Timeout = QuickTimeout };
 
             _authorization = new List<Authorization>
             {
@@ -42,7 +46,7 @@ namespace WaxRentals.Waxp.Transact
 
         #region " Balances "
 
-        public async Task<AccountBalances> GetBalances()
+        public async Task<(bool, AccountBalances)> GetBalances()
         {
             var balances = new AccountBalances();
             var apiTask = _client.ProcessApi(async client =>
@@ -65,14 +69,15 @@ namespace WaxRentals.Waxp.Transact
 
             await Task.WhenAll(apiTask, jsonTask);
             balances.Staked = await jsonTask;
-            return balances;
+            balances.Account = Account;
+            return (await apiTask, balances);
         }
 
         private async Task<decimal> GetValueFromJson(string url, IEnumerable<string> selectors, int scale)
         {
             try
             {
-                var json = JObject.Parse(await new QuickTimeoutWebClient().DownloadStringTaskAsync(url, TimeSpan.FromSeconds(5)));
+                var json = JObject.Parse(await _http.GetStringAsync(url));
                 double result = 0;
                 foreach (var selector in selectors)
                 {
@@ -86,7 +91,7 @@ namespace WaxRentals.Waxp.Transact
             }
             catch (Exception ex)
             {
-                await _factory.Log.Error(ex);
+                await _log.Error(ex);
                 return 0;
             }
         }

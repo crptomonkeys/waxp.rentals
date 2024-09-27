@@ -1,11 +1,6 @@
 ﻿@page
 @model IndexModel
 
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
-@{
-  var token = antiforgery.GetAndStoreTokens(HttpContext).RequestToken;
-}
-
 <!DOCTYPE html>
 <!--[if lt IE 7]><html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]><html class="no-js lt-ie9 lt-ie8"> <![endif]-->
@@ -17,7 +12,7 @@
   <meta charset="utf-8">
   <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
   <title>Rent WAX for BAN :: waxp.rentals</title>
-  <meta name="description" content="">
+  <meta name="description" content="Facilitating cryptomonKeys and WAX access for the BAN community.">
   <meta name="viewport" content="width=device-width">
   <!--
   Circle Template
@@ -39,7 +34,7 @@
   <script src="js/vendor/modernizr-2.6.2.min.js"></script>
   <!-- templatemo 410 circle -->
 </head>
-<body>
+<body data-banad-url="/ads">
   <!--[if lt IE 7]>
   <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
   <![endif]-->
@@ -48,6 +43,11 @@
 
   <div class="container-fluid">
     <div class="row">
+
+      <div id="site-alert" class="site-alert" v-if="message">
+        <div class="message">{{ message }}</div>
+        <div class="spacing mobile-show"></div>
+      </div>
 
       <div class="col-md-4 col-sm-12">
         <div class="sidebar-menu">
@@ -63,14 +63,14 @@
 
           <div class="menu-wrapper">
             <ul class="menu">
-              <li><a class="show-0" href="#">Rent WAX</a></li>
-              <li><a class="show-1" href="#">Sell WAX</a></li>
-              <li><a class="show-2" href="#">Get Banano</a></li>
-              <li><a class="show-3" href="#">My Rentals</a></li>
-              <li><a class="show-4" href="#">Recent Transactions</a></li>
-              <li><a class="show-5" href="#">New Wallet</a></li>
+              <li><a class="show-0" href="/">Rent WAX</a></li>
+              <li><a class="show-1" href="/direct/sell">Sell WAX</a></li>
+              <li><a class="show-2" href="/direct/get">Get Banano</a></li>
+              <li><a class="show-3" href="/direct/my">My Rentals</a></li>
+              <li><a class="show-4" href="/direct/insights">Site Insights</a></li>
+              <li><a class="show-5" href="/direct/open">New Wallet</a></li>
             </ul> <!-- /.menu -->
-            <a href="#" class="toggle-menu"><i class="fa fa-bars"></i></a>
+            <a href="/" class="toggle-menu"><i class="fa fa-bars"></i></a>
           </div> <!-- /.menu-wrapper -->
           <!--Arrow Navigation-->
           <a id="prevslide" class="load-item"><i class="fa fa-angle-left"></i></a>
@@ -90,37 +90,47 @@
                 <div class="toggle-content text-center spacing">
                   <h3>Rent WAX</h3>
                   <p>
-                    <strong>Stake CPU and NET to your WAX account for {{ state.waxRentPriceInBanano }} BAN per WAX per day.</strong>
-                    <br><br>Currently staked: <strong>{{ state.waxBalanceStaked }}</strong> WAX | Available: <strong>{{ state.waxBalanceAvailable }}</strong> WAX
-                    <span v-if="state.waxBalanceUnstaking > 0"><br>Available tomorrow: <strong>+{{ state.waxBalanceUnstaking }}</strong> WAX</span>
+                    <strong>Stake CPU and NET to your WAX account for {{ state.costs?.waxRentPriceInBanano }} BAN per WAX per day.</strong>
+                    <br><br>Currently staked: <strong>{{ state.wax?.staked }}</strong> WAX | Available: <strong>{{ state.wax?.availableToday }}</strong> WAX <i class="fa fa-external-link wax-account-link" :data-account="state.wax?.workingAccount"></i>
+                    <span v-if="state.wax?.additionalAvailableTomorrow > 0"><br>Available tomorrow: <strong>+{{ state.wax?.additionalAvailableTomorrow }}</strong> WAX</span>
+                    <br><br><small>Rentals of at least @Model.Constants.Rentals.DaysDoubleThreshold days will have their time <strong>doubled</strong> for free.</small>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
 
               <div class="col-md-12">
-                <div class="contact-form">
+                <div class="contact-form" v-if="state.limits?.waxMaximumRent >= state.limits?.waxMinimumRent">
                   <div class="row">
-                    <form id="open-rental" action="/" method="post">
+                    <form id="open-rental" action="@Model.Endpoints.CreateRental" method="post">
                       <fieldset class="col-md-3">
-                        <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.WaxAddressRegex" placeholder="WAX Account" required>
+                        <input type="text" name="account" id="account" minlength="1" maxlength="12" pattern="@Model.Constants.Validations.WaxAccountRegex" placeholder="WAX Account" required>
                       </fieldset>
                       <fieldset class="col-md-3">
-                        <input type="number" name="cpu" id="cpu" min="0" :max="state.waxMaximumRent" step="1" placeholder="# CPU">
+                        <input type="number" name="cpu" id="cpu" min="0" :max="state.limits?.waxMaximumRent" step="1" placeholder="# CPU">
                       </fieldset>
                       <fieldset class="col-md-3">
-                        <input type="number" name="net" id="net" min="0" :max="state.waxMaximumRent" step="1" placeholder="# NET">
+                        <input type="number" name="net" id="net" min="0" :max="state.limits?.waxMaximumRent" step="1" placeholder="# NET">
                       </fieldset>
                       <fieldset class="col-md-3">
-                        <input type="number" name="days" id="days" min="1" step="1" placeholder="# Days" required>
+                        <input type="number" name="days" id="days" min="1" step="1" placeholder="# Days" required v-model="days">
                       </fieldset>
                       <fieldset class="col-md-12">
                         <input class="button" type="submit" name="open" id="open" value="Start Staking" @@click.prevent="submit">
+                        <span class="rental-free-days" v-if="days >= @Model.Constants.Rentals.DaysDoubleThreshold">+{{ days }} days free!</span>
                       </fieldset>
                     </form>
                   </div> <!-- /.row -->
                 </div> <!-- /.contact-form -->
+
+                <div class="toggle-content text-center" v-else>
+                  <p><strong>Looks like we are out of WAX to rent right now.  Check back again soon!</strong></p>
+                </div>
               </div> <!-- /.col-md-12 -->
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content-->
 
           <div id="menu-1" class="content">
@@ -130,19 +140,24 @@
                 <div class="toggle-content text-center">
                   <h3>Sell WAX</h3>
                   <p>
-                    <span v-if="state.waxMaximumBuy >= state.waxMinimumBuy">
+                    <span v-if="state.limits?.waxMaximumBuy >= state.limits?.waxMinimumBuy">
                       <img src="/qr/wax" width="150" height="150" />
-                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.waxMinimumBuy }}</strong> and <strong>{{ state.waxMaximumBuy }}</strong> WAX to <strong>@WaxRentals.Waxp.Config.Constants.Protocol.Account</strong> <i class="fa fa-copy clipboard" data-copy="@WaxRentals.Waxp.Config.Constants.Protocol.Account"></i> and <strong>include your BAN address as the memo</strong>.
+                      <br><br>Want to sell your WAX for BAN?  Send between <strong>{{ state.limits?.waxMinimumBuy }}</strong> and <strong>{{ state.limits?.waxMaximumBuy }}</strong> WAX to <strong>@Model.Constants.Accounts.WaxPrimaryAccount</strong> <i class="fa fa-copy clipboard" data-clipboard-text="@Model.Constants.Accounts.WaxPrimaryAccount"></i> and <strong>include your BAN address as the memo</strong>.
                     </span>
+                    <span v-else-if="state.costs?.waxBuyPriceInBanano == 0"><strong>The site is still loading; please keep this page open.</strong></span>
                     <span v-else><strong>Looks like we are out of BAN right now.  Check back again soon!</strong></span>
-                    <br><br>WAX price: <strong>${{ state.waxPrice }}</strong> | BAN price: <strong>${{ state.bananoPrice }}</strong>
-                    <br>Currently paying <strong>{{ state.waxBuyPriceInBanano }} BAN</strong> per WAX
-                    <br>Balance: <strong>{{ state.bananoBalance }} BAN</strong>
+                    <br><br>WAX price: <strong>${{ state.wax?.price }}</strong> | BAN price: <strong>${{ state.banano?.price }}</strong>
+                    <br>Currently paying <strong>{{ state.costs?.waxBuyPriceInBanano }} BAN</strong> per WAX
+                    <br>Balance: <strong>{{ state.banano?.balance }} BAN</strong> <i class="fa fa-external-link banano-address-link" data-address="@Model.Constants.Accounts.BananoSweepAddress"></i>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
 
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content -->
 
           <div id="menu-2" class="content">
@@ -150,64 +165,68 @@
 
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
-                  <img src="images/coins/wax.png" alt="WAX">
-                  <a class="overlay buy-wax" href="#">
+                  <img src="images/links/wax.png" alt="WAX">
+                  <a class="overlay buy-wax" href="/direct/sell">
                     <span>WAX</span>
                   </a>
                 </div> <!-- /.g-item -->
               </div> <!-- /.col-md-4 -->
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
-                  <img src="images/coins/xno.png" alt="XNO">
-                  <a rel="nofollow" class="overlay" href="https://banano.nano.trade/" target="_blank">
-                    <span>XNO</span>
+                  <img src="images/links/nanswap.png" alt="Nanswap">
+                  <a rel="nofollow" class="overlay" href="https://nanswap.com/convert?ref=waxp.rentals" target="_blank">
+                    <span>Nanswap</span>
                   </a>
                 </div> <!-- /.g-item -->
               </div> <!-- /.col-md-4 -->
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
-                  <img src="images/coins/moon.png" alt="MOON">
-                  <a rel="nofollow" class="overlay" href="https://moon.banano.trade/" target="_blank">
-                    <span>MOON</span>
+                  <img src="images/links/banano-trade.png" alt="Kuyumcu">
+                  <a rel="nofollow" class="overlay" href="https://banano.trade/" target="_blank">
+                    <span>Kuyumcu</span>
                   </a>
                 </div> <!-- /.g-item -->
               </div> <!-- /.col-md-4 -->
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
-                  <img src="images/coins/usd.png" alt="USD">
-                  <a rel="nofollow" class="overlay" href="https://ban.app/" target="_blank">
-                    <span>USD</span>
+                  <img src="images/links/bonobo.png" alt="bonobo">
+                  <a rel="nofollow" class="overlay" href="https://bonobo.cc/" target="_blank">
+                    <span>bonobo</span>
                   </a>
                 </div> <!-- /.g-item -->
               </div> <!-- /.col-md-4 -->
               <div class="col-md-4 col-xs-6">
                 <div class="g-item">
-                  <img src="images/coins/euro.png" alt="EURO">
-                  <a rel="nofollow" class="overlay" href="https://ban.app/" target="_blank">
-                    <span>EUR</span>
+                  <img src="images/links/faucets.png" alt="faucets">
+                  <a class="overlay" href="https://hub.banano.network/#faucets" target="_blank">
+                    <span>faucets</span>
                   </a>
                 </div> <!-- /.g-item -->
               </div> <!-- /.col-md-4 -->
 
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content -->
 
           <div id="menu-3" class="content">
             <div class="row">
               <div class="col-lg-6 mobile-show" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rental Details <a class="pull-right" href="#" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
+                  <h3>Pending Rental Details <a class="pull-right" href="/direct/my" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
                   <p v-if="detail.loading">
                     <img class="text-center" src="/images/progress.gif" />
                   </p>
                   <p v-else>
-                    <a :href="detail.link">
-                      <img :src="'/qr/banano/rental/' + detail.address.full" width="150" height="150" />
+                    <a :href="detail.payment.appLink">
+                      <img :src="'/qr/banano/rental/' + detail.payment.address.full" width="150" height="150" />
                       <br>Tap to open Kalium
                     </a>
-                    <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
-                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-copy="detail.address.full"></i>.
-                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} days
+                    <br><br>Send <strong>exactly {{ detail.payment.amount }} BAN</strong> to
+                    <br><span class="banano-address"><span class="address-highlight">{{ detail.payment.address.start }}</span>{{ detail.payment.address.mid }}<span class="address-highlight">{{ detail.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.payment.address.full"></i>.
+                    <br><br>{{ detail.target.account }} | {{ detail.target.cpu }} CPU | {{ detail.target.net }} NET | {{ days(detail.target.days) }}
                   </p>
                 </div>
               </div>
@@ -231,21 +250,21 @@
                     <tbody>
                       <tr v-for="rental in pending">
                         <td class="text-center align-middle">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.payment.address)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
-                          <a href="#" @@click.prevent="add(rental)" v-else>
+                          <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
-                        <td class="text-center align-middle">{{ rental.waxAccount }}</td>
-                        <td class="text-center align-middle mobile-hide">{{ rental.cpu }} WAX</td>
-                        <td class="text-center align-middle mobile-hide">{{ rental.net }} WAX</td>
-                        <td class="text-center align-middle mobile-show">{{ rental.cpu }} CPU<br />{{ rental.net }} NET</td>
-                        <td class="text-center align-middle">{{ days(rental.days) }}</td>
-                        <td class="text-center align-middle">{{ rental.banano }} BAN</td>
+                        <td class="text-center align-middle">{{ rental.target.account }}</td>
+                        <td class="text-center align-middle mobile-hide">{{ rental.target.cpu }} WAX</td>
+                        <td class="text-center align-middle mobile-hide">{{ rental.target.net }} WAX</td>
+                        <td class="text-center align-middle mobile-show">{{ rental.target.cpu }} CPU<br />{{ rental.target.net }} NET</td>
+                        <td class="text-center align-middle">{{ days(rental.target.days) }}</td>
+                        <td class="text-center align-middle">{{ rental.payment.amount }} BAN</td>
                         <td class="text-center align-middle">
-                          <a :href="'/direct/ba/' + rental.bananoAddress" class="detail-link" @@click.prevent="fetchRentalDetails(rental.bananoAddress)">
+                          <a :href="'/direct/ba/' + rental.payment.address" class="detail-link" @@click.prevent="fetchRentalDetails(rental.payment.address)">
                             <i class="fa fa-search-plus" alt="View"></i>
                           </a>
                         </td>
@@ -257,18 +276,18 @@
 
               <div class="col-lg-6 mobile-hide" v-if="detail">
                 <div class="toggle-content text-center">
-                  <h3>Pending Rental Details <a class="pull-right" href="#" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
+                  <h3>Pending Rental Details <a class="pull-right" href="/direct/my" @@click.prevent="detail = null"><i class="fa fa-times"></i></a></h3>
                   <p v-if="detail.loading">
                     <img class="text-center" src="/images/progress.gif" />
                   </p>
                   <p v-else>
-                    <a :href="detail.link">
-                      <img :src="'/qr/banano/rental/' + detail.address.full" width="150" height="150" />
+                    <a :href="detail.payment.appLink">
+                      <img :src="'/qr/banano/rental/' + detail.payment.address.full" width="150" height="150" />
                       <br>Tap to open Kalium
                     </a>
-                    <br><br>Send <strong>exactly {{ detail.banano }} BAN</strong> to
-                    <br><span class="banano-address"><span class="address-highlight">{{ detail.address.start }}</span>{{ detail.address.mid }}<span class="address-highlight">{{ detail.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-copy="detail.address.full"></i>.
-                    <br><br>CPU: {{ detail.cpu }} | NET: {{ detail.net }} | Duration: {{ detail.days }} days
+                    <br><br>Send <strong>exactly {{ detail.payment.amount }} BAN</strong> to
+                    <br><span class="banano-address"><span class="address-highlight">{{ detail.payment.address.start }}</span>{{ detail.payment.address.mid }}<span class="address-highlight">{{ detail.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="detail.payment.address.full"></i>.
+                    <br><br>{{ detail.target.account }} | {{ detail.target.cpu }} CPU | {{ detail.target.net }} NET | {{ days(detail.target.days) }}
                   </p>
                 </div>
               </div>
@@ -292,19 +311,19 @@
                     <tbody>
                       <tr v-for="rental in active">
                         <td class="text-center align-middle">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.payment.address)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
-                          <a href="#" @@click.prevent="add(rental)" v-else>
+                          <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
-                        <td class="text-center align-middle">{{ rental.waxAccount }}</td>
-                        <td class="text-center align-middle">{{ rental.cpu }} WAX</td>
-                        <td class="text-center align-middle">{{ rental.net }} WAX</td>
-                        <td class="text-center align-middle">{{ localize(rental.expires) }}</td>
+                        <td class="text-center align-middle">{{ rental.target.account }}</td>
+                        <td class="text-center align-middle">{{ rental.target.cpu }} WAX</td>
+                        <td class="text-center align-middle">{{ rental.target.net }} WAX</td>
+                        <td class="text-center align-middle">{{ localize(rental.dates?.expires) }}</td>
                         <td class="text-center align-middle">
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxStake" v-if="rental.transactions.waxStake"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -328,28 +347,32 @@
                     <tbody>
                       <tr v-for="rental in expired">
                         <td class="text-center align-middle">
-                          <a href="#" @@click.prevent="remove(rental)" v-if="tracked(rental.bananoAddress)">
+                          <a href="/direct/my" @@click.prevent="remove(rental)" v-if="tracked(rental.payment.address)">
                             <i class="fa fa-times" alt="Stop Tracking"></i>
                           </a>
-                          <a href="#" @@click.prevent="add(rental)" v-else>
+                          <a href="/direct/my" @@click.prevent="add(rental)" v-else>
                             <i class="fa fa-plus" alt="Track"></i>
                           </a>
                         </td>
-                        <td class="text-center align-middle">{{ rental.waxAccount }}</td>
-                        <td class="text-center align-middle">{{ rental.cpu + rental.net }} WAX</td>
+                        <td class="text-center align-middle">{{ rental.target.account }}</td>
+                        <td class="text-center align-middle">{{ rental.target.cpu + rental.target.net }} WAX</td>
                         <td class="text-center align-middle">
-                          {{ localize(rental.paid) }}
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                          {{ localize(rental.dates.staked) }}
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxStake" v-if="rental.transactions.waxStake"></i>
                         </td>
                         <td class="text-center align-middle">
-                          {{ localize(rental.expires) }}
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.unstakeTransaction"></i>
+                          {{ localize(rental.dates.expires) }}
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxUnstake" v-if="rental.transactions.waxUnstake"></i>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </div>
+            </div>
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
             </div>
           </div> <!-- /.content -->
 
@@ -358,7 +381,49 @@
 
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
-                  <h3>Recent Wax Rentals</h3>
+                  <h3>Monthly Stats</h3>
+                  <table class="table table-dark table-striped table-sm">
+                    <thead>
+                      <tr>
+                        <th scope="col" class="text-center">Year</th>
+                        <th scope="col" class="text-center">Month</th>
+                        <th scope="col" class="text-center">Wax-Days Rented</th>
+                        <th scope="col" class="text-center">Wax Purchased</th>
+                        <th scope="col" class="text-center">Welcome Packages Opened</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="stats in monthlyStatsView">
+                        <td class="text-center align-middle">
+                          {{ stats.year }}
+                        </td>
+                        <td class="text-center align-middle">
+                          {{ month(stats.year, stats.month) }}
+                        </td>
+                        <td class="text-center align-middle">
+                          {{ stats.waxDaysRented + stats.waxDaysFree }}
+                          <br><small>{{ stats.waxDaysFree }} FREE</small>
+                        </td>
+                        <td class="text-center align-middle">
+                          {{ stats.waxPurchasedForSite }}
+                        </td>
+                        <td class="text-center align-middle">
+                          {{ stats.welcomePackagesOpened }}
+                        </td>
+                      </tr>
+                      <tr v-if="showMoreStatsLink">
+                        <td class="text-center align-middle" colspan="5">
+                          <a href="/direct/insights" @@click.prevent="hideOverflowStats = false"><strong>Show All</strong></a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div> <!-- /.col-md-6 -->
+
+              <div class="col-md-6">
+                <div class="toggle-content text-center spacing">
+                  <h3>Latest Wax Rentals</h3>
                   <table class="table table-striped table-sm">
                     <thead>
                       <tr>
@@ -368,17 +433,22 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="rental in recent.rentals">
+                      <tr v-for="rental in insights.latestRentals">
                         <td class="text-center">
-                          {{ rental.cpu + rental.net }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.stakeTransaction"></i>
+                          {{ rental.target.cpu + rental.target.net }} WAX
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="rental.transactions.waxStake" v-if="rental.transactions.waxStake"></i>
                         </td>
                         <td class="text-center">
-                          {{ days(rental.days) }}
+                          {{ days(rental.target.days) }}
                         </td>
                         <td class="text-center">
-                          {{ rental.banano }} BAN
-                          <i class="fa fa-external-link banano-address-link" :data-address="rental.bananoAddress"></i>
+                          <span v-if="rental.payment.amount">
+                            {{ rental.payment.amount }} BAN
+                            <i class="fa fa-external-link banano-address-link" :data-address="rental.payment.address"></i>
+                          </span>
+                          <span v-else>
+                            FREE
+                          </span>
                         </td>
                       </tr>
                     </tbody>
@@ -388,7 +458,7 @@
 
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
-                  <h3>Recent Wax Purchases</h3>
+                  <h3>Latest Wax Purchases</h3>
                   <table class="table table-dark table-striped table-sm">
                     <thead>
                       <tr>
@@ -397,14 +467,14 @@
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="purchase in recent.purchases">
+                      <tr v-for="purchase in insights.latestPurchases">
                         <td class="text-center">
                           {{ purchase.wax }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="purchase.waxTransaction" v-if="purchase.waxTransaction"></i>
                         </td>
                         <td class="text-center">
                           {{ purchase.banano }} BAN
-                          <i class="fa fa-external-link banano-transaction-link" :data-hash="purchase.bananoTransaction"></i>
+                          <i class="fa fa-external-link banano-transaction-link" :data-hash="purchase.bananoTransaction" v-if="purchase.bananoTransaction"></i>
                         </td>
                       </tr>
                     </tbody>
@@ -414,34 +484,43 @@
 
               <div class="col-md-6">
                 <div class="toggle-content text-center spacing">
-                  <h3>Recent Welcome Packages</h3>
+                  <h3>Latest Welcome Packages</h3>
                   <table class="table table-dark table-striped table-sm">
                     <thead>
                       <tr>
                         <th scope="col" class="text-center">Received</th>
                         <th scope="col" class="text-center">Sent</th>
                         <th scope="col" class="text-center">NFT</th>
+                        <th scope="col" class="text-center">Rental</th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr v-for="package in recent.welcomePackages">
+                      <tr v-for="package in insights.latestWelcomePackages">
                         <td class="text-center">
-                          {{ package.banano }} BAN
-                          <i class="fa fa-external-link banano-address-link" :data-address="package.bananoAddress"></i>
+                          {{ package.payment.amount }} BAN
+                          <i class="fa fa-external-link banano-address-link" :data-address="package.payment.address"></i>
                         </td>
                         <td class="text-center">
-                          {{ package.wax }} WAX
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.fundTransaction"></i>
+                          {{ package.target.amount }} WAX
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.transactions.waxTransfer" v-if="package.transactions.waxTransfer"></i>
                         </td>
                         <td class="text-center">
-                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.nftTransaction" v-if="package.nftTransaction"></i>
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.transactions.nftTransfer" v-if="package.transactions.nftTransfer"></i>
+                        </td>
+                        <td class="text-center">
+                          <i class="fa fa-external-link wax-transaction-link" :data-hash="package.transactions.rentalStake" v-if="package.transactions.rentalStake"></i>
                         </td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </div> <!-- /.col-md-6 -->
+
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content -->
 
           <div id="menu-5" class="content">
@@ -449,15 +528,16 @@
 
               <div class="col-md-12" v-if="package">
                 <div class="toggle-content text-center">
-                  <h3>New Wallet <a class="pull-right" href="#" @@click.prevent="package = null"><i class="fa fa-times"></i></a></h3>
+                  <h3>New Wallet <a class="pull-right" href="/direct/open" @@click.prevent="package = null"><i class="fa fa-times"></i></a></h3>
                   <p>
-                    <a :href="package.link">
-                      <img :src="'/qr/banano/welcome/' + package.address.full" width="150" height="150" />
+                    <a :href="package.payment.appLink">
+                      <img :src="'/qr/banano/welcome/' + package.payment.address.full" width="150" height="150" />
                       <br>Tap to open Kalium
                     </a>
-                    <br><br>Send <strong>exactly {{ state.bananoWelcomePackagePrice }} BAN</strong> to
-                    <br><span class="banano-address"><span class="address-highlight">{{ package.address.start }}</span>{{ package.address.mid }}<span class="address-highlight">{{ package.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-copy="package.address.full"></i>.
-                    <br><br>Account: {{ package.account }} | Memo: {{ package.memo }}
+                    <br><br>Send <strong>exactly {{ state.costs?.welcomePackagePriceInBanano }} BAN</strong> to
+                    <br><span class="banano-address"><span class="address-highlight">{{ package.payment.address.start }}</span>{{ package.payment.address.mid }}<span class="address-highlight">{{ package.payment.address.end }}</span></span> <i class="fa fa-copy clipboard" :data-clipboard-text="package.payment.address.full"></i>.
+                    <br><br>Account: {{ package.target.account }} | Memo: {{ package.target.memo }}
+                    <br><br>After you've sent payment, go check out your shiny new <a rel="nofollow" href="https://wallet.wax.io/dashboard" target="_blank"><strong>WAX Cloud Wallet</strong></a>!
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
@@ -467,20 +547,23 @@
                   <h3>New Wallet</h3>
                   <p>
                     Open a new <a rel="nofollow" href="https://all-access.wax.io/" target="_blank"><strong>WAX Cloud Wallet</strong></a>.
-                    <br>We will send 5 WAX to <strong>newuser.wax</strong> for you, and we will send you a starter NFT if we have one available.
-                    <br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
-                    <br><br>Welcome package price: <strong>{{ state.bananoWelcomePackagePrice }} BAN</strong> | NFT: <span v-if="state.welcomePackageNftsAvailable"><strong>Available</strong> <i class="fa fa-external-link external-link" data-url="https://wax.bloks.io/account/rentwaxp4ban#nfts"></i></span><span v-else><strong>Unavailable</strong></span>
+                    <br>We will send <strong>@Model.Constants.WelcomePackages.WaxSend WAX to @Model.Constants.WelcomePackages.WaxReceivingAccount</strong> for you.
+                    <br>We will also send you a <strong>starter NFT</strong>, and we will provide a <strong>free @Model.Constants.WelcomePackages.FreeRentalCpu CPU / @Model.Constants.WelcomePackages.FreeRentalNet NET rental</strong> to get you started.*
+                    <br><br>Enter the memo below <strong>exactly</strong> as provided to you by the WAX Cloud Wallet to begin the funding process.
+                    <br><br>Welcome package price: <strong><span v-if="state.costs?.welcomePackagePriceInBanano > 0">{{ state.costs?.welcomePackagePriceInBanano }}</span> BAN</strong>
+                    <br>NFT: <span v-if="state.welcomePackages?.freeNftAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" data-account="@Model.Constants.Accounts.WaxPrimaryAccount#nfts"></i></span><span v-else><strong>Delayed</strong></span> | Rental: <span v-if="state.welcomePackages?.freeRentalAvailable"><strong>Available</strong> <i class="fa fa-external-link wax-account-link" :data-account="state.wax?.workingAccount"></i></span><span v-else><strong>Delayed</strong></span>
+                    <br><br><small>* NFT and rental will arrive as long as supplies are available.  If you don't receive your NFT or rental right away, you will receive them once supplies replenish.</small>
                   </p>
                 </div>
               </div> <!-- /.col-md-12 -->
 
               <div class="col-md-12" v-if="!package">
-                <div class="contact-form" v-if="state.waxBalanceAvailable >= state.waxWelcomePackageMinimumAvailable">
+                <div class="contact-form" v-if="state.welcomePackages?.waxAvailable">
                   <div class="row">
-                    <form id="open-welcome-package" action="/api/WelcomePackage" method="post">
-                      
+                    <form id="open-welcome-package" action="@Model.Endpoints.CreateWelcomePackage" method="post">
+
                       <fieldset class="col-md-3">
-                        <input type="text" name="memo" id="memo" minlength="1" maxlength="20" pattern="@WaxRentals.Waxp.Config.Constants.Protocol.NewUserMemoRegex" placeholder="Memo" required>
+                        <input type="text" name="memo" id="memo" minlength="1" maxlength="30" pattern="@Model.Constants.WelcomePackages.WaxMemoRegex" placeholder="Memo" required>
                       </fieldset>
 
                       <fieldset class="col-md-12" v-if="loading">
@@ -500,10 +583,13 @@
               </div> <!-- /.col-md-12 -->
 
             </div> <!-- /.row -->
+
+            <div id="bottom-ad-container">
+                <div class="bottom-ad" data-banad-id="39AD5ACC"></div>
+            </div>
           </div> <!-- /.content -->
 
         </div> <!-- /#menu-container -->
-
       </div> <!-- /.col-md-8 -->
 
     </div> <!-- /.row -->
@@ -530,9 +616,11 @@
   <script src="js/vendor/signalr.min.js"></script>
   <script src="js/vendor/vue.min.js"></script>
   <script src="js/vendor/axios.min.js"></script>
+  <script src="js/vendor/clipboard.min.js"></script>
   <script src="js/main.js"></script>
   <script src="js/site.js"></script>
   <script src="js/formatting.js"></script>
+  <script src="/ads/js/banad.js"></script>
   <script type="text/javascript">
     jQuery(function ($) {
 
@@ -563,11 +651,21 @@
       //    VUE
       // ================
 
+      const alert = new Vue({
+        el: '#site-alert',
+        data() {
+          return {
+            message: null
+          }
+        }
+      });
+
       const rent = new Vue({
         el: '#menu-0',
         data() {
           return {
-            state: {}
+            state: {},
+            days: null
           }
         },
         methods: {
@@ -578,10 +676,10 @@
               data[1].value = data[1].value || 0;
               data[2].value = data[2].value || 0;
 
-              axios.post(form.action, $.param(data), { headers: { 'RequestVerificationToken': '@token' } })
+              axios.post(form.action, format.json(data))
                 .then(response => {
                   if (response.data.success) {
-                    const address = response.data.address;
+                    const address = response.data.value.payment.address;
                     storage.add(address);
                     $(form).trigger('reset');
                     load.details(address);
@@ -619,38 +717,41 @@
             return this.display ?? this.rentals;
           },
           pending: function () {
-            return (this.current.New ?? []).concat(this.current.Pending ?? []);
+            return this.current.filter(r => r.status === 'New');
           },
           active: function () {
-            return this.current.Processed ?? [];
+            return this.current.filter(r => r.status === 'Pending').concat(this.current.filter(r => r.status === 'Processed'));
           },
           expired: function () {
-            return this.current.Closed ?? [];
+            return this.current.filter(r => r.status === 'Closed');
           }
         },
         methods: {
           fetchRentals: function (addresses, save) {
-            axios.post('/api/myrentals', addresses, { headers: { 'RequestVerificationToken': '@token' } })
+            axios.post('@Model.Endpoints.RentalsByBananoAddresses', addresses)
               .then(response => {
                 if (save) {
-                  this.rentals = response.data;
+                  this.rentals = response.data.value;
                 } else {
-                  this.display = response.data;
+                  this.display = response.data.value;
                 }
               });
           },
           fetchWaxRentals: function (account) {
-            axios.get('/api/myrentals/' + account)
-              .then(response => this.display = response.data);
+            axios.get('@Model.Endpoints.RentalsByWaxAccount/' + account)
+              .then(response => this.display = response.data.value);
           },
           fetchRentalDetails: function (address) {
             this.detail = { loading: true };
-            axios.get('/api/rentaldetails/' + address)
+            axios.get('@Model.Endpoints.RentalByBananoAddress/' + address)
               .then(response => {
-                this.detail = response.data;
-                if (!response.data) {
-                  // Refresh, since we're obviously out of sync.
-                  this.fetchRentals(storage.addresses(), true);
+                const result = response.data;
+                if (result.success) {
+                  this.detail = format.withAddress(result.value);
+                  if (!result.value) {
+                    // Refresh, since we're obviously out of sync.
+                    this.fetchRentals(storage.addresses(), true);
+                  }
                 }
               });
           },
@@ -661,18 +762,18 @@
             return storage.addresses().includes(address);
           },
           remove: function (rental) {
-            storage.remove(rental.bananoAddress);
-            var arr = this.rentals[rental.status];
+            storage.remove(rental.payment.address);
+            var arr = this.rentals;
             arr.splice(arr.indexOf(rental), 1);
             this.$forceUpdate();
           },
           add: function (rental) {
-            storage.add(rental.bananoAddress);
-            this.rentals[rental.status].push(rental);
+            storage.add(rental.payment.address);
+            this.rentals.push(rental);
             this.$forceUpdate();
           },
           localize: function (datetime) {
-            return new Date(datetime).toLocaleString();
+            return datetime ? new Date(datetime + 'z').toLocaleString() : 'PENDING';
           }
         },
         mounted() {
@@ -680,21 +781,35 @@
         }
       });
 
-      const recents = new Vue({
+      const insights = new Vue({
         el: '#menu-4',
         data() {
           return {
             state: {},
-            recent: {
-              rentals: [],
-              purchases: [],
-              welcomePackages: []
-            }
+            insights: {
+              latestRentals: [],
+              latestPurchases: [],
+              latestWelcomePackages: [],
+              monthlyStats: []
+            },
+            hideOverflowStats: true,
+            minStatsToShow: 3
+          }
+        },
+        computed: {
+          showMoreStatsLink: function() {
+            return this.hideOverflowStats && this.insights.monthlyStats.length > this.minStatsToShow;
+          },
+          monthlyStatsView: function () {
+            return this.showMoreStatsLink ? this.insights.monthlyStats.slice(0, this.minStatsToShow) : this.insights.monthlyStats;
           }
         },
         methods: {
           days: function (days) {
             return days + (days === 1 ? ' day' : ' days');
+          },
+          month: function (year, month) {
+            return new Date(year, month - 1).toLocaleString(undefined, { month: "short" });
           }
         }
       });
@@ -712,14 +827,12 @@
           submit: function () {
             const form = document.getElementById('open-welcome-package');
             if (form.reportValidity()) {
-              const data = $(form).serializeArray();
-
               this.loading = true;
-              axios.post(form.action, $.param(data), { headers: { 'RequestVerificationToken': '@token' } })
-                .then(response => {
+              axios.post(form.action, $('#memo').val(), { headers: { 'content-type': 'application/json' } })
+              .then(response => {
                   this.loading = false;
                   if (response.data.success) {
-                    this.package = response.data.detail;
+                    this.package = format.withAddress(response.data.value);
                     $(form).trigger('reset');
                   } else {
                     $('#error-alert-text').text(response.data.error);
@@ -744,16 +857,20 @@
         return console.error(err.toString());
       });
 
-      _connection.on("AppStateChanged", state => {
+      _connection.on("StateChanged", state => {
         rent.state = state;
         sell.state = state;
         my.state = state;
-        recents.state = state;
+        insights.state = state;
         open.state = state;
       });
 
-      _connection.on("RecentsChanged", recent => {
-        recents.recent = recent;
+      _connection.on("InsightsChanged", info => {
+        insights.insights = info;
+      });
+
+      _connection.on("AlertChanged", message => {
+        alert.message = message;
       });
 
     });

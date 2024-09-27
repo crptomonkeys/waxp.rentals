@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
+#nullable disable
+
 namespace WaxRentals.Data.Entities
 {
 	[Table("Error", Schema = "logs")]
